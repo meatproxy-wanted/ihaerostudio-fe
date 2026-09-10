@@ -1,68 +1,84 @@
-import Image from "next/image";
+import Link from "next/link";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+const tokens = [
+  { label: "화면", className: "bg-background ring-1 ring-border" },
+  { label: "패널", className: "bg-card ring-1 ring-hairline" },
+  { label: "브랜드", className: "bg-primary" },
+  { label: "상승", className: "bg-positive" },
+  { label: "하락", className: "bg-negative" },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="flex min-h-svh flex-col bg-background">
+      <header className="sticky top-0 z-10 bg-background/85 backdrop-blur-md">
+        <div className="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4 sm:px-6">
+          <span className="flex size-7 items-center justify-center rounded-[8px] bg-primary text-sm font-black text-primary-foreground">
+            b
+          </span>
+          <span className="text-md font-bold tracking-tight">bandirang</span>
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
+            <Button
+              size="sm"
+              nativeButton={false}
+              render={<Link href="/showcase" />}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              쇼케이스
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                strokeWidth={2}
+                data-icon="inline-end"
+              />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-12 sm:px-6">
+        <div className="flex flex-col items-start gap-3">
+          <Badge>Toss Design Language</Badge>
+          <h1 className="text-3xl font-bold tracking-tight">반디랑</h1>
+          <p className="max-w-xl text-md text-muted-foreground">
+            토스증권의 디자인 언어를 적용한 shadcn/ui(base-vega) 컴포넌트 위에서
+            만듭니다. 회색 스크린 위의 패널, 헤어라인 링, 13·14px 세미볼드
+            타이포, 상승·하락 색상 체계, TDS 스프링 모션이 기준입니다.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>디자인 토큰</CardTitle>
+            <CardDescription>
+              모든 색은 CSS 변수로 정의되어 라이트·다크 테마를 함께 따릅니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              {tokens.map((token) => (
+                <div key={token.label} className="flex flex-col gap-1.5">
+                  <div className={`size-14 rounded-lg ${token.className}`} />
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {token.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
