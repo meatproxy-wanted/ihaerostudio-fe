@@ -49,6 +49,7 @@ import {
   type EditorStore,
 } from "./editor-store";
 import { EditorToolbar } from "./editor-toolbar";
+import { OutdatedDraftBanner } from "./outdated-banner";
 import { ToolPanel } from "./tool-panel";
 import { useEditorKeyboard } from "./use-editor-keyboard";
 
@@ -58,6 +59,8 @@ export function EditorScreen() {
   const source = useSource(project.id);
   const structure = useStructureQuery(project.id);
   const document = useDocumentQuery(project.id);
+  const [generation, setGeneration] = useState(0);
+  const fromReview = searchParams.get("from") === "review";
 
   const [initialSelection] = useState<EditorSelection>(() => {
     const sentence = searchParams.get("sentence");
@@ -66,6 +69,7 @@ export function EditorScreen() {
     if (card) return { type: "card", id: card };
     return null;
   });
+  const [initialTool] = useState(() => searchParams.get("tool"));
 
   if (source.isPending || structure.isPending || document.isPending) {
     return <PanesSkeleton panes={3} />;
@@ -87,44 +91,61 @@ export function EditorScreen() {
 
   return (
     <EditorWorkspace
-      key={project.id}
+      key={`${project.id}:${generation}`}
       project={project}
+      fromReview={fromReview}
+      onRegenerated={() => setGeneration((value) => value + 1)}
       source={source.data}
       structure={structure.data}
       initialDocument={document.data}
-      initialSelection={initialSelection}
+      initialSelection={generation === 0 ? initialSelection : null}
+      initialTool={generation === 0 ? initialTool : null}
     />
   );
 }
 
 function useSelectionInUrl(store: EditorStore) {
   const selection = useStore(store, (state) => state.selection);
+  const tool = useStore(store, (state) => state.tool);
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.delete("sentence");
     url.searchParams.delete("card");
+    url.searchParams.delete("tool");
     if (selection) url.searchParams.set(selection.type, selection.id);
+    if (selection && tool) url.searchParams.set("tool", tool);
     window.history.replaceState(null, "", url);
-  }, [selection]);
+  }, [selection, tool]);
 }
+
+const TOOLS = ["simplify", "split", "term", "image"] as const;
 
 function EditorWorkspace({
   project,
+  fromReview,
+  onRegenerated,
   source,
   structure,
   initialDocument,
   initialSelection,
+  initialTool,
 }: {
   project: Project;
+  fromReview: boolean;
+  onRegenerated: () => void;
   source: SourceDocument;
   structure: CaseStructure;
   initialDocument: EasyDocument;
   initialSelection: EditorSelection;
+  initialTool: string | null;
 }) {
   const queryClient = useQueryClient();
-  const [store] = useState(() =>
-    createEditorStore(initialDocument, initialSelection),
-  );
+  const [store] = useState(() => {
+    const created = createEditorStore(initialDocument, initialSelection);
+    const tool = TOOLS.find((key) => key === initialTool);
+    if (initialSelection && tool) created.getState().openTool(tool);
+    return created;
+  });
   const [sourceCollapsed, setSourceCollapsed] = useState(false);
   const sourcePanel = usePanelRef();
   const layout = useDefaultLayout({
@@ -159,6 +180,16 @@ function EditorWorkspace({
         <SourceTextProvider source={source}>
           <ShellActions>
             <EditorToolbar />
+            {fromReview && (
+              <Button
+                size="sm"
+                variant="secondary"
+                nativeButton={false}
+                render={<Link href={routes.step(project.id, "review")} />}
+              >
+                검토로 돌아가기
+              </Button>
+            )}
             <SaveIndicator
               status={autosave.saveStatus}
               dirty={autosave.dirty}
@@ -178,50 +209,61 @@ function EditorWorkspace({
             </Button>
           </ShellActions>
 
-          <ResizablePanelGroup
-            orientation="horizontal"
-            defaultLayout={layout.defaultLayout}
-            onLayoutChanged={layout.onLayoutChanged}
-          >
-            <ResizablePanel
-              id="source"
-              panelRef={sourcePanel}
-              defaultSize="30"
-              minSize="18"
-              collapsible
-              collapsedSize="0"
-              onResize={(size) => setSourceCollapsed(size.asPercentage === 0)}
-            >
-              <EditorSource source={source} />
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel id="canvas" defaultSize="44" minSize="30">
-              <div className="relative h-full">
-                <Button
-                  variant="secondary"
-                  size="xs"
-                  className="absolute top-3 left-3 z-10"
-                  onClick={() =>
-                    sourceCollapsed
-                      ? sourcePanel.current?.expand()
-                      : sourcePanel.current?.collapse()
+          <div className="flex h-full flex-col">
+            <OutdatedDraftBanner
+              project={project}
+              flush={autosave.flush}
+              onRegenerated={onRegenerated}
+            />
+            <div className="min-h-0 flex-1">
+              <ResizablePanelGroup
+                orientation="horizontal"
+                defaultLayout={layout.defaultLayout}
+                onLayoutChanged={layout.onLayoutChanged}
+              >
+                <ResizablePanel
+                  id="source"
+                  panelRef={sourcePanel}
+                  defaultSize="30"
+                  minSize="18"
+                  collapsible
+                  collapsedSize="0"
+                  onResize={(size) =>
+                    setSourceCollapsed(size.asPercentage === 0)
                   }
                 >
-                  <HugeiconsIcon
-                    icon={SidebarLeftIcon}
-                    strokeWidth={2}
-                    data-icon="inline-start"
-                  />
-                  {sourceCollapsed ? "원문 펼치기" : "원문 접기"}
-                </Button>
-                <EditorCanvas context={context} />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel id="tools" defaultSize="26" minSize={320}>
-              <ToolPanel />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+                  <EditorSource source={source} />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel id="canvas" defaultSize="44" minSize="30">
+                  <div className="relative h-full">
+                    <Button
+                      variant="secondary"
+                      size="xs"
+                      className="absolute top-3 left-3 z-10"
+                      onClick={() =>
+                        sourceCollapsed
+                          ? sourcePanel.current?.expand()
+                          : sourcePanel.current?.collapse()
+                      }
+                    >
+                      <HugeiconsIcon
+                        icon={SidebarLeftIcon}
+                        strokeWidth={2}
+                        data-icon="inline-start"
+                      />
+                      {sourceCollapsed ? "원문 펼치기" : "원문 접기"}
+                    </Button>
+                    <EditorCanvas context={context} />
+                  </div>
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel id="tools" defaultSize="26" minSize={320}>
+                  <ToolPanel />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+          </div>
         </SourceTextProvider>
       </EditorReaderContext>
     </EditorStoreContext>
