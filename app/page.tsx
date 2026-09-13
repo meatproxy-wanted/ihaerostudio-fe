@@ -51,7 +51,7 @@ export default function Home() {
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-12 sm:px-6">
         <div className="flex flex-col items-start gap-3">
           <Badge>Toss Design Language</Badge>
-          <h1 className="text-3xl font-bold tracking-tight">반디랑</h1>
+          <h1 className="text-3xl font-bold tracking-tight">이해로스튜디오</h1>
           <p className="max-w-xl text-md text-muted-foreground">
             토스증권의 디자인 언어를 적용한 shadcn/ui(base-vega) 컴포넌트 위에서
             만듭니다. 회색 스크린 위의 패널, 헤어라인 링, 13·14px 세미볼드

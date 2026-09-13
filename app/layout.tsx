@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "ihaerostudio",
-  description: "반디랑",
+  description: "이해로스튜디오",
 };
 
 /*
