@@ -86,3 +86,11 @@ export function useDocumentQuery(projectId: string, enabled = true) {
     enabled,
   });
 }
+
+export function useReviewRun(projectId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.review(projectId),
+    queryFn: () => api.review.latest(projectId),
+    enabled,
+  });
+}

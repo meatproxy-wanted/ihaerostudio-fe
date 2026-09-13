@@ -15,7 +15,13 @@ import {
   toReaderContent,
   type ReaderContext,
 } from "../domain/reader-content";
-import type { ReviewRun } from "../domain/review";
+import {
+  checklistFor,
+  type ReviewCompletion,
+  type ReviewItem,
+  type ReviewRun,
+} from "../domain/review";
+import { isDraftOutdated } from "../domain/steps";
 import type { SourceDocument } from "../domain/source";
 import type { CaseStructure } from "../domain/structure";
 import { isSameStructureContent } from "../domain/structure-ops";
@@ -37,6 +43,7 @@ import {
   personalizeDraft,
   personalizeStructure,
 } from "./rules/personalize";
+import { runMockReview } from "./rules/review";
 import {
   around,
   clone,
@@ -57,6 +64,8 @@ const keys = {
   structure: (id: string) => `structure:${id}`,
   document: (id: string) => `document:${id}`,
   review: (id: string) => `review:${id}`,
+  dismissals: (id: string) => `dismissals:${id}`,
+  completion: (id: string) => `completion:${id}`,
   publications: (id: string) => `publications:${id}`,
 };
 
@@ -148,8 +157,52 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   });
 }
 
-function notReady(): never {
-  throw new ApiError("failed", "아직 준비 중인 기능이에요.");
+type Dismissals = Record<string, NonNullable<ReviewItem["dismissal"]>>;
+
+function openRequired(items: ReviewItem[]) {
+  return items.filter((item) => item.level === "required" && !item.dismissal)
+    .length;
+}
+
+async function withDismissals(projectId: string, run: ReviewRun) {
+  const dismissals =
+    (await (await storage()).get<Dismissals>(keys.dismissals(projectId))) ?? {};
+  return {
+    ...run,
+    items: run.items.map((item) => ({
+      ...item,
+      dismissal: dismissals[item.key] ?? null,
+    })),
+  };
+}
+
+async function saveRunState(projectId: string, run: ReviewRun) {
+  await (await storage()).set(keys.review(projectId), run);
+  const project = await updateProject(projectId, (current) => ({
+    ...current,
+    review: {
+      ...current.review,
+      checkedContentRevision: run.contentRevision,
+      openRequiredCount: openRequired(run.items),
+    },
+  }));
+  return { run, project };
+}
+
+async function setDismissal(
+  projectId: string,
+  key: string,
+  dismissal: ReviewItem["dismissal"],
+) {
+  const store = await storage();
+  const dismissals =
+    (await store.get<Dismissals>(keys.dismissals(projectId))) ?? {};
+  if (dismissal) dismissals[key] = dismissal;
+  else delete dismissals[key];
+  await store.set(keys.dismissals(projectId), dismissals);
+  const run = await store.get<ReviewRun>(keys.review(projectId));
+  if (!run) notFound("점검 결과");
+  return saveRunState(projectId, await withDismissals(projectId, run));
 }
 
 export function createMockApi(): ApiClient {
@@ -291,6 +344,8 @@ export function createMockApi(): ApiClient {
           store.del(keys.structure(projectId)),
           store.del(keys.document(projectId)),
           store.del(keys.review(projectId)),
+          store.del(keys.dismissals(projectId)),
+          store.del(keys.completion(projectId)),
           store.del(keys.publications(projectId)),
         ]);
         await store.set(
@@ -497,15 +552,101 @@ export function createMockApi(): ApiClient {
     review: {
       async latest(projectId) {
         await delay(around(250));
-        return (
-          (await (await storage()).get<ReviewRun>(keys.review(projectId))) ??
-          null
-        );
+        const run = await (
+          await storage()
+        ).get<ReviewRun>(keys.review(projectId));
+        return run ? withDismissals(projectId, run) : null;
       },
-      run: notReady,
-      dismiss: notReady,
-      restore: notReady,
-      complete: notReady,
+
+      async run(projectId, options) {
+        await delay(around(2000), options?.signal);
+        failIfRequested(
+          "check",
+          "점검하지 못했어요. 잠시 뒤 다시 시도해 주세요.",
+        );
+        const project = await requireProject(projectId);
+        const document = await requireRecord<EasyDocument>(
+          keys.document(projectId),
+          "초안",
+        );
+        const structure = await requireRecord<CaseStructure>(
+          keys.structure(projectId),
+          "사건 구조",
+        );
+        const run: ReviewRun = {
+          projectId,
+          contentRevision: document.contentRevision,
+          ranAt: now(),
+          items: runMockReview({
+            document,
+            structure,
+            settings: project.settings,
+            draftOutdated: isDraftOutdated(project),
+          }),
+        };
+        return saveRunState(projectId, await withDismissals(projectId, run));
+      },
+
+      async dismiss(projectId, input) {
+        await delay(around(250));
+        return setDismissal(projectId, input.key, {
+          memo: input.memo.trim(),
+          at: now(),
+        });
+      },
+
+      async restore(projectId, input) {
+        await delay(around(250));
+        return setDismissal(projectId, input.key, null);
+      },
+
+      async complete(projectId, input) {
+        await delay(around(400));
+        const store = await storage();
+        const project = await requireProject(projectId);
+        const document = await requireRecord<EasyDocument>(
+          keys.document(projectId),
+          "초안",
+        );
+        const stored = await store.get<ReviewRun>(keys.review(projectId));
+        if (!stored || stored.contentRevision !== document.contentRevision) {
+          throw new ApiError(
+            "invalid-input",
+            "문서가 바뀌었어요. 다시 점검한 뒤에 검토를 마쳐 주세요.",
+          );
+        }
+        const run = await withDismissals(projectId, stored);
+        if (openRequired(run.items) > 0) {
+          throw new ApiError(
+            "invalid-input",
+            "확인이 필요한 항목이 남아 있어요.",
+          );
+        }
+        const missing = checklistFor(project.settings.illustrations).filter(
+          (key) => !input.checklist.includes(key),
+        );
+        if (missing.length > 0) {
+          throw new ApiError(
+            "invalid-input",
+            "최종 확인 체크리스트를 모두 체크해 주세요.",
+          );
+        }
+        const completion: ReviewCompletion = {
+          contentRevision: document.contentRevision,
+          completedAt: now(),
+          checklist: input.checklist,
+        };
+        await store.set(keys.completion(projectId), completion);
+        const updated = await updateProject(projectId, (current) => ({
+          ...current,
+          review: {
+            ...current.review,
+            completedContentRevision: completion.contentRevision,
+            completedAt: completion.completedAt,
+          },
+        }));
+        return { completion, project: updated };
+      },
     },
 
     publications: {
