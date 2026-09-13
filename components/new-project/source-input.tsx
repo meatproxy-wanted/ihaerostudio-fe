@@ -161,7 +161,7 @@ function PdfDropzone({
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       className={cn(
-        "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-input bg-card px-6 py-12 text-center transition-colors hover:border-primary/60 has-[:focus-visible]:border-primary",
+        "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-input bg-card px-6 py-12 text-center transition-colors hover:border-primary/60 has-focus-visible:border-primary",
         dragging && "border-primary bg-primary/5",
         invalid && "border-destructive",
       )}

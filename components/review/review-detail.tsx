@@ -152,14 +152,14 @@ export function ReviewDetail({
                   />
                 )}
                 {located ? (
-                  <p className="text-lg leading-relaxed [word-break:keep-all]">
+                  <p className="text-lg leading-relaxed break-keep">
                     {located.sentence.text}
                   </p>
                 ) : (
                   card?.sentences.map((sentence) => (
                     <p
                       key={sentence.id}
-                      className="text-md leading-relaxed [word-break:keep-all]"
+                      className="text-md leading-relaxed break-keep"
                     >
                       {sentence.text}
                     </p>
@@ -207,7 +207,7 @@ export function ReviewDetail({
                 width={160}
                 height={120}
                 unoptimized
-                className="aspect-[4/3] w-32 shrink-0 rounded-lg object-cover ring-1 ring-hairline"
+                className="aspect-4/3 w-32 shrink-0 rounded-lg object-cover ring-1 ring-hairline"
               />
               <div className="flex flex-col gap-1 text-2sm">
                 <p>

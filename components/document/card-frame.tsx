@@ -34,7 +34,7 @@ export function CardFrame({
         width={320}
         height={240}
         unoptimized
-        className="aspect-[4/3] w-full rounded-xl object-cover"
+        className="aspect-4/3 w-full rounded-xl object-cover"
       />
     ) : null);
 

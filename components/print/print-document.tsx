@@ -37,10 +37,10 @@ function CoverBlock({ content }: { content: ReaderContent }) {
   return (
     <div className="flex flex-col gap-[7mm] pt-[20mm]">
       <p className="text-[12pt] font-bold text-primary-text">쉬운 설명자료</p>
-      <h1 className="text-[28pt] leading-[1.25] font-bold tracking-tight [word-break:keep-all]">
+      <h1 className="text-[28pt] leading-tight font-bold tracking-tight break-keep">
         {content.title}
       </h1>
-      <p className="text-[15pt] leading-[1.5] [word-break:keep-all] text-muted-foreground">
+      <p className="text-[15pt] leading-normal break-keep text-muted-foreground">
         {content.subtitle}
       </p>
       <dl className="grid grid-cols-[auto_1fr] gap-x-[6mm] gap-y-[2mm] rounded-[4mm] border-[0.3mm] border-border p-[5mm] text-[12pt]">
@@ -53,7 +53,7 @@ function CoverBlock({ content }: { content: ReaderContent }) {
           {formatKoreanDate(content.overview.decisionDate)}
         </dd>
       </dl>
-      <p className="rounded-[4mm] border-[0.5mm] border-info/40 bg-info/5 p-[5mm] text-[13pt] leading-[1.6] font-medium [word-break:keep-all]">
+      <p className="rounded-[4mm] border-[0.5mm] border-info/40 bg-info/5 p-[5mm] text-[13pt] leading-[1.6] font-medium break-keep">
         {DISCLAIMER.long[content.tone]}
       </p>
     </div>
@@ -71,7 +71,7 @@ function PrintCard({ card }: { card: ReaderCard }) {
           height={240}
           unoptimized
           loading="eager"
-          className="aspect-[4/3] w-[35%] shrink-0 self-start rounded-[3mm] object-cover"
+          className="aspect-4/3 w-[35%] shrink-0 self-start rounded-[3mm] object-cover"
         />
       )}
       <div className="flex min-w-0 flex-1 flex-col gap-[3mm]">
@@ -84,7 +84,7 @@ function PrintCard({ card }: { card: ReaderCard }) {
           {card.sentences.map((sentence) => (
             <li
               key={sentence.id}
-              className="text-[16pt] leading-[1.6] [word-break:keep-all]"
+              className="text-[16pt] leading-[1.6] break-keep"
             >
               {sentence.text}
             </li>
@@ -127,7 +127,7 @@ function buildBlocks(content: ReaderContent): Block[] {
           id: `term-${term.id}`,
           height: 0,
           node: (
-            <dl className="grid grid-cols-[35mm_1fr] gap-[5mm] border-b-[0.3mm] border-border pb-[3mm] text-[14pt] leading-[1.6] [word-break:keep-all]">
+            <dl className="grid grid-cols-[35mm_1fr] gap-[5mm] border-b-[0.3mm] border-border pb-[3mm] text-[14pt] leading-[1.6] break-keep">
               <dt className="font-bold">{term.term}</dt>
               <dd>{term.explanation}</dd>
             </dl>

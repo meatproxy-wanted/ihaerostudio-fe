@@ -67,7 +67,7 @@ export function SplitTool({ sentenceId }: { sentenceId: string }) {
               <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
                 지금 · 1문장
               </p>
-              <p className="text-md leading-relaxed [word-break:keep-all] text-muted-foreground line-through decoration-destructive/60">
+              <p className="text-md leading-relaxed break-keep text-muted-foreground line-through decoration-destructive/60">
                 {text}
               </p>
             </div>
@@ -97,7 +97,7 @@ export function SplitTool({ sentenceId }: { sentenceId: string }) {
                         className="min-h-0 text-md"
                       />
                     ) : (
-                      <p className="text-md leading-relaxed font-medium [word-break:keep-all]">
+                      <p className="text-md leading-relaxed font-medium break-keep">
                         {sentence}
                       </p>
                     )}

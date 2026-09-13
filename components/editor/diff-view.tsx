@@ -12,7 +12,7 @@ export function DiffView({ before, after }: { before: string; after: string }) {
         <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
           지금
         </p>
-        <p className="text-md leading-relaxed [word-break:keep-all]">
+        <p className="text-md leading-relaxed break-keep">
           {parts.map((part, index) =>
             part.type === "added" ? null : (
               <span
@@ -33,7 +33,7 @@ export function DiffView({ before, after }: { before: string; after: string }) {
         <p className="mb-0.5 text-[11px] font-semibold text-muted-foreground">
           수정안
         </p>
-        <p className="text-md leading-relaxed [word-break:keep-all]">
+        <p className="text-md leading-relaxed break-keep">
           {parts.map((part, index) =>
             part.type === "removed" ? null : (
               <span

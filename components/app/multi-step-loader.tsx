@@ -112,7 +112,7 @@ export function MultiStepLoader({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/60 backdrop-blur-2xl"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-background/60 backdrop-blur-2xl"
         >
           <div className="relative h-80 w-full max-w-md px-6">
             <LoaderCore
@@ -123,7 +123,7 @@ export function MultiStepLoader({
           </div>
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-full bg-background [mask-image:radial-gradient(900px_at_center,transparent_30%,white)]"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-full bg-background mask-[radial-gradient(900px_at_center,transparent_30%,white)]"
           />
           <div className="relative z-30 mt-4 flex flex-col items-center gap-4 px-6 text-center">
             <p className="text-lg font-bold tracking-tight">{title}</p>

@@ -45,13 +45,13 @@ const tabsListVariants = cva(
       {
         variant: "default",
         size: "default",
-        class: "rounded-[10px] p-[3px] group-data-horizontal/tabs:h-8",
+        class: "rounded-[10px] p-0.75 group-data-horizontal/tabs:h-8",
       },
       {
         variant: "default",
         size: "lg",
         class:
-          "rounded-[14px] px-[5px] py-1 [--tabs-indicator-radius:10px] group-data-horizontal/tabs:h-10",
+          "rounded-[14px] px-1.25 py-1 [--tabs-indicator-radius:10px] group-data-horizontal/tabs:h-10",
       },
       {
         variant: "line",
@@ -87,7 +87,7 @@ const tabsIndicatorVariants = cva(
         default:
           "top-(--active-tab-top) left-(--active-tab-left) h-(--active-tab-height) w-(--active-tab-width) rounded-(--tabs-indicator-radius) bg-segment shadow-[0_1px_2px_rgba(0,0,0,0.09),0_0_0_0.5px_var(--hairline)]",
         pill: "top-(--active-tab-top) left-(--active-tab-left) h-(--active-tab-height) w-(--active-tab-width) rounded-full bg-secondary shadow-[inset_0_0_0_0.5px_var(--hairline)]",
-        line: "rounded-full bg-foreground group-data-horizontal/tabs:bottom-0 group-data-horizontal/tabs:left-[calc(var(--active-tab-left)_+_8px)] group-data-horizontal/tabs:h-0.5 group-data-horizontal/tabs:w-[calc(var(--active-tab-width)_-_16px)] group-data-vertical/tabs:top-[calc(var(--active-tab-top)_+_8px)] group-data-vertical/tabs:right-0 group-data-vertical/tabs:h-[calc(var(--active-tab-height)_-_16px)] group-data-vertical/tabs:w-0.5",
+        line: "rounded-full bg-foreground group-data-horizontal/tabs:bottom-0 group-data-horizontal/tabs:left-[calc(var(--active-tab-left)+8px)] group-data-horizontal/tabs:h-0.5 group-data-horizontal/tabs:w-[calc(var(--active-tab-width)-16px)] group-data-vertical/tabs:top-[calc(var(--active-tab-top)+8px)] group-data-vertical/tabs:right-0 group-data-vertical/tabs:h-[calc(var(--active-tab-height)-16px)] group-data-vertical/tabs:w-0.5",
       },
     },
     defaultVariants: {

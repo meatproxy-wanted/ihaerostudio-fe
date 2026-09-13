@@ -239,10 +239,10 @@ function PageBody({
         <p className="text-[0.75em] font-bold text-primary-text">
           쉬운 설명자료
         </p>
-        <h1 className="text-[1.75em] leading-tight font-bold tracking-tight [word-break:keep-all]">
+        <h1 className="text-[1.75em] leading-tight font-bold tracking-tight break-keep">
           {content.title}
         </h1>
-        <p className="text-[1em] leading-relaxed [word-break:keep-all] text-muted-foreground">
+        <p className="text-[1em] leading-relaxed break-keep text-muted-foreground">
           {content.subtitle}
         </p>
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-2xl bg-card p-4 text-[0.8em] ring-1 ring-hairline">
@@ -294,7 +294,7 @@ function PageBody({
       <SectionHeading number={page.number} className="text-[1em]">
         <h2
           id={`reader-section-${page.sectionIndex}`}
-          className="text-[1.45em] leading-tight font-bold tracking-tight [word-break:keep-all]"
+          className="text-[1.45em] leading-tight font-bold tracking-tight break-keep"
         >
           {section.title}
         </h2>
@@ -320,9 +320,7 @@ function SectionBody({
         {content.glossary.map((term) => (
           <div key={term.id} className="flex flex-col gap-1 px-5 py-4">
             <dt className="text-[1.05em] font-bold">{term.term}</dt>
-            <dd className="leading-[1.7] [word-break:keep-all]">
-              {term.explanation}
-            </dd>
+            <dd className="leading-[1.7] break-keep">{term.explanation}</dd>
           </div>
         ))}
       </dl>
@@ -348,10 +346,7 @@ function SectionBody({
         >
           <ul className="flex flex-col gap-[0.45em]">
             {card.sentences.map((sentence) => (
-              <li
-                key={sentence.id}
-                className="leading-[1.7] [word-break:keep-all]"
-              >
+              <li key={sentence.id} className="leading-[1.7] break-keep">
                 <TermText
                   text={sentence.text}
                   terms={glossary}

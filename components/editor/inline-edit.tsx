@@ -107,7 +107,7 @@ export function SentenceEditor({
       onChange={(event) => setDraft(event.target.value.replace(/\n/g, " "))}
       onKeyDown={handleKeyDown}
       onBlur={() => onCommit(draft.trim())}
-      className="-mx-2 field-sizing-content w-[calc(100%+1rem)] resize-none rounded-lg bg-background px-2 py-1 leading-relaxed [word-break:keep-all] ring-2 ring-primary outline-none"
+      className="-mx-2 field-sizing-content w-[calc(100%+1rem)] resize-none rounded-lg bg-background px-2 py-1 leading-relaxed break-keep ring-2 ring-primary outline-none"
     />
   );
 }

@@ -250,7 +250,7 @@ export function SourceViewer({
         }}
         className="relative min-h-0 flex-1 overflow-y-auto px-5 py-5"
       >
-        <article className="mx-auto flex max-w-[40em] flex-col gap-2.5 text-md leading-7 [word-break:keep-all]">
+        <article className="mx-auto flex max-w-[40em] flex-col gap-2.5 text-md leading-7 break-keep">
           {source.paragraphs.map((paragraph, index) => (
             <Paragraph
               showPage={

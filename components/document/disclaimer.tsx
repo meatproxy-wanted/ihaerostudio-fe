@@ -38,7 +38,7 @@ export function DisclaimerBox({
         strokeWidth={2}
         className="mt-0.5 size-[1.25em] shrink-0"
       />
-      <p className="leading-relaxed font-medium [word-break:keep-all] text-foreground">
+      <p className="leading-relaxed font-medium break-keep text-foreground">
         {DISCLAIMER.long[tone]}
       </p>
     </aside>

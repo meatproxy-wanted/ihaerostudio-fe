@@ -41,7 +41,7 @@ function Thumb({ src, alt }: { src: string; alt: string }) {
       width={160}
       height={120}
       unoptimized
-      className="aspect-[4/3] w-full rounded-lg object-cover ring-1 ring-hairline"
+      className="aspect-4/3 w-full rounded-lg object-cover ring-1 ring-hairline"
     />
   );
 }
@@ -174,7 +174,7 @@ export function ImageTool({
         {image ? (
           <Thumb src={image.src} alt={image.alt} />
         ) : (
-          <span className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
+          <span className="flex aspect-4/3 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
             <HugeiconsIcon icon={ImageNotFound01Icon} strokeWidth={2} />
           </span>
         )}
@@ -242,7 +242,7 @@ export function ImageTool({
               {image ? (
                 <Thumb src={image.src} alt={image.alt} />
               ) : (
-                <span className="aspect-[4/3] rounded-lg border border-dashed border-border" />
+                <span className="aspect-4/3 rounded-lg border border-dashed border-border" />
               )}
             </div>
             <div className="flex flex-col gap-1">

@@ -203,7 +203,7 @@ function SentencePanel({ id }: { id: string }) {
         <p className="text-2sm font-semibold text-muted-foreground">
           선택한 문장 · {CARD_ROLE_LABELS[card.role]}
         </p>
-        <p className="text-md leading-relaxed [word-break:keep-all]">
+        <p className="text-md leading-relaxed break-keep">
           {sentence.text || "(빈 문장)"}
         </p>
         <Button

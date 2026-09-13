@@ -117,7 +117,7 @@ function ChoiceGroup<T extends string>({
         {choices.map((choice) => (
           <label
             key={choice.value}
-            className="flex cursor-pointer flex-col gap-3 rounded-xl bg-card p-3.5 ring-1 ring-hairline transition-shadow hover:ring-border has-data-checked:ring-2 has-data-checked:ring-primary has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/40"
+            className="flex cursor-pointer flex-col gap-3 rounded-xl bg-card p-3.5 ring-1 ring-hairline transition-shadow hover:ring-border has-focus-visible:ring-3 has-focus-visible:ring-ring/40 has-data-checked:ring-2 has-data-checked:ring-primary"
           >
             <span className="flex items-start gap-2.5">
               <RadioGroupItem value={choice.value} className="mt-0.5" />
@@ -128,7 +128,7 @@ function ChoiceGroup<T extends string>({
                 </span>
               </span>
             </span>
-            <span className="paper block rounded-lg px-3 py-2.5 text-2sm leading-relaxed [word-break:keep-all] ring-1 ring-hairline">
+            <span className="paper block rounded-lg px-3 py-2.5 text-2sm leading-relaxed break-keep ring-1 ring-hairline">
               {choice.preview}
             </span>
           </label>

@@ -110,7 +110,7 @@ export function EditorCanvas({
         {leading}
         <nav
           aria-label="구획 목차"
-          className="min-w-0 flex-1 [scrollbar-width:none] overflow-x-auto"
+          className="min-w-0 flex-1 scrollbar-none overflow-x-auto"
         >
           <ol className="flex items-center gap-0.5">
             {content.sections.map((section, index) => (
@@ -130,7 +130,7 @@ export function EditorCanvas({
           </ol>
         </nav>
       </div>
-      <div className="mx-auto flex max-w-[44rem] flex-col gap-10 px-8 pt-8 pb-24 text-lg">
+      <div className="mx-auto flex max-w-176 flex-col gap-10 px-8 pt-8 pb-24 text-lg">
         <p className="flex items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-2sm text-muted-foreground">
           <span className="font-semibold text-foreground">
             자동으로 들어가는 안내
@@ -145,7 +145,7 @@ export function EditorCanvas({
             onCommit={(title) =>
               store.getState().apply((value) => updateTitles(value, { title }))
             }
-            className="text-3xl leading-tight font-bold tracking-tight [word-break:keep-all]"
+            className="text-3xl leading-tight font-bold tracking-tight break-keep"
             inputClassName="text-3xl font-bold"
           />
           <InlineText
@@ -238,10 +238,10 @@ function CanvasCard({
           width={320}
           height={240}
           unoptimized
-          className="aspect-[4/3] w-full rounded-xl object-cover"
+          className="aspect-4/3 w-full rounded-xl object-cover"
         />
       ) : (
-        <span className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border text-2sm text-muted-foreground">
+        <span className="flex aspect-4/3 w-full flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border text-2sm text-muted-foreground">
           <HugeiconsIcon icon={Image01Icon} strokeWidth={2} size={22} />
           그림 없음
         </span>
@@ -261,7 +261,7 @@ function CanvasCard({
         type="button"
         onClick={selectCard}
         aria-label="카드 선택"
-        className="absolute top-3 right-3 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 group-hover/card:opacity-100 hover:bg-accent focus-visible:opacity-100 data-[selected]:opacity-100"
+        className="absolute top-3 right-3 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 group-hover/card:opacity-100 hover:bg-accent focus-visible:opacity-100 data-selected:opacity-100"
         data-selected={selected || undefined}
       >
         <HugeiconsIcon icon={MoreHorizontalIcon} strokeWidth={2} size={18} />
@@ -327,7 +327,7 @@ function CanvasSentence({ id }: { id: string }) {
         onClick={() => store.getState().select({ type: "sentence", id })}
         onDoubleClick={() => store.getState().startEditing(id)}
         className={cn(
-          "relative -mx-2 cursor-pointer rounded-lg px-2 py-1 leading-relaxed [word-break:keep-all] outline-none hover:bg-foreground/5 focus-visible:ring-3 focus-visible:ring-ring/40",
+          "relative -mx-2 cursor-pointer rounded-lg px-2 py-1 leading-relaxed break-keep outline-none hover:bg-foreground/5 focus-visible:ring-3 focus-visible:ring-ring/40",
           selected &&
             "bg-primary/15 ring-2 ring-primary/70 hover:bg-primary/15",
           suggesting &&

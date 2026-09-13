@@ -101,7 +101,7 @@ export function ButtonShowcase() {
           <Button variant="secondary" size="lg" className="flex-1">
             취소
           </Button>
-          <Button size="lg" className="flex-[2]">
+          <Button size="lg" className="flex-2">
             주문 확정하기
           </Button>
         </div>
