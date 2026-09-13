@@ -1,0 +1,267 @@
+/*
+ * MOCK ONLY — delete with the rest of lib/mock when the real server lands.
+ *
+ * A fictional judgment used for every demo analysis. The court, case number,
+ * and people are invented; the first paragraph says so on screen.
+ */
+import type { SourceParagraph } from "../../domain/source";
+
+type Row = Omit<SourceParagraph, "id">;
+
+const rows: Row[] = [
+  {
+    block: "header",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "[데모용 가상 판결문] 이 문서는 시연을 위해 만든 가상의 판결문이며 실제 사건과 관계가 없습니다.",
+  },
+  {
+    block: "header",
+    kind: "heading",
+    level: 1,
+    page: 1,
+    text: "가온지방법원 판결",
+  },
+  {
+    block: "header",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "사건 2024가단10234 임대차보증금 반환",
+  },
+  {
+    block: "header",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "원고 A, 가온시 새벽로 45",
+  },
+  {
+    block: "header",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "피고 B, 가온시 한빛로 12",
+  },
+  {
+    block: "header",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "변론종결 2024. 5. 22.",
+  },
+  {
+    block: "header",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "판결선고 2024. 6. 12.",
+  },
+  { block: "order", kind: "heading", level: 1, page: 1, text: "주문" },
+  {
+    block: "order",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "1. 피고는 원고에게 98,500,000원 및 이에 대하여 2024. 3. 1.부터 2024. 6. 12.까지는 연 5%의, 그 다음 날부터 다 갚는 날까지는 연 12%의 각 비율로 계산한 돈을 지급하라.",
+  },
+  {
+    block: "order",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "2. 원고의 나머지 청구를 기각한다.",
+  },
+  {
+    block: "order",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "3. 소송비용 중 10분의 1은 원고가, 나머지는 피고가 각 부담한다.",
+  },
+  {
+    block: "order",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "4. 제1항은 가집행할 수 있다.",
+  },
+  {
+    block: "claim-purpose",
+    kind: "heading",
+    level: 1,
+    page: 1,
+    text: "청구취지",
+  },
+  {
+    block: "claim-purpose",
+    kind: "body",
+    level: null,
+    page: 1,
+    text: "피고는 원고에게 100,000,000원 및 이에 대하여 2024. 3. 1.부터 이 사건 소장 부본 송달일까지는 연 5%의, 그 다음 날부터 다 갚는 날까지는 연 12%의 각 비율로 계산한 돈을 지급하라.",
+  },
+  { block: "reasons", kind: "heading", level: 1, page: 2, text: "이유" },
+  { block: "reasons", kind: "heading", level: 2, page: 2, text: "1. 기초사실" },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "가. 원고는 2022. 3. 1. 피고와 사이에 피고 소유의 가온시 한빛로 12, 301호(이하 '이 사건 주택'이라 한다)에 관하여 임대차보증금 100,000,000원, 월 차임 500,000원, 임대차기간 2022. 3. 1.부터 2024. 2. 29.까지로 정한 임대차계약(이하 '이 사건 임대차계약'이라 한다)을 체결하였다.",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "나. 원고는 같은 날 피고에게 임대차보증금 100,000,000원을 지급하고 이 사건 주택을 인도받아 거주하였다.",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "다. 원고는 2023. 12. 20. 피고에게 이 사건 임대차계약을 갱신하지 않겠다는 뜻을 문자메시지로 통지하였다.",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "라. 원고는 2024. 2. 29. 이 사건 주택에서 퇴거하면서 피고에게 현관 출입문 비밀번호를 알려 주는 방법으로 이 사건 주택을 인도하였다.",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "마. 피고는 현재까지 원고에게 임대차보증금을 반환하지 않고 있다.",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "[인정근거] 다툼 없는 사실, 갑 제1 내지 4호증, 을 제1호증의 각 기재, 변론 전체의 취지",
+  },
+  {
+    block: "reasons",
+    kind: "heading",
+    level: 2,
+    page: 2,
+    text: "2. 당사자의 주장",
+  },
+  {
+    block: "reasons",
+    kind: "heading",
+    level: 3,
+    page: 2,
+    text: "가. 원고의 주장",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "이 사건 임대차계약은 기간 만료로 종료되었으므로, 피고는 원고에게 임대차보증금 100,000,000원과 이에 대한 지연손해금을 지급할 의무가 있다.",
+  },
+  {
+    block: "reasons",
+    kind: "heading",
+    level: 3,
+    page: 2,
+    text: "나. 피고의 주장",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "1) 새로운 임차인이 구해지지 않아 임대차보증금을 반환할 수 없다.",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 2,
+    text: "2) 원고가 거주하는 동안 거실 벽지와 안방 바닥재를 훼손하여 원상복구 비용으로 7,000,000원이 들었으므로, 이를 임대차보증금에서 공제하여야 한다.",
+  },
+  { block: "reasons", kind: "heading", level: 2, page: 3, text: "3. 판단" },
+  {
+    block: "reasons",
+    kind: "heading",
+    level: 3,
+    page: 3,
+    text: "가. 임대차계약의 종료",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 3,
+    text: "앞서 본 사실에 의하면, 원고가 임대차기간이 끝나기 2개월 전까지 갱신하지 않겠다는 뜻을 통지하였으므로 이 사건 임대차계약은 2024. 2. 29. 기간 만료로 종료되었다. 따라서 피고는 원고에게 임대차보증금을 반환할 의무가 있다.",
+  },
+  {
+    block: "reasons",
+    kind: "heading",
+    level: 3,
+    page: 3,
+    text: "나. 새로운 임차인이 구해지지 않았다는 주장에 대한 판단",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 3,
+    text: "임대인의 임대차보증금 반환 의무는 새로운 임차인이 구해졌는지와 관계없이 임대차계약이 종료되면 발생하므로, 피고의 이 부분 주장은 받아들이지 않는다.",
+  },
+  {
+    block: "reasons",
+    kind: "heading",
+    level: 3,
+    page: 3,
+    text: "다. 원상복구 비용 공제 주장에 대한 판단",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 3,
+    text: "1) 을 제2호증(사진)의 영상에 의하면 원고가 거주하는 동안 거실 벽지 일부가 찢어지고 오염된 사실이 인정되고, 이는 통상의 사용으로 생기는 정도를 넘는 훼손으로 보인다. 을 제3호증(견적서)의 기재에 의하면 거실 벽지를 새로 바르는 비용은 1,500,000원이므로, 이 금액은 임대차보증금에서 공제되어야 한다.",
+  },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 3,
+    text: "2) 그러나 피고가 제출한 증거만으로는 원고가 안방 바닥재를 훼손하였다거나 그 훼손이 통상의 사용으로 생기는 정도를 넘는다고 인정하기에 부족하고, 달리 이를 인정할 증거가 없으므로, 피고의 이 부분 주장은 받아들이지 않는다.",
+  },
+  { block: "reasons", kind: "heading", level: 3, page: 3, text: "라. 소결론" },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 3,
+    text: "따라서 피고는 원고에게 98,500,000원(= 100,000,000원 - 1,500,000원) 및 이에 대하여 임대차계약이 종료된 다음 날인 2024. 3. 1.부터 피고가 이행의무의 존부와 범위에 관하여 다투는 것이 타당한 이 판결 선고일인 2024. 6. 12.까지는 민법이 정한 연 5%의, 그 다음 날부터 다 갚는 날까지는 소송촉진 등에 관한 특례법이 정한 연 12%의 각 비율로 계산한 지연손해금을 지급할 의무가 있다.",
+  },
+  { block: "reasons", kind: "heading", level: 2, page: 3, text: "4. 결론" },
+  {
+    block: "reasons",
+    kind: "body",
+    level: null,
+    page: 3,
+    text: "그렇다면 원고의 청구는 위 인정 범위에서 이유 있어 인용하고, 나머지 청구는 이유 없어 기각하기로 하여 주문과 같이 판결한다.",
+  },
+  { block: "footer", kind: "body", level: null, page: 3, text: "판사 ○○○" },
+];
+
+export const SAMPLE_PARAGRAPHS: SourceParagraph[] = rows.map((row, index) => ({
+  id: `s-${String(index + 1).padStart(2, "0")}`,
+  ...row,
+}));
+
+/** The sample judgment as plain text, for the "try the sample" button. */
+export const SAMPLE_JUDGMENT_TEXT = SAMPLE_PARAGRAPHS.map((p) => p.text).join(
+  "\n\n",
+);
