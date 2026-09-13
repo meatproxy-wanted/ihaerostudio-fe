@@ -118,7 +118,7 @@ export function getSteps(project: Project): StepState[] {
 }
 
 /** Where "continue" should take the producer: the furthest step reached. */
-export function getResumeStep(project: Project): StepKey {
+export function getResumeStep(project: Project): Exclude<StepKey, "upload"> {
   switch (getReviewStatus(project)) {
     case "unavailable":
       return "structure";
