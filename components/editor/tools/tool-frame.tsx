@@ -13,9 +13,11 @@ import { useEditorStore } from "../editor-store";
 export function ToolFrame({
   title,
   children,
+  closable = true,
 }: {
   title: string;
   children: ReactNode;
+  closable?: boolean;
 }) {
   const store = useEditorStore();
   return (
@@ -25,14 +27,16 @@ export function ToolFrame({
     >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold">{title}</h3>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label={`${title} 닫기`}
-          onClick={() => store.getState().openTool(null)}
-        >
-          <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
-        </Button>
+        {closable && (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={`${title} 닫기`}
+            onClick={() => store.getState().openTool(null)}
+          >
+            <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+          </Button>
+        )}
       </div>
       {children}
     </section>

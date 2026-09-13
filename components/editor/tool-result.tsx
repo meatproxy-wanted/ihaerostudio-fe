@@ -1,6 +1,9 @@
 "use client";
 
+import { findSentence } from "@/lib/domain/document-ops";
+
 import { useEditor, type ToolKey } from "./editor-store";
+import { ImageTool } from "./tools/image-tool";
 import { SimplifyTool } from "./tools/simplify-tool";
 import { SplitTool } from "./tools/split-tool";
 import { TermTool } from "./tools/term-tool";
@@ -9,12 +12,26 @@ import { TermTool } from "./tools/term-tool";
 export function ToolResult({
   tool,
   sentenceId,
+  cardId,
 }: {
   tool: ToolKey;
   sentenceId?: string;
   cardId?: string;
 }) {
   const argument = useEditor((state) => state.toolArgument);
+  const sentenceCardId = useEditor((state) =>
+    sentenceId ? findSentence(state.value, sentenceId)?.card.id : undefined,
+  );
+  const imageCardId = cardId ?? sentenceCardId;
+  if (tool === "image" && imageCardId) {
+    return (
+      <ImageTool
+        key={imageCardId}
+        cardId={imageCardId}
+        closable={cardId === undefined}
+      />
+    );
+  }
   if (tool === "simplify" && sentenceId) {
     return <SimplifyTool key={sentenceId} sentenceId={sentenceId} />;
   }
@@ -26,15 +43,5 @@ export function ToolResult({
       <TermTool key={`${sentenceId}:${argument}`} sentenceId={sentenceId} />
     );
   }
-  const labels: Record<ToolKey, string> = {
-    simplify: "더 쉽게 바꾸기",
-    split: "문장 나누기",
-    term: "용어 설명 추가",
-    image: "그림 바꾸기",
-  };
-  return (
-    <section className="px-4 py-4 text-2sm text-muted-foreground">
-      {labels[tool]} 도구를 준비하고 있어요.
-    </section>
-  );
+  return null;
 }
