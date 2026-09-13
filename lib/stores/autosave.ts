@@ -47,28 +47,41 @@ export function useAutosave<T>({
   const changeCount = useStore(store, (state) => state.changeCount);
   const savedChangeCount = useStore(store, (state) => state.savedChangeCount);
   const saveStatus = useStore(store, (state) => state.saveStatus);
-  const inFlight = useRef(false);
+  const inFlight = useRef<Promise<void> | null>(null);
   const saveRef = useRef(save);
 
   useEffect(() => {
     saveRef.current = save;
   });
 
+  /**
+   * Saves until the server has every edit. Resolves once nothing is pending;
+   * callers that need the saved state (e.g. before generating a draft) check
+   * `saveStatus` afterwards for a failure.
+   */
   const flush = useCallback(async () => {
-    const state = store.getState();
-    if (inFlight.current || state.changeCount === state.savedChangeCount) {
-      return;
-    }
-    inFlight.current = true;
-    const at = state.changeCount;
-    state.markSaving();
-    try {
-      const saved = await saveRef.current(state.value);
-      store.getState().markSaved(at, saved);
-    } catch (error) {
-      store.getState().markError(error);
-    } finally {
-      inFlight.current = false;
+    for (;;) {
+      if (inFlight.current) {
+        await inFlight.current;
+        continue;
+      }
+      const state = store.getState();
+      if (state.changeCount === state.savedChangeCount) return;
+      const at = state.changeCount;
+      state.markSaving();
+      let failed = false;
+      inFlight.current = saveRef
+        .current(state.value)
+        .then((saved) => store.getState().markSaved(at, saved))
+        .catch((error: unknown) => {
+          failed = true;
+          store.getState().markError(error);
+        })
+        .finally(() => {
+          inFlight.current = null;
+        });
+      await inFlight.current;
+      if (failed) return;
     }
   }, [store]);
 

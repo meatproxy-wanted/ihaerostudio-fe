@@ -69,3 +69,20 @@ export function useSource(projectId: string) {
     staleTime: Infinity,
   });
 }
+
+export function useStructureQuery(projectId: string) {
+  return useQuery({
+    queryKey: queryKeys.structure(projectId),
+    queryFn: () => api.structure.get(projectId),
+    staleTime: Infinity,
+  });
+}
+
+export function useDocumentQuery(projectId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.document(projectId),
+    queryFn: () => api.document.get(projectId),
+    staleTime: Infinity,
+    enabled,
+  });
+}
