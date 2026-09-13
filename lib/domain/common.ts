@@ -52,3 +52,19 @@ export function anchorsEqual(a: Anchor, b: Anchor) {
     a.paragraphId === b.paragraphId && a.start === b.start && a.end === b.end
   );
 }
+
+export const TONE_LABELS: Record<Tone, string> = {
+  haeyo: "해요체",
+  hamnida: "합니다체",
+};
+
+export const NAMING_LABELS: Record<Naming, string> = {
+  initial: "A씨·B씨",
+  role: "하는 일로 부르기",
+  legal: "원고·피고와 설명",
+};
+
+export const ILLUSTRATIONS_LABELS: Record<Illustrations, string> = {
+  with: "글과 그림 함께",
+  none: "글만",
+};
