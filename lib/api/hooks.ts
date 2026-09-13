@@ -94,3 +94,10 @@ export function useReviewRun(projectId: string, enabled = true) {
     enabled,
   });
 }
+
+export function usePublications(projectId: string) {
+  return useQuery({
+    queryKey: queryKeys.publications(projectId),
+    queryFn: () => api.publications.list(projectId),
+  });
+}
