@@ -290,10 +290,19 @@ function CanvasSentence({ id }: { id: string }) {
           <TermText
             text={sentence.text}
             terms={glossary}
-            renderTerm={(_term, surface, key) => (
+            renderTerm={(term, surface, key) => (
               <span
                 key={key}
-                className="underline decoration-foreground/40 decoration-dotted decoration-2 underline-offset-[5px]"
+                role="button"
+                tabIndex={-1}
+                title={term.explanation}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  const state = store.getState();
+                  state.select({ type: "sentence", id });
+                  state.openTool("term", term.term);
+                }}
+                className="cursor-help underline decoration-foreground/40 decoration-dotted decoration-2 underline-offset-[5px] hover:bg-info/10"
               >
                 {surface}
               </span>

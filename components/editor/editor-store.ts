@@ -25,6 +25,8 @@ export interface EditorState extends AutosaveSlice<EasyDocument> {
   /** Sentence being rewritten in place on the canvas. */
   editingId: string | null;
   tool: ToolKey | null;
+  /** Extra input for the open tool, e.g. the glossary term that was clicked. */
+  toolArgument: string | null;
   /** Applies a pure document operation as one undo step. */
   apply: (recipe: (document: EasyDocument) => EasyDocument) => void;
   undo: () => void;
@@ -32,7 +34,7 @@ export interface EditorState extends AutosaveSlice<EasyDocument> {
   select: (selection: EditorSelection) => void;
   startEditing: (sentenceId: string) => void;
   stopEditing: () => void;
-  openTool: (tool: ToolKey | null) => void;
+  openTool: (tool: ToolKey | null, argument?: string) => void;
 }
 
 export type EditorStore = StoreApi<EditorState>;
@@ -51,6 +53,7 @@ export function createEditorStore(
     selection,
     editingId: null,
     tool: null,
+    toolArgument: null,
 
     apply: (recipe) =>
       set((state) => {
@@ -92,7 +95,12 @@ export function createEditorStore(
       set((state) =>
         sameSelection(state.selection, next)
           ? state
-          : { selection: next, tool: null, editingId: null },
+          : {
+              selection: next,
+              tool: null,
+              toolArgument: null,
+              editingId: null,
+            },
       ),
 
     startEditing: (sentenceId) =>
@@ -100,11 +108,13 @@ export function createEditorStore(
         selection: { type: "sentence", id: sentenceId },
         editingId: sentenceId,
         tool: null,
+        toolArgument: null,
       }),
 
     stopEditing: () => set({ editingId: null }),
 
-    openTool: (tool) => set({ tool, editingId: null }),
+    openTool: (tool, argument) =>
+      set({ tool, toolArgument: argument ?? null, editingId: null }),
 
     markSaving: () => set({ saveStatus: "saving", saveError: null }),
 

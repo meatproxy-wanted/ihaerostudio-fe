@@ -48,6 +48,7 @@ import { CARD_ROLE_LABELS } from "@/lib/domain/document";
 import { cn } from "@/lib/utils";
 
 import { useReaderContext } from "./editor-context";
+import { GlossaryManager } from "./glossary-manager";
 import { useEditor, useEditorStore, type ToolKey } from "./editor-store";
 import { ToolResult } from "./tool-result";
 
@@ -171,6 +172,9 @@ function DocumentSummary() {
             ))}
           </ul>
         )}
+      </PanelSection>
+      <PanelSection title="어려운 말 풀이">
+        <GlossaryManager />
       </PanelSection>
       <PanelSection title="단축키">
         <ul className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-2sm">
