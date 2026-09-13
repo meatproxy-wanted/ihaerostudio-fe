@@ -51,7 +51,7 @@ import { DRAFT_STEPS } from "./draft-steps";
 import { DraftFooter } from "./draft-footer";
 import { itemElementId } from "./item-shell";
 import { SettingsDialog } from "./settings-dialog";
-import { SourceTextProvider } from "./source-text";
+import { SourceTextProvider } from "@/components/source-viewer/source-text";
 import { StructurePanel } from "./structure-panel";
 import {
   createStructureStore,

@@ -20,7 +20,7 @@ import {
 } from "@/lib/domain/structure-ops";
 import { cn } from "@/lib/utils";
 
-import { useAnchorQuote } from "./source-text";
+import { useAnchorQuote } from "@/components/source-viewer/source-text";
 import { useStructure, useStructureStore } from "./structure-store";
 
 export function itemElementId(id: string) {
