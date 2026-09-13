@@ -55,7 +55,12 @@ import { routes } from "@/lib/routes";
 import { FinishReviewDialog } from "./finish-review-dialog";
 import { ReviewDetail } from "./review-detail";
 import { ReviewList } from "./review-list";
-import { isHandled, visibleItems, type ReviewFilter } from "./review-model";
+import {
+  groupItems,
+  isHandled,
+  visibleItems,
+  type ReviewFilter,
+} from "./review-model";
 
 export function ReviewScreen() {
   const project = useCurrentProject();
@@ -151,8 +156,8 @@ function ReviewWorkspace({
     },
     onSuccess: (result) => {
       if (!result) return;
-      cacheProject(queryClient, result.project);
       queryClient.setQueryData(queryKeys.document(project.id), result.document);
+      cacheProject(queryClient, result.project);
       toast.add({
         title: "수정안을 적용했어요",
         description: "문장이 바뀌어서 다시 점검할게요.",
@@ -180,7 +185,10 @@ function ReviewWorkspace({
   }, [needsCheck, check]);
 
   const items = run?.items ?? [];
-  const shown = visibleItems(items, filter);
+  // The order the list shows: grouped, required before suggested.
+  const shown = groupItems(visibleItems(items, filter)).flatMap(
+    (entry) => entry.items,
+  );
   const selected =
     items.find((item) => item.key === selectedKey) ?? shown[0] ?? null;
 

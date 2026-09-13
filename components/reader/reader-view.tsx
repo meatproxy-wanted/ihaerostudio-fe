@@ -167,7 +167,7 @@ export function ReaderView({
           <div className="mx-auto flex max-w-[42em] items-center gap-3">
             <Button
               variant="secondary"
-              className="h-14 flex-1 rounded-2xl text-[0.9em] @md:flex-none @md:px-6"
+              className="h-14 flex-1 rounded-2xl text-[0.9em] @min-[40rem]:flex-none @min-[40rem]:px-6"
               disabled={pageIndex === 0}
               onClick={() => go(-1)}
             >
@@ -179,7 +179,7 @@ export function ReaderView({
               이전
             </Button>
             <ol
-              className="hidden flex-1 items-center justify-center gap-2 @md:flex"
+              className="hidden flex-1 items-center justify-center gap-2 @min-[40rem]:flex"
               aria-label="진행"
             >
               {pages.map((item, index) => (
@@ -193,7 +193,7 @@ export function ReaderView({
                 />
               ))}
             </ol>
-            <p className="min-w-16 text-center text-[0.8em] font-semibold tabular-nums @md:hidden">
+            <p className="min-w-16 text-center text-[0.8em] font-semibold tabular-nums @min-[40rem]:hidden">
               {page.type === "section"
                 ? `${page.number} / ${sectionCount}`
                 : page.type === "cover"
@@ -201,7 +201,7 @@ export function ReaderView({
                   : "끝"}
             </p>
             <Button
-              className="h-14 flex-1 rounded-2xl text-[0.9em] @md:flex-none @md:px-6"
+              className="h-14 flex-1 rounded-2xl text-[0.9em] @min-[40rem]:flex-none @min-[40rem]:px-6"
               disabled={pageIndex === pages.length - 1}
               onClick={() => go(1)}
             >
@@ -336,7 +336,7 @@ function SectionBody({
           key={card.id}
           layout="responsive"
           image={card.image}
-          className="gap-4 p-4 @md:gap-5 @md:p-5"
+          className="gap-4 p-4 @min-[40rem]:gap-5 @min-[40rem]:p-5"
           label={
             <CardLabel
               role={card.role}

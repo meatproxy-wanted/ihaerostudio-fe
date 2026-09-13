@@ -150,8 +150,8 @@ function StructureEditor({
       return api.document.generate(project.id, { signal });
     },
     onSuccess: (result) => {
-      cacheProject(queryClient, result.project);
       queryClient.setQueryData(queryKeys.document(project.id), result.document);
+      cacheProject(queryClient, result.project);
       queryClient.removeQueries({ queryKey: queryKeys.review(project.id) });
       router.push(routes.step(project.id, "edit"));
     },

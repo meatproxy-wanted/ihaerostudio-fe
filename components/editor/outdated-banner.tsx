@@ -62,8 +62,8 @@ export function OutdatedDraftBanner({
       return api.document.generate(project.id, { signal });
     },
     onSuccess: (result) => {
-      cacheProject(queryClient, result.project);
       queryClient.setQueryData(queryKeys.document(project.id), result.document);
+      cacheProject(queryClient, result.project);
       queryClient.removeQueries({ queryKey: queryKeys.review(project.id) });
       toast.add({ title: "초안을 다시 만들었어요", type: "success" });
       onRegenerated();

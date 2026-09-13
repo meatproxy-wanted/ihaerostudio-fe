@@ -92,6 +92,18 @@ describe("구조 내용이 같은지", () => {
     expect(isSameStructureContent(makeStructure(), after)).toBe(true);
   });
 
+  it("저장된 값과 키 순서만 다르면 같은 내용이다", () => {
+    const reordered = JSON.parse(
+      JSON.stringify(makeStructure(), (_key, value) =>
+        value && typeof value === "object" && !Array.isArray(value)
+          ? Object.fromEntries(Object.entries(value).reverse())
+          : value,
+      ),
+    ) as CaseStructure;
+
+    expect(isSameStructureContent(makeStructure(), reordered)).toBe(true);
+  });
+
   it("수정 번호가 달라도 내용이 같으면 같다", () => {
     const after = { ...makeStructure(), revision: 7 };
 

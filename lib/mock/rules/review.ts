@@ -25,20 +25,26 @@ function hash(text: string) {
 
 type Draft = Omit<ReviewItem, "key" | "dismissal">;
 
-function keyed(item: Draft): ReviewItem {
-  const target =
-    item.target.type === "sentence"
-      ? item.target.sentenceId
-      : item.target.type === "card"
-        ? item.target.cardId
-        : item.target.type === "image"
-          ? item.target.imageId
-          : item.target.type === "term"
-            ? item.target.termId
+/**
+ * Stable across runs for the same finding: category, target, title (two
+ * findings on one sentence differ here), and the checked text. `extra` lets a
+ * finding expire, e.g. a structure change dismissed for one revision.
+ */
+function keyed(item: Draft, extra = ""): ReviewItem {
+  const { target } = item;
+  const targetId =
+    target.type === "sentence"
+      ? target.sentenceId
+      : target.type === "card"
+        ? target.cardId
+        : target.type === "image"
+          ? target.imageId
+          : target.type === "term"
+            ? target.termId
             : "document";
   return {
     ...item,
-    key: `${item.category}:${target}:${hash(item.evidence.text ?? item.title)}`,
+    key: `${item.category}:${targetId}:${hash(`${item.title}|${item.evidence.text ?? ""}|${extra}`)}`,
     dismissal: null,
   };
 }
@@ -394,8 +400,10 @@ export function runMockReview(input: {
   structure: CaseStructure;
   settings: Settings;
   draftOutdated: boolean;
+  /** Structure and settings revisions, so a dismissed "changed" item expires. */
+  revisions: string;
 }): ReviewItem[] {
-  const { document, structure, settings, draftOutdated } = input;
+  const { document, structure, settings, draftOutdated, revisions } = input;
   const drafts: Draft[] = [
     ...numberItems(document, structure),
     ...relationItems(document, structure, settings),
@@ -405,21 +413,25 @@ export function runMockReview(input: {
     ...readabilityItems(document),
   ];
   if (draftOutdated) {
-    drafts.unshift({
-      category: "structure-changed",
-      level: "required",
-      title: "초안을 만든 뒤 사건 구조가 바뀌었어요",
-      detail:
-        "바뀐 사건 구조가 이 초안에 반영되지 않았어요. 초안을 다시 만들거나, 달라진 부분을 직접 반영했는지 확인해 주세요.",
-      target: { type: "document" },
-      evidence: {
-        text: null,
-        anchors: [],
-        structureValue: null,
-        imageId: null,
+    const changed = keyed(
+      {
+        category: "structure-changed",
+        level: "required",
+        title: "초안을 만든 뒤 사건 구조가 바뀌었어요",
+        detail:
+          "바뀐 사건 구조가 이 초안에 반영되지 않았어요. 초안을 다시 만들거나, 달라진 부분을 직접 반영했는지 확인해 주세요.",
+        target: { type: "document" },
+        evidence: {
+          text: null,
+          anchors: [],
+          structureValue: null,
+          imageId: null,
+        },
+        suggestion: null,
       },
-      suggestion: null,
-    });
+      revisions,
+    );
+    return [changed, ...drafts.map((draft) => keyed(draft))];
   }
-  return drafts.map(keyed);
+  return drafts.map((draft) => keyed(draft));
 }

@@ -1,4 +1,5 @@
 import { anchorsEqual, type Anchor } from "./common";
+import { sameValue } from "./equality";
 import type {
   CaseStructure,
   Claim,
@@ -52,7 +53,7 @@ export function isSameStructureContent(
   before: CaseStructure,
   after: CaseStructure,
 ): boolean {
-  return JSON.stringify(contentOf(before)) === JSON.stringify(contentOf(after));
+  return sameValue(contentOf(before), contentOf(after));
 }
 
 export function findItem(

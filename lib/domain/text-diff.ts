@@ -78,6 +78,7 @@ const MONEY =
   /((?:\d[\d,]*(?:\.\d+)?\s*(?:조|억|천만|백만|만|천)\s*)*\d[\d,]*(?:\.\d+)?\s*(?:조|억|천만|백만|만|천)?)\s*원/g;
 const KOREAN_DATE = /(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/g;
 const DOT_DATE = /(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.?/g;
+const MONTH_DAY = /(\d{1,2})월\s*(\d{1,2})일/g;
 const PERCENT = /(\d+(?:\.\d+)?)\s*%/g;
 const PERIOD = /(\d+)\s*(년|개월|달|주|일)(?![가-힣]*월)/g;
 
@@ -117,6 +118,10 @@ export function extractNumbers(text: string): NumberMention[] {
     for (const match of text.matchAll(pattern)) {
       add(match, "date", `date:${match[1]}-${pad(match[2])}-${pad(match[3])}`);
     }
+  }
+  // Without a year; runs after full dates so "2022년 3월 1일" stays one date.
+  for (const match of text.matchAll(MONTH_DAY)) {
+    add(match, "date", `date:--${pad(match[1])}-${pad(match[2])}`);
   }
   for (const match of text.matchAll(PERCENT)) {
     add(match, "percent", `percent:${Number(match[1])}`);

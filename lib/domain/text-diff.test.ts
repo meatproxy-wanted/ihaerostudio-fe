@@ -17,6 +17,14 @@ describe("어절 단위 차이", () => {
     ]);
   });
 
+  it("조사만 바뀌어도 그 어절을 지움과 넣음으로 표시한다", () => {
+    expect(diffWords("A씨가 돈을 받았어요.", "A씨는 돈을 받았어요.")).toEqual([
+      { type: "removed", text: "A씨가 " },
+      { type: "added", text: "A씨는 " },
+      { type: "same", text: "돈을 받았어요." },
+    ]);
+  });
+
   it("문장부호는 따로 떼어 비교한다", () => {
     expect(diffWords("판단했어요.", "판단했습니다.")).toEqual([
       { type: "removed", text: "판단했어요" },
@@ -72,6 +80,16 @@ describe("숫자가 바뀌었는지", () => {
 
     expect(changes.removed.map((m) => m.text)).toEqual(["150만 원"]);
     expect(changes.added.map((m) => m.text)).toEqual(["15만 원"]);
+  });
+
+  it("연도 없는 날짜가 바뀌어도 알려 준다", () => {
+    const changes = numberChanges(
+      "3월 1일에 약속했어요.",
+      "4월 1일에 약속했어요.",
+    );
+
+    expect(changes.removed.map((m) => m.text)).toEqual(["3월 1일"]);
+    expect(changes.added.map((m) => m.text)).toEqual(["4월 1일"]);
   });
 
   it("같은 값을 다르게 쓴 것은 바뀐 것으로 보지 않는다", () => {

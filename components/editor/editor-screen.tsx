@@ -159,8 +159,8 @@ function EditorWorkspace({
     store,
     save: async (value) => {
       const result = await api.document.save(project.id, value);
-      cacheProject(queryClient, result.project);
       queryClient.setQueryData(queryKeys.document(project.id), result.document);
+      cacheProject(queryClient, result.project);
       return result.document;
     },
   });

@@ -1,5 +1,7 @@
 import type { Illustrations, Tone } from "./common";
 import type { EasyDocument } from "./document";
+import { glossaryInReadingOrder } from "./document-ops";
+import { sameValue } from "./equality";
 import type { ReaderContent } from "./publication";
 import type { CaseOverview } from "./structure";
 
@@ -48,7 +50,8 @@ export function toReaderContent(
         };
       }),
     })),
-    glossary: document.glossary.map((term) => ({
+    // Readers meet terms in the order the text uses them.
+    glossary: glossaryInReadingOrder(document).map(({ term }) => ({
       id: term.id,
       term: term.term,
       explanation: term.explanation,
@@ -62,8 +65,8 @@ export function isSameReaderContent(
   after: EasyDocument,
   context: ReaderContext,
 ): boolean {
-  return (
-    JSON.stringify(toReaderContent(before, context)) ===
-    JSON.stringify(toReaderContent(after, context))
+  return sameValue(
+    toReaderContent(before, context),
+    toReaderContent(after, context),
   );
 }

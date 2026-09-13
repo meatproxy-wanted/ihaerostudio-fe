@@ -148,11 +148,14 @@ export function ExportScreen() {
   }
 
   const isPublic = project.publication.publicPublicationId !== null;
-  const newerReviewedContent =
-    isPublic && reviewed && publicationStatus !== "current";
   const publicPublication = publications.data?.find(
     (item) => item.id === project.publication.publicPublicationId,
   );
+  // Readers see the public version, which may be older than the latest PDF.
+  const newerReviewedContent =
+    reviewed &&
+    publicPublication !== undefined &&
+    publicPublication.contentRevision !== project.document?.contentRevision;
 
   return (
     <div className="h-full overflow-y-auto">

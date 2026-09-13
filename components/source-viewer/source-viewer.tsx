@@ -239,7 +239,15 @@ export function SourceViewer({
       <div
         ref={scrollRef}
         onMouseUp={handleMouseUp}
-        onMouseDown={() => setPending(null)}
+        onMouseDown={(event) => {
+          // Pressing the action button itself must not dismiss it first.
+          if (
+            (event.target as HTMLElement).closest("[data-selection-action]")
+          ) {
+            return;
+          }
+          setPending(null);
+        }}
         className="relative min-h-0 flex-1 overflow-y-auto px-5 py-5"
       >
         <article className="mx-auto flex max-w-[40em] flex-col gap-2.5 text-md leading-7 [word-break:keep-all]">
@@ -262,6 +270,7 @@ export function SourceViewer({
 
         {pending && selectionLabel && onSelectionAction && (
           <div
+            data-selection-action
             className="absolute z-10 w-56"
             style={{ top: pending.top, left: pending.left }}
           >

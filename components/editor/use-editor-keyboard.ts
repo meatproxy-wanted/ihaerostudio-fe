@@ -39,6 +39,13 @@ export function useEditorKeyboard(store: EditorStore) {
         return;
       }
 
+      // Navigation keys belong to the canvas: Enter on a focused button or
+      // link must activate that control, not start editing a sentence.
+      const target = event.target as HTMLElement | null;
+      const onCanvas =
+        target === document.body || target?.closest("[data-sentence-id]");
+      if (!onCanvas) return;
+
       const selection = state.selection;
       if (event.key === "Escape" && selection) {
         event.preventDefault();

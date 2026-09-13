@@ -7,12 +7,18 @@ import {
   type QueryClient,
 } from "@tanstack/react-query";
 
+import type { EasyDocument } from "@/lib/domain/document";
 import type { Project } from "@/lib/domain/project";
 
 import { api } from "./client";
 import { queryKeys } from "./query-keys";
 
-/** Writes a fresh project summary everywhere it is cached. */
+/**
+ * Writes a fresh project summary everywhere it is cached. When the server
+ * moved the document on (e.g. an overview change bumped its content
+ * revision), a cached document is now stale and gets refetched. Callers that
+ * also receive the document should cache it before calling this.
+ */
 export function cacheProject(queryClient: QueryClient, project: Project) {
   queryClient.setQueryData(queryKeys.project(project.id), project);
   queryClient.setQueryData<Project[]>(queryKeys.projects(), (projects) => {
@@ -22,6 +28,19 @@ export function cacheProject(queryClient: QueryClient, project: Project) {
       b.updatedAt.localeCompare(a.updatedAt),
     );
   });
+  const cachedDocument = queryClient.getQueryData<EasyDocument>(
+    queryKeys.document(project.id),
+  );
+  if (
+    cachedDocument &&
+    project.document &&
+    cachedDocument.saveRevision < project.document.saveRevision
+  ) {
+    void queryClient.invalidateQueries({
+      queryKey: queryKeys.document(project.id),
+      exact: true,
+    });
+  }
 }
 
 export function useProjects() {
@@ -55,10 +74,8 @@ export function useResetDemo() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => api.demo.reset(),
-    onSuccess: async () => {
-      queryClient.removeQueries();
-      await queryClient.invalidateQueries({ queryKey: queryKeys.projects() });
-    },
+    // Reset (not remove) so mounted lists refetch instead of keeping old rows.
+    onSuccess: () => queryClient.resetQueries(),
   });
 }
 

@@ -24,6 +24,7 @@ import {
 import { isDraftOutdated } from "../domain/steps";
 import type { SourceDocument } from "../domain/source";
 import type { CaseStructure } from "../domain/structure";
+import { sameValue } from "../domain/equality";
 import { isSameStructureContent } from "../domain/structure-ops";
 import { createSampleDraft } from "./fixtures/sample-draft";
 import {
@@ -110,6 +111,36 @@ function readerContext(
     tone: project.settings.tone,
     illustrations: project.settings.illustrations,
   };
+}
+
+/**
+ * The cover shows the case overview and the output follows tone and picture
+ * settings, so changing those changes what readers see even though the
+ * document itself did not. Bump the content revision when that happens.
+ */
+async function bumpContentIfReaderChanged(
+  projectId: string,
+  before: ReaderContext,
+  after: ReaderContext,
+): Promise<Project["document"] | undefined> {
+  const store = await storage();
+  const document = await store.get<EasyDocument>(keys.document(projectId));
+  if (!document) return undefined;
+  if (
+    sameValue(
+      toReaderContent(document, before),
+      toReaderContent(document, after),
+    )
+  ) {
+    return undefined;
+  }
+  const bumped: EasyDocument = {
+    ...document,
+    saveRevision: document.saveRevision + 1,
+    contentRevision: document.contentRevision + 1,
+  };
+  await store.set(keys.document(projectId), bumped);
+  return summarizeDocument(bumped);
 }
 
 function summarizeDocument(document: EasyDocument): Project["document"] {
@@ -302,9 +333,7 @@ export function createMockApi(): ApiClient {
         failIfRequested("save", "설정을 저장하지 못했어요.");
         const store = await storage();
         const current = await requireProject(projectId);
-        const changed =
-          JSON.stringify(current.settings) !== JSON.stringify(settings);
-        if (!changed) return current;
+        if (sameValue(current.settings, settings)) return current;
 
         let structureRevision = current.structureRevision;
         if (current.settings.naming !== settings.naming) {
@@ -327,11 +356,32 @@ export function createMockApi(): ApiClient {
           structureRevision = renamed.revision;
         }
 
+        const overview = (
+          await requireRecord<CaseStructure>(
+            keys.structure(projectId),
+            "사건 구조",
+          )
+        ).overview;
+        const document = await bumpContentIfReaderChanged(
+          projectId,
+          {
+            overview,
+            tone: current.settings.tone,
+            illustrations: current.settings.illustrations,
+          },
+          {
+            overview,
+            tone: settings.tone,
+            illustrations: settings.illustrations,
+          },
+        );
+
         return updateProject(projectId, (project) => ({
           ...project,
           settings,
           settingsRevision: project.settingsRevision + 1,
           structureRevision,
+          document: document ?? project.document,
         }));
       },
 
@@ -387,10 +437,25 @@ export function createMockApi(): ApiClient {
             : previous.revision + 1,
         };
         await store.set(keys.structure(projectId), next);
+        const settings = (await requireProject(projectId)).settings;
+        const document = await bumpContentIfReaderChanged(
+          projectId,
+          {
+            overview: previous.overview,
+            tone: settings.tone,
+            illustrations: settings.illustrations,
+          },
+          {
+            overview: next.overview,
+            tone: settings.tone,
+            illustrations: settings.illustrations,
+          },
+        );
         const project = await updateProject(projectId, (current) => ({
           ...current,
           caseNumber: next.overview.caseNumber || null,
           structureRevision: next.revision,
+          document: document ?? current.document,
         }));
         return { structure: next, project };
       },
@@ -582,6 +647,7 @@ export function createMockApi(): ApiClient {
             structure,
             settings: project.settings,
             draftOutdated: isDraftOutdated(project),
+            revisions: `${project.structureRevision}:${project.settingsRevision}`,
           }),
         };
         return saveRunState(projectId, await withDismissals(projectId, run));
@@ -691,9 +757,11 @@ export function createMockApi(): ApiClient {
           project.review.completedContentRevision === document.contentRevision;
 
         let publication = publications.at(-1);
-        if (publication?.contentRevision === document.contentRevision) {
-          // Same content: reuse the snapshot, but record a review done since.
-          publication.reviewed ||= reviewed;
+        if (
+          publication?.contentRevision === document.contentRevision &&
+          publication.reviewed === reviewed
+        ) {
+          // Same content and review state: reuse the snapshot as it was.
         } else {
           publication = {
             id: newId("pub"),

@@ -42,7 +42,7 @@ export function CardFrame({
     <article
       className={cn(
         "flex gap-5 rounded-2xl bg-card p-5 ring-1 ring-hairline",
-        layout === "responsive" ? "flex-col @md:flex-row" : "flex-row",
+        layout === "responsive" ? "flex-col @min-[40rem]:flex-row" : "flex-row",
         className,
       )}
       {...props}
@@ -51,7 +51,7 @@ export function CardFrame({
         <div
           className={cn(
             "shrink-0",
-            layout === "responsive" ? "w-full @md:w-[38%]" : "w-[36%]",
+            layout === "responsive" ? "w-full @min-[40rem]:w-[38%]" : "w-[36%]",
           )}
         >
           {picture}

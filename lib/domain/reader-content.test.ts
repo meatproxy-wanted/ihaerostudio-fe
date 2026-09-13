@@ -153,6 +153,20 @@ describe("독자용 내용 뽑기", () => {
   });
 });
 
+describe("독자용 용어 풀이 순서", () => {
+  it("추가한 순서가 아니라 문장에 처음 나오는 순서로 싣는다", () => {
+    const document = makeDocument();
+    document.glossary = [
+      { id: "t-late", term: "돌려줄", explanation: "주는 거예요." },
+      { id: "t-early", term: "집", explanation: "사는 곳이에요." },
+    ];
+
+    expect(
+      toReaderContent(document, context).glossary.map((term) => term.id),
+    ).toEqual(["t-early", "t-late"]);
+  });
+});
+
 describe("독자용 내용이 같은지", () => {
   it("대조 표시와 근거만 바뀌면 같은 내용이다", () => {
     const before = makeDocument();
