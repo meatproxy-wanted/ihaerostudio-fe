@@ -42,10 +42,10 @@ export default function ShowcasePage() {
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <a href="#" className="flex items-center gap-2 pr-1">
             <span className="flex size-7 items-center justify-center rounded-[8px] bg-primary text-sm font-black text-primary-foreground">
-              b
+              i
             </span>
             <span className="text-md font-bold tracking-tight whitespace-nowrap">
-              bandirang
+              ihaerostudio
             </span>
           </a>
           <nav className="no-scrollbar hidden min-w-0 items-center gap-0.5 overflow-x-auto md:flex">
@@ -110,7 +110,7 @@ export default function ShowcasePage() {
       </main>
 
       <footer className="mx-auto flex max-w-6xl items-center justify-between px-6 py-8 text-xs text-muted-foreground">
-        <span>bandirang · UI Showcase</span>
+        <span>ihaerostudio · UI Showcase</span>
         <span>shadcn/ui base-vega · Pretendard</span>
       </footer>
     </div>

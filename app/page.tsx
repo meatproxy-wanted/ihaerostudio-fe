@@ -27,9 +27,9 @@ export default function Home() {
       <header className="sticky top-0 z-10 bg-background/85 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-4xl items-center gap-3 px-4 sm:px-6">
           <span className="flex size-7 items-center justify-center rounded-[8px] bg-primary text-sm font-black text-primary-foreground">
-            b
+            i
           </span>
-          <span className="text-md font-bold tracking-tight">bandirang</span>
+          <span className="text-md font-bold tracking-tight">ihaerostudio</span>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />
             <Button

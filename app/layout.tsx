@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "bandirang",
+  title: "ihaerostudio",
   description: "반디랑",
 };
 
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
  * Applied before paint so a stored dark theme never flashes light. Mirrors
  * `applyTheme` in components/theme-toggle.tsx.
  */
-const themeScript = `(function(){try{var s=localStorage.getItem("bandirang-theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
+const themeScript = `(function(){try{var s=localStorage.getItem("ihaerostudio-theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

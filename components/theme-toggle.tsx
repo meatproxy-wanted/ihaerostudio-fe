@@ -6,7 +6,7 @@ import { Moon02Icon, Sun03Icon } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
 
-const STORAGE_KEY = "bandirang-theme";
+const STORAGE_KEY = "ihaerostudio-theme";
 
 type Theme = "light" | "dark";
 
