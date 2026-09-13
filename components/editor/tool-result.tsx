@@ -1,18 +1,24 @@
 "use client";
 
 import type { ToolKey } from "./editor-store";
+import { SimplifyTool } from "./tools/simplify-tool";
+import { SplitTool } from "./tools/split-tool";
 
-/**
- * Where a tool shows its work for the selected sentence or card. Each tool's
- * panel lands in its own commit; until then this explains what is coming.
- */
+/** Where a tool shows its work for the selected sentence or card. */
 export function ToolResult({
   tool,
+  sentenceId,
 }: {
   tool: ToolKey;
   sentenceId?: string;
   cardId?: string;
 }) {
+  if (tool === "simplify" && sentenceId) {
+    return <SimplifyTool key={sentenceId} sentenceId={sentenceId} />;
+  }
+  if (tool === "split" && sentenceId) {
+    return <SplitTool key={sentenceId} sentenceId={sentenceId} />;
+  }
   const labels: Record<ToolKey, string> = {
     simplify: "더 쉽게 바꾸기",
     split: "문장 나누기",
