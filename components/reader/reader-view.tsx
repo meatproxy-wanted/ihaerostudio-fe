@@ -95,7 +95,7 @@ export function ReaderView({
       lang="ko"
       style={{ fontSize: SIZES[size] }}
       className={cn(
-        "paper flex flex-col",
+        "paper @container flex flex-col",
         embedded ? "h-full overflow-y-auto" : "min-h-svh",
         className,
       )}
@@ -167,7 +167,7 @@ export function ReaderView({
           <div className="mx-auto flex max-w-[42em] items-center gap-3">
             <Button
               variant="secondary"
-              className="h-14 flex-1 rounded-2xl text-[0.9em] sm:flex-none sm:px-6"
+              className="h-14 flex-1 rounded-2xl text-[0.9em] @md:flex-none @md:px-6"
               disabled={pageIndex === 0}
               onClick={() => go(-1)}
             >
@@ -179,7 +179,7 @@ export function ReaderView({
               이전
             </Button>
             <ol
-              className="hidden flex-1 items-center justify-center gap-2 sm:flex"
+              className="hidden flex-1 items-center justify-center gap-2 @md:flex"
               aria-label="진행"
             >
               {pages.map((item, index) => (
@@ -193,7 +193,7 @@ export function ReaderView({
                 />
               ))}
             </ol>
-            <p className="min-w-16 text-center text-[0.8em] font-semibold tabular-nums sm:hidden">
+            <p className="min-w-16 text-center text-[0.8em] font-semibold tabular-nums @md:hidden">
               {page.type === "section"
                 ? `${page.number} / ${sectionCount}`
                 : page.type === "cover"
@@ -201,7 +201,7 @@ export function ReaderView({
                   : "끝"}
             </p>
             <Button
-              className="h-14 flex-1 rounded-2xl text-[0.9em] sm:flex-none sm:px-6"
+              className="h-14 flex-1 rounded-2xl text-[0.9em] @md:flex-none @md:px-6"
               disabled={pageIndex === pages.length - 1}
               onClick={() => go(1)}
             >
@@ -336,7 +336,7 @@ function SectionBody({
           key={card.id}
           layout="responsive"
           image={card.image}
-          className="gap-4 p-4 sm:gap-5 sm:p-5"
+          className="gap-4 p-4 @md:gap-5 @md:p-5"
           label={
             <CardLabel
               role={card.role}

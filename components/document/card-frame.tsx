@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 
 /**
  * The one card layout shared by the editor canvas, the reader view, and
- * print: picture beside the sentences (stacked on narrow reader screens).
+ * print: picture beside the sentences. The responsive layout stacks them in
+ * narrow containers (it follows the nearest `@container`, so a phone frame
+ * inside the preview behaves like a phone).
  */
 export function CardFrame({
   layout = "row",
@@ -40,7 +42,7 @@ export function CardFrame({
     <article
       className={cn(
         "flex gap-5 rounded-2xl bg-card p-5 ring-1 ring-hairline",
-        layout === "responsive" ? "flex-col sm:flex-row" : "flex-row",
+        layout === "responsive" ? "flex-col @md:flex-row" : "flex-row",
         className,
       )}
       {...props}
@@ -49,7 +51,7 @@ export function CardFrame({
         <div
           className={cn(
             "shrink-0",
-            layout === "responsive" ? "w-full sm:w-[38%]" : "w-[36%]",
+            layout === "responsive" ? "w-full @md:w-[38%]" : "w-[36%]",
           )}
         >
           {picture}

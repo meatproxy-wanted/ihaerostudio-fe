@@ -57,6 +57,7 @@ function PrintCard({ card }: { card: ReaderCard }) {
           width={320}
           height={240}
           unoptimized
+          loading="eager"
           className="aspect-[4/3] w-[35%] shrink-0 self-start rounded-[3mm] object-cover"
         />
       )}
@@ -142,7 +143,13 @@ function waitForAssets(root: HTMLElement) {
           image.addEventListener("error", () => resolve(), { once: true });
         }),
   );
-  return Promise.all([document.fonts.ready, ...images]);
+  // Heights do not depend on pictures (their box has a fixed ratio), so a slow
+  // picture only delays printing, never the layout, beyond this cap.
+  const timeout = new Promise((resolve) => setTimeout(resolve, 3000));
+  return Promise.race([
+    Promise.all([document.fonts.ready, ...images]),
+    timeout,
+  ]);
 }
 
 /**
