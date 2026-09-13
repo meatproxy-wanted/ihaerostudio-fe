@@ -51,7 +51,7 @@ const tabsListVariants = cva(
         variant: "default",
         size: "lg",
         class:
-          "rounded-[14px] px-[5px] py-1 group-data-horizontal/tabs:h-10 [--tabs-indicator-radius:10px]",
+          "rounded-[14px] px-[5px] py-1 [--tabs-indicator-radius:10px] group-data-horizontal/tabs:h-10",
       },
       {
         variant: "line",
@@ -149,11 +149,11 @@ function TabsTrigger({
       data-pressed={isPressed || undefined}
       disabled={disabled}
       className={cn(
-        "group/tabs-trigger relative z-10 inline-flex h-full flex-1 items-center justify-center gap-1.5 overflow-hidden border border-transparent px-3 text-2sm font-medium whitespace-nowrap text-muted-foreground transition-[color,background-color,box-shadow] duration-200 outline-none group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-active:font-semibold data-active:text-foreground group-data-[size=lg]/tabs-list:px-3.5 group-data-[size=lg]/tabs-list:text-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "group/tabs-trigger relative z-10 inline-flex h-full flex-1 items-center justify-center gap-1.5 overflow-hidden border border-transparent px-3 text-2sm font-medium whitespace-nowrap text-muted-foreground transition-[color,background-color,box-shadow] duration-200 outline-none group-data-[size=lg]/tabs-list:px-3.5 group-data-[size=lg]/tabs-list:text-sm group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-active:font-semibold data-active:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         // Segmented control (default): the sliding indicator draws the card.
         "group-data-[variant=default]/tabs-list:rounded-(--tabs-indicator-radius) group-data-[variant=default]/tabs-list:bg-transparent",
         // Underline tabs: the sliding indicator draws the 2px line.
-        "group-data-[variant=line]/tabs-list:h-9 group-data-[variant=line]/tabs-list:flex-none group-data-[variant=line]/tabs-list:rounded-md group-data-[variant=line]/tabs-list:text-sm group-data-[variant=line]/tabs-list:not-data-active:hover:bg-accent group-data-horizontal/tabs:group-data-[variant=line]/tabs-list:self-start",
+        "group-data-[variant=line]/tabs-list:h-9 group-data-[variant=line]/tabs-list:flex-none group-data-[variant=line]/tabs-list:rounded-md group-data-[variant=line]/tabs-list:text-sm group-data-horizontal/tabs:group-data-[variant=line]/tabs-list:self-start group-data-[variant=line]/tabs-list:not-data-active:hover:bg-accent",
         // Pill tabs: the sliding indicator draws the grey pill; no hover or press fill.
         "group-data-[variant=pill]/tabs-list:flex-none group-data-[variant=pill]/tabs-list:rounded-full group-data-[variant=pill]/tabs-list:text-sm",
         className,

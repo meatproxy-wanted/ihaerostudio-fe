@@ -197,7 +197,7 @@ function FloatingToolbar({
               data-overflowing={overflowing || undefined}
               data-dragging={dragging || undefined}
               className={cn(
-                "no-scrollbar pointer-events-auto flex min-w-0 items-center gap-1 overflow-x-auto rounded-full bg-popover/85 p-1.5 pl-2 text-sm text-popover-foreground shadow-popover ring-1 ring-border backdrop-blur-xl supports-[not(backdrop-filter:blur(0))]:bg-popover data-overflowing:cursor-grab data-dragging:cursor-grabbing data-dragging:select-none data-dragging:[&_*]:cursor-grabbing",
+                "pointer-events-auto no-scrollbar flex min-w-0 items-center gap-1 overflow-x-auto rounded-full bg-popover/85 p-1.5 pl-2 text-sm text-popover-foreground shadow-popover ring-1 ring-border backdrop-blur-xl data-dragging:cursor-grabbing data-dragging:select-none data-overflowing:cursor-grab supports-[not(backdrop-filter:blur(0))]:bg-popover data-dragging:[&_*]:cursor-grabbing",
                 className,
               )}
               {...scrollHandlers}
@@ -212,7 +212,7 @@ function FloatingToolbar({
                 aria-label={closeLabel}
                 data-slot="floating-toolbar-close"
                 onClick={onDismiss}
-                className="pointer-events-auto size-9 shrink-0 self-center rounded-full bg-popover/85 text-foreground shadow-popover ring-1 ring-border backdrop-blur-xl supports-[not(backdrop-filter:blur(0))]:bg-popover hover:bg-popover"
+                className="pointer-events-auto size-9 shrink-0 self-center rounded-full bg-popover/85 text-foreground shadow-popover ring-1 ring-border backdrop-blur-xl hover:bg-popover supports-[not(backdrop-filter:blur(0))]:bg-popover"
               >
                 <HugeiconsIcon
                   icon={Cancel01Icon}
