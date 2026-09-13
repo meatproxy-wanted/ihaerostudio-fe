@@ -40,7 +40,7 @@ function StepMarker({ step, current }: { step: StepState; current: boolean }) {
         current
           ? "bg-primary text-primary-foreground"
           : status === "done"
-            ? "bg-success text-white"
+            ? "bg-success/15 text-success"
             : status === "stale" || status === "attention"
               ? "bg-warning/15 text-warning"
               : "text-muted-foreground ring-1 ring-border",

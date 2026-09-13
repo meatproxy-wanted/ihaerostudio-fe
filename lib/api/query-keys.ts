@@ -11,4 +11,18 @@ export const queryKeys = {
   publication: (projectId: string, publicationId: string) =>
     ["projects", projectId, "publications", publicationId] as const,
   reader: (projectId: string) => ["reader", projectId] as const,
+  sampleText: () => ["demo", "sample-text"] as const,
+  /** AI help is keyed by its input, so an edited sentence asks again. */
+  assist: {
+    simplify: (projectId: string, sentenceId: string, text: string) =>
+      ["assist", "simplify", projectId, sentenceId, text] as const,
+    split: (projectId: string, sentenceId: string, text: string) =>
+      ["assist", "split", projectId, sentenceId, text] as const,
+    terms: (projectId: string, text: string) =>
+      ["assist", "terms", projectId, text] as const,
+    explain: (projectId: string, term: string) =>
+      ["assist", "explain", projectId, term] as const,
+    images: (projectId: string, cardId: string) =>
+      ["assist", "images", projectId, cardId] as const,
+  },
 };

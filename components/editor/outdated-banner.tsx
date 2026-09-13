@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Alert02Icon } from "@hugeicons/core-free-icons";
 
-import { LongJobLoader, useLongJob } from "@/components/app/long-job";
+import { LongJobLoader } from "@/components/app/long-job";
 import { DRAFT_STEPS } from "@/components/structure/draft-steps";
+import {
+  regenerateWarning,
+  useGenerateDraft,
+} from "@/components/structure/use-generate-draft";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,10 +23,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
-import { api } from "@/lib/api/client";
-import { ApiError, errorMessage } from "@/lib/api/errors";
-import { cacheProject } from "@/lib/api/hooks";
-import { queryKeys } from "@/lib/api/query-keys";
+import { errorMessage } from "@/lib/api/errors";
 import { countTouchedSentences } from "@/lib/domain/document-ops";
 import type { Project } from "@/lib/domain/project";
 import { isDraftOutdated } from "@/lib/domain/steps";
@@ -42,29 +42,17 @@ export function OutdatedDraftBanner({
   onRegenerated,
 }: {
   project: Project;
-  flush: () => Promise<void>;
+  flush: () => Promise<boolean>;
   onRegenerated: () => void;
 }) {
   const store = useEditorStore();
-  const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
   const [touched, setTouched] = useState(0);
 
-  const regenerate = useLongJob({
-    run: async (_input: void, signal) => {
-      await flush();
-      if (store.getState().saveStatus === "error") {
-        throw new ApiError(
-          "failed",
-          "편집 내용을 저장하지 못해서 초안을 다시 만들 수 없어요.",
-        );
-      }
-      return api.document.generate(project.id, { signal });
-    },
-    onSuccess: (result) => {
-      queryClient.setQueryData(queryKeys.document(project.id), result.document);
-      cacheProject(queryClient, result.project);
-      queryClient.removeQueries({ queryKey: queryKeys.review(project.id) });
+  const regenerate = useGenerateDraft({
+    projectId: project.id,
+    save: flush,
+    onGenerated: () => {
       toast.add({ title: "초안을 다시 만들었어요", type: "success" });
       onRegenerated();
     },
@@ -119,9 +107,7 @@ export function OutdatedDraftBanner({
           <AlertDialogHeader>
             <AlertDialogTitle>{"초안을\n다시 만들까요?"}</AlertDialogTitle>
             <AlertDialogDescription>
-              {touched > 0
-                ? `지금까지 손본 문장 ${touched}개가 사라지고 새 초안으로 바뀌어요. 되돌릴 수 없어요.`
-                : "지금 초안이 새 초안으로 바뀌어요."}
+              {regenerateWarning(touched)}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

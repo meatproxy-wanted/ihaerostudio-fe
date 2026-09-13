@@ -6,7 +6,7 @@ import {
   MultiStepLoader,
   useTimedStep,
   type LoaderStep,
-} from "@/components/ui/multi-step-loader";
+} from "@/components/app/multi-step-loader";
 import { isAbortError } from "@/lib/api/errors";
 
 type Phase = "idle" | "running" | "done";

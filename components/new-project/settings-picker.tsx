@@ -1,9 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 
-import { RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type {
   Illustrations,
   Naming,
@@ -107,7 +106,7 @@ function ChoiceGroup<T extends string>({
         <span className="text-md font-semibold">{legend}</span>
       </legend>
       <p className="-mt-2 text-2sm text-muted-foreground">{description}</p>
-      <RadioGroupPrimitive
+      <RadioGroup
         value={value}
         onValueChange={(next) => onChange(next as T)}
         className={cn(
@@ -134,7 +133,7 @@ function ChoiceGroup<T extends string>({
             </span>
           </label>
         ))}
-      </RadioGroupPrimitive>
+      </RadioGroup>
     </fieldset>
   );
 }

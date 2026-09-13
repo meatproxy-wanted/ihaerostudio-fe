@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { api } from "@/lib/api/client";
+import { queryKeys } from "@/lib/api/query-keys";
 import { addTerm, findSentence } from "@/lib/domain/document-ops";
+import { newClientId } from "@/lib/ids";
 import { cn } from "@/lib/utils";
 
 import { sentenceElementId } from "../editor-canvas";
@@ -53,7 +55,7 @@ export function TermTool({ sentenceId }: { sentenceId: string }) {
   const selectedWord = useSelectedWord(sentenceId);
 
   const candidates = useQuery({
-    queryKey: ["assist", "terms", project.id, text],
+    queryKey: queryKeys.assist.terms(project.id, text),
     queryFn: ({ signal }) =>
       api.assist.termCandidates(project.id, { text }, { signal }),
     staleTime: Infinity,
@@ -124,7 +126,7 @@ export function TermTool({ sentenceId }: { sentenceId: string }) {
             const exists = registered.has(chosen);
             store.getState().apply((document) =>
               addTerm(document, {
-                id: `term-${crypto.randomUUID().slice(0, 8)}`,
+                id: newClientId("term"),
                 term: chosen,
                 explanation,
               }),
@@ -158,7 +160,7 @@ function TermEditor({
   const project = useCurrentProject();
   const [draft, setDraft] = useState<string | null>(existing);
   const explanation = useQuery({
-    queryKey: ["assist", "explain", project.id, term],
+    queryKey: queryKeys.assist.explain(project.id, term),
     queryFn: ({ signal }) =>
       api.assist.explainTerm(project.id, { term, context }, { signal }),
     enabled: existing === null,

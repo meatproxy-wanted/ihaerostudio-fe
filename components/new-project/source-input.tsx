@@ -11,11 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { isPdfFile, SOURCE_LIMITS } from "@/lib/domain/source";
 import { cn } from "@/lib/utils";
-
-export const PDF_MAX_BYTES = 20 * 1024 * 1024;
-export const TEXT_MIN = 100;
-export const TEXT_MAX = 100_000;
 
 export type SourceTab = "pdf" | "text";
 
@@ -28,20 +25,20 @@ export interface SourceDraft {
 export function sourceProblem(source: SourceDraft): string | null {
   if (source.tab === "pdf") {
     if (!source.file) return "판결문 PDF를 올려 주세요.";
-    const isPdf =
-      source.file.type === "application/pdf" ||
-      source.file.name.toLowerCase().endsWith(".pdf");
-    if (!isPdf) return "PDF 파일만 올릴 수 있어요.";
-    if (source.file.size > PDF_MAX_BYTES) {
+    if (!isPdfFile(source.file)) return "PDF 파일만 올릴 수 있어요.";
+    if (source.file.size > SOURCE_LIMITS.pdfMaxBytes) {
       return "20MB 이하의 PDF만 올릴 수 있어요.";
     }
     return null;
   }
   const length = source.text.trim().length;
   if (length === 0) return "판결문 텍스트를 붙여 넣어 주세요.";
-  if (length < TEXT_MIN)
-    return `텍스트가 너무 짧아요. ${TEXT_MIN}자 이상 넣어 주세요.`;
-  if (length > TEXT_MAX) return "10만 자 이하로 붙여 넣어 주세요.";
+  if (length < SOURCE_LIMITS.textMinLength) {
+    return `텍스트가 너무 짧아요. ${SOURCE_LIMITS.textMinLength}자 이상 넣어 주세요.`;
+  }
+  if (length > SOURCE_LIMITS.textMaxLength) {
+    return "10만 자 이하로 붙여 넣어 주세요.";
+  }
   return null;
 }
 
@@ -215,7 +212,8 @@ function TextSource({
       />
       <p className="self-end text-2sm text-muted-foreground tabular-nums">
         {count.toLocaleString("ko-KR")}자
-        {count < TEXT_MIN && ` · 최소 ${TEXT_MIN}자`}
+        {count < SOURCE_LIMITS.textMinLength &&
+          ` · 최소 ${SOURCE_LIMITS.textMinLength}자`}
       </p>
     </div>
   );

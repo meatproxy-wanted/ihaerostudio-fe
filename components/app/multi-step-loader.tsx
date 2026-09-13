@@ -58,7 +58,8 @@ function LoaderCore({
               className={cn(
                 "shrink-0",
                 done && "text-success",
-                current && "animate-pulse text-primary-text",
+                current &&
+                  "animate-pulse text-primary-text motion-reduce:animate-none",
                 !done && !current && "text-muted-foreground",
               )}
             />

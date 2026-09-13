@@ -1,4 +1,4 @@
-import type { LoaderStep } from "@/components/ui/multi-step-loader";
+import type { LoaderStep } from "@/components/app/multi-step-loader";
 
 export const DRAFT_STEPS: LoaderStep[] = [
   { text: "사건 구조를 확인하고 있어요" },

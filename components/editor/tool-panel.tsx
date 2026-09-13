@@ -46,6 +46,7 @@ import {
   verificationProgress,
 } from "@/lib/domain/document-ops";
 import { CARD_ROLE_LABELS } from "@/lib/domain/document";
+import { newClientId } from "@/lib/ids";
 
 import { LastCheckSummary, SentenceCheckItems } from "./check-notes";
 import { useReaderContext } from "./editor-context";
@@ -74,7 +75,7 @@ const SHORTCUTS: [keys: string, label: string][] = [
 ];
 
 function newSentenceId() {
-  return `s-${crypto.randomUUID().slice(0, 8)}`;
+  return newClientId("s");
 }
 
 export function ToolPanel() {

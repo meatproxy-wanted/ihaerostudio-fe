@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, use, useState, type ReactNode } from "react";
+import { createContext, use, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import type { Project } from "@/lib/domain/project";
@@ -36,8 +36,4 @@ export function ShellActions({ children }: { children: ReactNode }) {
   const value = use(ProjectContext);
   if (!value?.actionsTarget) return null;
   return createPortal(children, value.actionsTarget);
-}
-
-export function useActionsTarget() {
-  return useState<HTMLElement | null>(null);
 }

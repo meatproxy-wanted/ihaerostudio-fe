@@ -5,11 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 
 import { useCurrentProject } from "@/components/project-shell/project-context";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { api } from "@/lib/api/client";
+import { queryKeys } from "@/lib/api/query-keys";
 import { applySuggestion, findSentence } from "@/lib/domain/document-ops";
-import { cn } from "@/lib/utils";
 
 import { DiffView, NumberWarning } from "../diff-view";
 import { useEditor, useEditorStore } from "../editor-store";
@@ -25,7 +26,7 @@ export function SimplifyTool({ sentenceId }: { sentenceId: string }) {
   const [draft, setDraft] = useState<string | null>(null);
 
   const query = useQuery({
-    queryKey: ["assist", "simplify", project.id, sentenceId, text],
+    queryKey: queryKeys.assist.simplify(project.id, sentenceId, text),
     queryFn: ({ signal }) =>
       api.assist.simplify(project.id, { sentenceId, text }, { signal }),
     staleTime: Infinity,
@@ -61,28 +62,21 @@ export function SimplifyTool({ sentenceId }: { sentenceId: string }) {
       ) : (
         <>
           {suggestions.length > 1 && (
-            <div role="tablist" aria-label="수정안" className="flex gap-1">
-              {suggestions.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  role="tab"
-                  aria-selected={index === active}
-                  onClick={() => {
-                    setActive(index);
-                    setDraft(null);
-                  }}
-                  className={cn(
-                    "h-7 rounded-full px-3 text-2sm font-medium ring-1 ring-hairline",
-                    index === active
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground hover:bg-accent",
-                  )}
-                >
-                  수정안 {index + 1}
-                </button>
-              ))}
-            </div>
+            <Tabs
+              value={Math.min(active, suggestions.length - 1)}
+              onValueChange={(value: number) => {
+                setActive(value);
+                setDraft(null);
+              }}
+            >
+              <TabsList variant="pill" aria-label="수정안">
+                {suggestions.map((_, index) => (
+                  <TabsTrigger key={index} value={index}>
+                    수정안 {index + 1}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
           )}
 
           {draft === null ? (

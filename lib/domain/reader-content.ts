@@ -1,4 +1,4 @@
-import type { Illustrations, Tone } from "./common";
+import type { Illustrations, Settings, Tone } from "./common";
 import type { EasyDocument } from "./document";
 import { glossaryInReadingOrder } from "./document-ops";
 import { sameValue } from "./equality";
@@ -9,6 +9,18 @@ export interface ReaderContext {
   overview: CaseOverview;
   tone: Tone;
   illustrations: Illustrations;
+}
+
+/** What besides the document shapes the reader's copy: the cover and settings. */
+export function readerContextFor(
+  settings: Pick<Settings, "tone" | "illustrations">,
+  overview: CaseOverview,
+): ReaderContext {
+  return {
+    overview,
+    tone: settings.tone,
+    illustrations: settings.illustrations,
+  };
 }
 
 /** Projects a document onto what readers see; production data is dropped. */

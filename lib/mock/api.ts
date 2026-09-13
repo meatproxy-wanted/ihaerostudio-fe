@@ -12,6 +12,7 @@ import type { Project } from "../domain/project";
 import type { Publication } from "../domain/publication";
 import {
   isSameReaderContent,
+  readerContextFor,
   toReaderContent,
   type ReaderContext,
 } from "../domain/reader-content";
@@ -22,7 +23,11 @@ import {
   type ReviewRun,
 } from "../domain/review";
 import { isDraftOutdated } from "../domain/steps";
-import type { SourceDocument } from "../domain/source";
+import {
+  isPdfFile,
+  SOURCE_LIMITS,
+  type SourceDocument,
+} from "../domain/source";
 import type { CaseStructure } from "../domain/structure";
 import { sameValue } from "../domain/equality";
 import { isSameStructureContent } from "../domain/structure-ops";
@@ -55,9 +60,7 @@ import {
   storage,
 } from "./runtime";
 
-const MAX_PDF_BYTES = 20 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
-const TEXT_LIMITS = { min: 100, max: 100_000 };
 
 const keys = {
   projects: "projects",
@@ -100,17 +103,6 @@ async function updateProject(
 async function requireRecord<T>(key: string, what: string): Promise<T> {
   const value = await (await storage()).get<T>(key);
   return value ?? notFound(what);
-}
-
-function readerContext(
-  project: Project,
-  structure: CaseStructure,
-): ReaderContext {
-  return {
-    overview: structure.overview,
-    tone: project.settings.tone,
-    illustrations: project.settings.illustrations,
-  };
 }
 
 /**
@@ -159,19 +151,19 @@ function summarizeDocument(document: EasyDocument): Project["document"] {
 
 function validateSource(source: SourceInput) {
   if (source.kind === "pdf") {
-    const isPdf =
-      source.file.type === "application/pdf" ||
-      source.file.name.toLowerCase().endsWith(".pdf");
-    if (!isPdf) {
+    if (!isPdfFile(source.file)) {
       throw new ApiError("invalid-input", "PDF 파일만 올릴 수 있어요.");
     }
-    if (source.file.size > MAX_PDF_BYTES) {
+    if (source.file.size > SOURCE_LIMITS.pdfMaxBytes) {
       throw new ApiError("invalid-input", "20MB 이하의 PDF만 올릴 수 있어요.");
     }
     return;
   }
   const length = source.text.trim().length;
-  if (length < TEXT_LIMITS.min || length > TEXT_LIMITS.max) {
+  if (
+    length < SOURCE_LIMITS.textMinLength ||
+    length > SOURCE_LIMITS.textMaxLength
+  ) {
     throw new ApiError(
       "invalid-input",
       "판결문 텍스트는 100자 이상 10만 자 이하로 붙여 넣어 주세요.",
@@ -364,16 +356,8 @@ export function createMockApi(): ApiClient {
         ).overview;
         const document = await bumpContentIfReaderChanged(
           projectId,
-          {
-            overview,
-            tone: current.settings.tone,
-            illustrations: current.settings.illustrations,
-          },
-          {
-            overview,
-            tone: settings.tone,
-            illustrations: settings.illustrations,
-          },
+          readerContextFor(current.settings, overview),
+          readerContextFor(settings, overview),
         );
 
         return updateProject(projectId, (project) => ({
@@ -520,7 +504,7 @@ export function createMockApi(): ApiClient {
         const contentChanged = !isSameReaderContent(
           previous,
           document,
-          readerContext(project, structure),
+          readerContextFor(project.settings, structure.overview),
         );
         const next: EasyDocument = {
           ...clone(document),
@@ -772,7 +756,7 @@ export function createMockApi(): ApiClient {
             reviewed,
             content: toReaderContent(
               document,
-              readerContext(project, structure),
+              readerContextFor(project.settings, structure.overview),
             ),
           };
           publications.push(publication);

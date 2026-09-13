@@ -44,6 +44,13 @@ export const routes = {
   review: (projectId: string, options: { item?: string } = {}) =>
     withQuery(`/projects/${projectId}/review`, { item: options.item }),
   read: (projectId: string) => `/read/${projectId}`,
-  print: (projectId: string, publicationId: string) =>
-    withQuery(`/print/${projectId}`, { publication: publicationId }),
+  print: (
+    projectId: string,
+    publicationId: string,
+    options: { autoPrint?: boolean } = {},
+  ) =>
+    withQuery(`/print/${projectId}`, {
+      publication: publicationId,
+      auto: options.autoPrint ? "1" : undefined,
+    }),
 };

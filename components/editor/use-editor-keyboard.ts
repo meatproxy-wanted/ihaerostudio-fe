@@ -3,16 +3,9 @@
 import { useEffect } from "react";
 
 import { neighborSentenceId, setVerified } from "@/lib/domain/document-ops";
+import { shouldIgnoreShortcut } from "@/lib/shortcuts";
 
 import type { EditorStore } from "./editor-store";
-
-function typingInField(target: EventTarget | null) {
-  return (
-    target instanceof HTMLElement &&
-    (target.isContentEditable ||
-      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
-  );
-}
 
 /**
  * Editor shortcuts: ↑/↓ move between sentences, Enter edits, Escape clears
@@ -22,13 +15,7 @@ function typingInField(target: EventTarget | null) {
 export function useEditorKeyboard(store: EditorStore) {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.defaultPrevented || typingInField(event.target)) return;
-      if (
-        event.target instanceof HTMLElement &&
-        event.target.closest("[role=dialog],[role=menu],[role=listbox]")
-      ) {
-        return;
-      }
+      if (shouldIgnoreShortcut(event)) return;
       const state = store.getState();
       const mod = event.metaKey || event.ctrlKey;
 

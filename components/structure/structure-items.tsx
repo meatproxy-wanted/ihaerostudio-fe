@@ -36,6 +36,7 @@ import {
 import {
   moveItem,
   updateItem,
+  updateOverview,
   type StatementList,
 } from "@/lib/domain/structure-ops";
 
@@ -71,10 +72,7 @@ export function OverviewFields() {
   const overview = useStructure((state) => state.value.overview);
   const apply = useApply();
   const set = (key: keyof typeof overview) => (value: string) =>
-    apply((structure) => ({
-      ...structure,
-      overview: { ...structure.overview, [key]: value },
-    }));
+    apply((structure) => updateOverview(structure, { [key]: value }));
 
   return (
     <div className="grid grid-cols-2 gap-3 rounded-xl bg-card p-3 ring-1 ring-hairline">

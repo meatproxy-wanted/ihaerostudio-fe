@@ -38,7 +38,7 @@ import {
 import { queryKeys } from "@/lib/api/query-keys";
 import type { EasyDocument } from "@/lib/domain/document";
 import type { Project } from "@/lib/domain/project";
-import type { ReaderContext } from "@/lib/domain/reader-content";
+import { readerContextFor } from "@/lib/domain/reader-content";
 import type { SourceDocument } from "@/lib/domain/source";
 import type { CaseStructure } from "@/lib/domain/structure";
 import { parseEditorTool, routes, type EditorTool } from "@/lib/routes";
@@ -185,12 +185,8 @@ function EditorWorkspace({
   });
   useSaveFailureToast(autosave.saveStatus, () => void autosave.flush());
 
-  const context = useMemo<ReaderContext>(
-    () => ({
-      overview: structure.overview,
-      tone: project.settings.tone,
-      illustrations: project.settings.illustrations,
-    }),
+  const context = useMemo(
+    () => readerContextFor(project.settings, structure.overview),
     [structure.overview, project.settings],
   );
 

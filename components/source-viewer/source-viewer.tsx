@@ -369,6 +369,9 @@ function Paragraph({
             .filter((index) => index !== -1);
           const focused = anchorIndexes.includes(focusIndex);
           return (
+            // Clicking a mark is a mouse shortcut. Keyboard users select the
+            // linked item in the structure panel or sentence on the canvas,
+            // which highlights and scrolls to this same passage.
             <mark
               key={segment.start}
               data-active-anchor={

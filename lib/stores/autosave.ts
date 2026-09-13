@@ -55,18 +55,17 @@ export function useAutosave<T>({
   });
 
   /**
-   * Saves until the server has every edit. Resolves once nothing is pending;
-   * callers that need the saved state (e.g. before generating a draft) check
-   * `saveStatus` afterwards for a failure.
+   * Saves until the server has every edit. Resolves true once nothing is
+   * pending, or false when a save failed (the edits stay in the store).
    */
-  const flush = useCallback(async () => {
+  const flush = useCallback(async (): Promise<boolean> => {
     for (;;) {
       if (inFlight.current) {
         await inFlight.current;
         continue;
       }
       const state = store.getState();
-      if (state.changeCount === state.savedChangeCount) return;
+      if (state.changeCount === state.savedChangeCount) return true;
       const at = state.changeCount;
       state.markSaving();
       let failed = false;
@@ -81,7 +80,7 @@ export function useAutosave<T>({
           inFlight.current = null;
         });
       await inFlight.current;
-      if (failed) return;
+      if (failed) return false;
     }
   }, [store]);
 

@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 import { api } from "@/lib/api/client";
+import { queryKeys } from "@/lib/api/query-keys";
 import { applySplit, findSentence } from "@/lib/domain/document-ops";
+import { newClientId } from "@/lib/ids";
 
 import { NumberWarning } from "../diff-view";
 import { useEditor, useEditorStore } from "../editor-store";
@@ -23,7 +25,7 @@ export function SplitTool({ sentenceId }: { sentenceId: string }) {
   const [drafts, setDrafts] = useState<string[] | null>(null);
 
   const query = useQuery({
-    queryKey: ["assist", "split", project.id, sentenceId, text],
+    queryKey: queryKeys.assist.split(project.id, sentenceId, text),
     queryFn: ({ signal }) =>
       api.assist.split(project.id, { sentenceId, text }, { signal }),
     staleTime: Infinity,
@@ -33,7 +35,7 @@ export function SplitTool({ sentenceId }: { sentenceId: string }) {
   function apply(sentences: string[]) {
     const texts = sentences.map((item) => item.trim()).filter(Boolean);
     if (texts.length < 2) return;
-    const ids = texts.map(() => `s-${crypto.randomUUID().slice(0, 8)}`);
+    const ids = texts.map(() => newClientId("s"));
     const state = store.getState();
     state.apply((document) => applySplit(document, sentenceId, texts, ids));
     state.select({ type: "sentence", id: ids[0] });

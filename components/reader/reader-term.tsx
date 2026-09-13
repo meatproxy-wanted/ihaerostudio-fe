@@ -1,7 +1,5 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-
 import {
   Popover,
   PopoverContent,
@@ -14,22 +12,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 const NARROW = "(max-width: 639px)";
-
-function subscribe(onChange: () => void) {
-  const query = window.matchMedia(NARROW);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-function useNarrow() {
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(NARROW).matches,
-    () => false,
-  );
-}
 
 const triggerClassName =
   "cursor-pointer rounded-[0.2em] font-semibold underline decoration-foreground/50 decoration-dotted decoration-2 underline-offset-[0.28em] hover:bg-info/10 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none";
@@ -47,7 +32,7 @@ export function ReaderTerm({
   explanation: string;
   surface: string;
 }) {
-  const narrow = useNarrow();
+  const narrow = useMediaQuery(NARROW);
   const trigger = (
     <button type="button" className={triggerClassName}>
       {surface}

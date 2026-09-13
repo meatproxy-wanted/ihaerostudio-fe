@@ -1,6 +1,14 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Image from "next/image";
 
 import { SectionHeading } from "@/components/document/card-frame";
@@ -119,10 +127,10 @@ function buildBlocks(content: ReaderContent): Block[] {
           id: `term-${term.id}`,
           height: 0,
           node: (
-            <div className="grid grid-cols-[35mm_1fr] gap-[5mm] border-b-[0.3mm] border-border pb-[3mm] text-[14pt] leading-[1.6] [word-break:keep-all]">
+            <dl className="grid grid-cols-[35mm_1fr] gap-[5mm] border-b-[0.3mm] border-border pb-[3mm] text-[14pt] leading-[1.6] [word-break:keep-all]">
               <dt className="font-bold">{term.term}</dt>
               <dd>{term.explanation}</dd>
-            </div>
+            </dl>
           ),
         });
       }
@@ -176,14 +184,11 @@ export function PrintDocument({
 }) {
   const measureRef = useRef<HTMLDivElement>(null);
   const [pages, setPages] = useState<NumberedPage[] | null>(null);
-  const blocks = buildBlocks(content);
+  const blocks = useMemo(() => buildBlocks(content), [content]);
   const byId = new Map(blocks.map((block) => [block.id, block]));
-  const signature = JSON.stringify(content) + String(draft);
-  const onReadyRef = useRef(onReady);
-
-  useEffect(() => {
-    onReadyRef.current = onReady;
-  });
+  const reportReady = useEffectEvent((pageCount: number) =>
+    onReady?.(pageCount),
+  );
 
   useEffect(() => {
     const root = measureRef.current;
@@ -213,14 +218,12 @@ export function PrintDocument({
         gap: GAP_MM * MM_TO_PX,
       });
       setPages(numberPages(result));
-      onReadyRef.current?.(result.length);
+      reportReady(result.length);
     });
     return () => {
       cancelled = true;
     };
-    // The signature captures every input that changes block heights.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signature]);
+  }, [blocks, draft]);
 
   return (
     <>
@@ -245,7 +248,7 @@ export function PrintDocument({
           <section
             key={page.number}
             aria-label={`${page.number}쪽`}
-            className="print-page paper relative flex shrink-0 flex-col overflow-hidden bg-white shadow-dialog ring-1 ring-hairline print:shadow-none print:ring-0"
+            className="print-page paper relative flex shrink-0 flex-col overflow-hidden bg-background shadow-dialog ring-1 ring-hairline print:shadow-none print:ring-0"
             style={{
               width: `${PAGE.width}mm`,
               height: `${PAGE.height}mm`,

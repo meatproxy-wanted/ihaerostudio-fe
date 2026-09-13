@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -13,6 +13,7 @@ import {
 import { LongJobLoader, useLongJob } from "@/components/app/long-job";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { api } from "@/lib/api/client";
 import { errorMessage } from "@/lib/api/errors";
 import { cacheProject } from "@/lib/api/hooks";
@@ -29,6 +30,14 @@ function toSourceInput(source: SourceDraft): CreateProjectInput["source"] {
   return source.tab === "pdf" && source.file
     ? { kind: "pdf", file: source.file }
     : { kind: "text", text: source.text };
+}
+
+function showSampleError(error: unknown) {
+  toast.add({
+    title: "샘플 판결문을 불러오지 못했어요",
+    description: errorMessage(error),
+    type: "error",
+  });
 }
 
 function SectionHeading({
@@ -69,16 +78,32 @@ export function NewProjectForm() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [attempted, setAttempted] = useState(false);
 
+  // Cached, so arriving with ?sample=1 and then pressing the sample button
+  // asks the server once.
+  const loadSample = useCallback(
+    () =>
+      queryClient.fetchQuery({
+        queryKey: queryKeys.sampleText(),
+        queryFn: () => api.demo.sampleText(),
+        staleTime: Infinity,
+      }),
+    [queryClient],
+  );
+
   useEffect(() => {
     if (!wantsSample) return;
     let active = true;
-    api.demo.sampleText().then((text) => {
-      if (active) setSource({ tab: "text", file: null, text });
-    });
+    loadSample()
+      .then((text) => {
+        if (active) setSource({ tab: "text", file: null, text });
+      })
+      .catch((error: unknown) => {
+        if (active) showSampleError(error);
+      });
     return () => {
       active = false;
     };
-  }, [wantsSample]);
+  }, [wantsSample, loadSample]);
 
   const analysis = useLongJob({
     run: (input: CreateProjectInput, signal) =>
@@ -99,7 +124,13 @@ export function NewProjectForm() {
   }
 
   async function startWithSample() {
-    const text = await api.demo.sampleText();
+    let text: string;
+    try {
+      text = await loadSample();
+    } catch (error) {
+      showSampleError(error);
+      return;
+    }
     setSource({ tab: "text", file: null, text });
     void analysis.start({ source: { kind: "text", text }, settings });
   }

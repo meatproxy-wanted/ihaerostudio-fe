@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { addItem, countFlags } from "@/lib/domain/structure-ops";
 import type { StructureList } from "@/lib/domain/structure-ops";
+import { newClientId } from "@/lib/ids";
 import { cn } from "@/lib/utils";
 
 import {
@@ -43,7 +44,7 @@ const SECTIONS = [
 ];
 
 function newItemId(list: StructureList) {
-  return `${list}-${crypto.randomUUID().slice(0, 8)}`;
+  return newClientId(list);
 }
 
 function useAdd() {
@@ -233,7 +234,7 @@ export function StructurePanel({
                     </AddButton>
                   </div>
                   {claims.length === 0 && (
-                    <p className="ring-dashed rounded-xl px-3 py-2 text-2sm text-muted-foreground ring-1 ring-hairline">
+                    <p className="rounded-xl border border-dashed border-border px-3 py-2 text-2sm text-muted-foreground">
                       아직 주장이 없어요.
                     </p>
                   )}

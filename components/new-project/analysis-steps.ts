@@ -1,4 +1,4 @@
-import type { LoaderStep } from "@/components/ui/multi-step-loader";
+import type { LoaderStep } from "@/components/app/multi-step-loader";
 
 export const ANALYSIS_STEPS: LoaderStep[] = [
   { text: "판결문을 읽고 있어요" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -20,8 +20,10 @@ import {
 import { ReviewStatusBadge } from "@/components/projects/status-badges";
 import { ReaderView } from "@/components/reader/reader-view";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParamsSync } from "@/hooks/use-search-params-sync";
 import { useDocumentQuery, useStructureQuery } from "@/lib/api/hooks";
-import { toReaderContent } from "@/lib/domain/reader-content";
+import { readerContextFor, toReaderContent } from "@/lib/domain/reader-content";
 import { getReviewStatus } from "@/lib/domain/steps";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -40,44 +42,12 @@ const DEVICES: {
   { key: "wide", label: "넓은 화면", icon: ComputerIcon, width: "100%" },
 ];
 
-function Segmented<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: T;
-  options: { key: T; label: string; icon?: typeof ComputerIcon }[];
-  onChange: (value: T) => void;
-}) {
-  return (
-    <div
-      role="radiogroup"
-      aria-label={label}
-      className="flex rounded-[10px] bg-muted p-[3px] shadow-[inset_0_0_0_0.75px_var(--hairline)]"
-    >
-      {options.map((option) => (
-        <button
-          key={option.key}
-          type="button"
-          role="radio"
-          aria-checked={value === option.key}
-          onClick={() => onChange(option.key)}
-          className={cn(
-            "flex h-8 items-center gap-1.5 rounded-[7px] px-3 text-2sm font-medium text-muted-foreground",
-            value === option.key &&
-              "bg-segment font-semibold text-foreground shadow-sm",
-          )}
-        >
-          {option.icon && (
-            <HugeiconsIcon icon={option.icon} strokeWidth={2} size={16} />
-          )}
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
+function parseTab(value: string | null): Tab {
+  return value === "print" ? "print" : "reader";
+}
+
+function parseDevice(value: string | null): Device {
+  return DEVICES.find((item) => item.key === value)?.key ?? "phone";
 }
 
 export function PreviewScreen() {
@@ -85,29 +55,21 @@ export function PreviewScreen() {
   const searchParams = useSearchParams();
   const document = useDocumentQuery(project.id);
   const structure = useStructureQuery(project.id);
-  const [tab, setTab] = useState<Tab>(
-    searchParams.get("tab") === "print" ? "print" : "reader",
-  );
-  const [device, setDevice] = useState<Device>(
-    (searchParams.get("device") as Device | null) ?? "phone",
+  const [tab, setTab] = useState<Tab>(() => parseTab(searchParams.get("tab")));
+  const [device, setDevice] = useState<Device>(() =>
+    parseDevice(searchParams.get("device")),
   );
   const [pageCount, setPageCount] = useState<number | null>(null);
 
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("tab", tab);
-    url.searchParams.set("device", device);
-    window.history.replaceState(null, "", url);
-  }, [tab, device]);
+  useSearchParamsSync({ tab, device });
 
   const content = useMemo(
     () =>
       document.data && structure.data
-        ? toReaderContent(document.data, {
-            overview: structure.data.overview,
-            tone: project.settings.tone,
-            illustrations: project.settings.illustrations,
-          })
+        ? toReaderContent(
+            document.data,
+            readerContextFor(project.settings, structure.data.overview),
+          )
         : null,
     [document.data, structure.data, project.settings],
   );
@@ -154,22 +116,33 @@ export function PreviewScreen() {
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-hairline px-6 py-3">
         <h2 className="text-lg font-bold tracking-tight">결과물 미리보기</h2>
         <ReviewStatusBadge project={project} />
-        <Segmented
-          label="미리보기 종류"
+        <Tabs
           value={tab}
-          onChange={setTab}
-          options={[
-            { key: "reader", label: "읽기 화면" },
-            { key: "print", label: "인쇄용" },
-          ]}
-        />
+          onValueChange={(value: string) => setTab(parseTab(value))}
+        >
+          <TabsList aria-label="미리보기 종류">
+            <TabsTrigger value="reader">읽기 화면</TabsTrigger>
+            <TabsTrigger value="print">인쇄용</TabsTrigger>
+          </TabsList>
+        </Tabs>
         {tab === "reader" ? (
-          <Segmented
-            label="기기 폭"
+          <Tabs
             value={device}
-            onChange={setDevice}
-            options={DEVICES}
-          />
+            onValueChange={(value: string) => setDevice(parseDevice(value))}
+          >
+            <TabsList aria-label="기기 폭">
+              {DEVICES.map((option) => (
+                <TabsTrigger key={option.key} value={option.key}>
+                  <HugeiconsIcon
+                    icon={option.icon}
+                    strokeWidth={2}
+                    data-icon="inline-start"
+                  />
+                  {option.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         ) : (
           <p className="text-2sm text-muted-foreground" aria-live="polite">
             {pageCount === null
@@ -189,7 +162,7 @@ export function PreviewScreen() {
           <div className="flex h-full justify-center p-6">
             <div
               className={cn(
-                "h-full overflow-hidden bg-white shadow-dialog ring-1 ring-hairline",
+                "paper h-full overflow-hidden bg-background shadow-dialog ring-1 ring-hairline",
                 device === "phone"
                   ? "rounded-[36px] ring-8 ring-foreground/80"
                   : "rounded-2xl",

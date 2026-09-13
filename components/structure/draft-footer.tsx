@@ -20,6 +20,7 @@ import { getDraftReadiness } from "@/lib/domain/structure-ops";
 
 import { itemElementId } from "./item-shell";
 import { useStructure, useStructureStore } from "./structure-store";
+import { regenerateWarning } from "./use-generate-draft";
 
 type Confirmation = "flags" | "regenerate" | null;
 
@@ -156,9 +157,7 @@ export function DraftFooter({
               <AlertDialogHeader>
                 <AlertDialogTitle>{"초안을\n다시 만들까요?"}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  {touchedSentences
-                    ? `지금까지 손본 문장 ${touchedSentences}개가 사라지고 새 초안으로 바뀌어요.`
-                    : "지금 초안이 새 초안으로 바뀌어요."}
+                  {regenerateWarning(touchedSentences)}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

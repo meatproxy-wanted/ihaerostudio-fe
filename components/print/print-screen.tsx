@@ -52,10 +52,10 @@ export function PrintScreen({ projectId }: { projectId: string }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 bg-secondary py-8 print:bg-white print:py-0">
+    <div className="flex flex-col items-center gap-6 bg-secondary py-8 print:bg-background print:py-0">
       <style>
         {
-          "@page { size: A4; margin: 0; } @media print { body { background: #fff; } .print-page { break-after: page; } }"
+          "@page { size: A4; margin: 0; } @media print { body { background: none; } .print-page { break-after: page; } }"
         }
       </style>
       <div className="flex w-[210mm] max-w-full items-center justify-between gap-3 rounded-2xl bg-background px-4 py-3 ring-1 ring-hairline print:hidden">

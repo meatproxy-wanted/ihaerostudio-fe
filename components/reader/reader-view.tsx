@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
@@ -15,6 +15,7 @@ import {
   readingPages,
   type ReadingPage,
 } from "@/lib/domain/reading";
+import { shouldIgnoreShortcut } from "@/lib/shortcuts";
 import { cn } from "@/lib/utils";
 
 import { ReaderTerm } from "./reader-term";
@@ -68,17 +69,17 @@ export function ReaderView({
     else window.scrollTo({ top: 0 });
   }, [pageIndex, mode, embedded]);
 
+  const onShortcut = useEffectEvent((event: KeyboardEvent) => {
+    if (shouldIgnoreShortcut(event) || event.metaKey || event.altKey) return;
+    if (event.key === "ArrowRight") go(1);
+    if (event.key === "ArrowLeft") go(-1);
+  });
   useEffect(() => {
     if (embedded || mode !== "page") return;
-    function onKeyDown(event: KeyboardEvent) {
-      const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, [role=dialog]")) return;
-      if (event.key === "ArrowRight") go(1);
-      if (event.key === "ArrowLeft") go(-1);
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  });
+    const listener = (event: KeyboardEvent) => onShortcut(event);
+    window.addEventListener("keydown", listener);
+    return () => window.removeEventListener("keydown", listener);
+  }, [embedded, mode]);
 
   function changeSize(next: number) {
     setSize(next);

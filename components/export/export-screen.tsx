@@ -111,7 +111,7 @@ export function ExportScreen() {
     const tab = window.open("about:blank", "_blank");
     try {
       const { publication } = await publish.mutateAsync();
-      const url = `${routes.print(project.id, publication.id)}&auto=1`;
+      const url = routes.print(project.id, publication.id, { autoPrint: true });
       if (tab) tab.location.href = url;
       else router.push(url);
     } catch (error) {
@@ -330,7 +330,7 @@ export function ExportScreen() {
           )}
         </section>
 
-        <section className="ring-dashed flex flex-col gap-2 rounded-2xl p-5 ring-1 ring-hairline">
+        <section className="flex flex-col gap-2 rounded-2xl border border-dashed border-border p-5">
           <h3 className="text-sm font-bold">
             모든 결과물에 자동으로 들어가는 안내
           </h3>
@@ -418,7 +418,7 @@ function PublicationRow({
         nativeButton={false}
         render={
           <a
-            href={`${routes.print(projectId, publication.id)}&auto=1`}
+            href={routes.print(projectId, publication.id, { autoPrint: true })}
             target="_blank"
             rel="noreferrer"
           />

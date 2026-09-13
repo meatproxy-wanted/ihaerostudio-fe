@@ -10,7 +10,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
 import { ErrorState } from "@/components/app/error-state";
-import { LongJobLoader, useLongJob } from "@/components/app/long-job";
+import { LongJobLoader } from "@/components/app/long-job";
 import { PanesSkeleton } from "@/components/app/panes-skeleton";
 import {
   SaveIndicator,
@@ -62,6 +62,7 @@ import {
   StructureStoreContext,
   type StructureStore,
 } from "./structure-store";
+import { useGenerateDraft } from "./use-generate-draft";
 
 const LISTS: StructureList[] = [
   "parties",
@@ -143,23 +144,10 @@ function StructureEditor({
   });
   useSaveFailureToast(autosave.saveStatus, () => void autosave.flush());
 
-  const draft = useLongJob({
-    run: async (_input: void, signal) => {
-      await autosave.flush();
-      if (store.getState().saveStatus === "error") {
-        throw new ApiError(
-          "failed",
-          "사건 구조를 저장하지 못해서 초안을 만들 수 없어요. 저장을 다시 시도해 주세요.",
-        );
-      }
-      return api.document.generate(project.id, { signal });
-    },
-    onSuccess: (result) => {
-      queryClient.setQueryData(queryKeys.document(project.id), result.document);
-      cacheProject(queryClient, result.project);
-      queryClient.removeQueries({ queryKey: queryKeys.review(project.id) });
-      router.push(routes.step(project.id, "edit"));
-    },
+  const draft = useGenerateDraft({
+    projectId: project.id,
+    save: autosave.flush,
+    onGenerated: () => router.push(routes.step(project.id, "edit")),
   });
 
   const hasDraft = project.document !== null;

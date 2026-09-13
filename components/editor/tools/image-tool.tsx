@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
 import { api } from "@/lib/api/client";
+import { queryKeys } from "@/lib/api/query-keys";
 import { errorMessage } from "@/lib/api/errors";
 import type { ImageCandidate } from "@/lib/api/types";
 import type { DocImage } from "@/lib/domain/document";
@@ -23,6 +24,7 @@ import {
   setCardImage,
   updateImageText,
 } from "@/lib/domain/document-ops";
+import { newClientId } from "@/lib/ids";
 import { cn } from "@/lib/utils";
 
 import { useEditor, useEditorStore } from "../editor-store";
@@ -108,7 +110,7 @@ export function ImageTool({
   const fileInput = useRef<HTMLInputElement>(null);
 
   const candidates = useQuery({
-    queryKey: ["assist", "images", project.id, cardId],
+    queryKey: queryKeys.assist.images(project.id, cardId),
     queryFn: ({ signal }) =>
       api.assist.imageCandidates(project.id, { cardId }, { signal }),
     enabled: browsing,
@@ -172,7 +174,7 @@ export function ImageTool({
         {image ? (
           <Thumb src={image.src} alt={image.alt} />
         ) : (
-          <span className="ring-dashed flex aspect-[4/3] items-center justify-center rounded-lg text-muted-foreground ring-1 ring-hairline">
+          <span className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
             <HugeiconsIcon icon={ImageNotFound01Icon} strokeWidth={2} />
           </span>
         )}
@@ -240,7 +242,7 @@ export function ImageTool({
               {image ? (
                 <Thumb src={image.src} alt={image.alt} />
               ) : (
-                <span className="ring-dashed aspect-[4/3] rounded-lg ring-1 ring-hairline" />
+                <span className="aspect-[4/3] rounded-lg border border-dashed border-border" />
               )}
             </div>
             <div className="flex flex-col gap-1">
@@ -268,7 +270,7 @@ export function ImageTool({
               onClick={() =>
                 replace(
                   {
-                    id: `img-${crypto.randomUUID().slice(0, 8)}`,
+                    id: newClientId("img"),
                     src: candidate.src,
                     alt: candidateAlt.trim(),
                     meaning: candidate.meaning,

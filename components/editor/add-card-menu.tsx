@@ -20,11 +20,12 @@ import {
 } from "@/lib/domain/document";
 import { addCard } from "@/lib/domain/document-ops";
 import { withParticle } from "@/lib/domain/korean";
+import { newClientId } from "@/lib/ids";
 
 import { useEditor, useEditorStore } from "./editor-store";
 
 function newId(prefix: string) {
-  return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+  return newClientId(prefix);
 }
 
 /** Adds a card whose role fits the section, then starts writing in it. */

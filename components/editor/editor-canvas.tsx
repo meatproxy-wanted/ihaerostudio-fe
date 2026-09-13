@@ -345,10 +345,11 @@ function CanvasSentence({ id }: { id: string }) {
             text={sentence.text}
             terms={glossary}
             renderTerm={(term, surface, key) => (
+              // A mouse shortcut to the term tool; keyboard users reach the
+              // same tool from the panel, so this stays out of the tab order
+              // and is not a second control nested inside the sentence.
               <span
                 key={key}
-                role="button"
-                tabIndex={-1}
                 title={term.explanation}
                 onClick={(event) => {
                   event.stopPropagation();
@@ -397,7 +398,7 @@ function CanvasGlossary() {
 
   if (entries.length === 0) {
     return (
-      <p className="ring-dashed rounded-2xl px-5 py-4 text-md text-muted-foreground ring-1 ring-hairline">
+      <p className="rounded-2xl border border-dashed border-border px-5 py-4 text-md text-muted-foreground">
         아직 풀이한 말이 없어요. 문장을 고르고 [용어 설명 추가]를 눌러 보세요.
       </p>
     );

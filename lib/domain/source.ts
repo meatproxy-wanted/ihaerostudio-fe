@@ -30,6 +30,19 @@ export const sourceDocumentSchema = z.object({
 });
 export type SourceDocument = z.infer<typeof sourceDocumentSchema>;
 
+/** What a judgment upload may be; the input screen checks before sending. */
+export const SOURCE_LIMITS = {
+  pdfMaxBytes: 20 * 1024 * 1024,
+  textMinLength: 100,
+  textMaxLength: 100_000,
+} as const;
+
+export function isPdfFile(file: { type: string; name: string }): boolean {
+  return (
+    file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")
+  );
+}
+
 export const SOURCE_BLOCK_LABELS: Record<SourceBlock, string> = {
   header: "사건 정보",
   order: "주문",
