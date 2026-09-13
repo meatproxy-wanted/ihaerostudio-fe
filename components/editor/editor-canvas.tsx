@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -15,9 +15,13 @@ import { CardLabel } from "@/components/document/card-label";
 import { DISCLAIMER } from "@/components/document/disclaimer";
 import { TermText } from "@/components/document/term-text";
 import type { ReaderCard } from "@/lib/domain/publication";
+import type { SectionKind } from "@/lib/domain/document";
 import {
+  editSentenceText,
   findSentence,
   glossaryInReadingOrder,
+  updateSectionTitle,
+  updateTitles,
 } from "@/lib/domain/document-ops";
 import {
   toReaderContent,
@@ -25,7 +29,9 @@ import {
 } from "@/lib/domain/reader-content";
 import { cn } from "@/lib/utils";
 
+import { AddCardMenu } from "./add-card-menu";
 import { useEditor, useEditorStore } from "./editor-store";
+import { InlineText, SentenceEditor } from "./inline-edit";
 
 export function sentenceElementId(id: string) {
   return `canvas-sentence-${id}`;
@@ -44,6 +50,8 @@ export function EditorCanvas({ context }: { context: ReaderContext }) {
     [document, context],
   );
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!selection) return;
     const element = window.document.getElementById(
@@ -52,10 +60,22 @@ export function EditorCanvas({ context }: { context: ReaderContext }) {
         : cardElementId(selection.id),
     );
     element?.scrollIntoView({ block: "nearest" });
+    // Keep keyboard focus on the selection unless the producer is elsewhere
+    // (typing in the tool panel, reading the source).
+    const active = window.document.activeElement;
+    if (
+      selection.type === "sentence" &&
+      element &&
+      (active === window.document.body ||
+        containerRef.current?.contains(active))
+    ) {
+      element.focus({ preventScroll: true });
+    }
   }, [selection]);
 
   return (
     <div
+      ref={containerRef}
       className="paper h-full overflow-y-auto"
       onClick={(event) => {
         if (event.target === event.currentTarget) store.getState().select(null);
@@ -70,29 +90,59 @@ export function EditorCanvas({ context }: { context: ReaderContext }) {
         </p>
 
         <header className="flex flex-col gap-2">
-          <h1 className="text-3xl leading-tight font-bold tracking-tight [word-break:keep-all]">
-            {content.title}
-          </h1>
-          <p className="text-lg text-muted-foreground">{content.subtitle}</p>
+          <InlineText
+            label="자료 제목"
+            value={document.title}
+            onCommit={(title) =>
+              store.getState().apply((value) => updateTitles(value, { title }))
+            }
+            className="text-3xl leading-tight font-bold tracking-tight [word-break:keep-all]"
+            inputClassName="text-3xl font-bold"
+          />
+          <InlineText
+            label="한 줄 설명"
+            value={document.subtitle}
+            onCommit={(subtitle) =>
+              store
+                .getState()
+                .apply((value) => updateTitles(value, { subtitle }))
+            }
+            className="text-lg text-muted-foreground"
+            inputClassName="text-lg"
+          />
         </header>
 
         {content.sections.map((section, index) => (
           <section key={section.kind} className="flex flex-col gap-4">
             <SectionHeading number={index + 1}>
-              <h2 className="text-2xl font-bold tracking-tight">
-                {section.title}
+              <h2 className="flex-1 text-2xl font-bold tracking-tight">
+                <InlineText
+                  label="구획 제목"
+                  value={section.title}
+                  onCommit={(title) =>
+                    store
+                      .getState()
+                      .apply((value) =>
+                        updateSectionTitle(value, section.kind, title),
+                      )
+                  }
+                  inputClassName="text-2xl font-bold"
+                />
               </h2>
             </SectionHeading>
             {section.kind === "glossary" ? (
               <CanvasGlossary />
             ) : (
-              section.cards.map((card) => (
-                <CanvasCard
-                  key={card.id}
-                  card={card}
-                  withPictures={context.illustrations === "with"}
-                />
-              ))
+              <>
+                {section.cards.map((card) => (
+                  <CanvasCard
+                    key={card.id}
+                    card={card}
+                    withPictures={context.illustrations === "with"}
+                  />
+                ))}
+                <AddCardMenu section={section.kind as SectionKind} />
+              </>
             )}
           </section>
         ))}
@@ -181,6 +231,7 @@ function CanvasSentence({ id }: { id: string }) {
     (state) =>
       state.selection?.type === "sentence" && state.selection.id === id,
   );
+  const editing = useEditor((state) => state.editingId === id);
   const suggesting = useEditor(
     (state) =>
       state.selection?.type === "sentence" &&
@@ -194,6 +245,22 @@ function CanvasSentence({ id }: { id: string }) {
     sentence.anchors.length === 0 && "원문 근거 없음",
     sentence.origin === "ai-suggestion" && "AI 수정안 적용",
   ].filter(Boolean);
+
+  if (editing) {
+    return (
+      <li id={sentenceElementId(id)}>
+        <SentenceEditor
+          value={sentence.text}
+          onCommit={(text) => {
+            const state = store.getState();
+            if (text) state.apply((value) => editSentenceText(value, id, text));
+            state.stopEditing();
+          }}
+          onCancel={() => store.getState().stopEditing()}
+        />
+      </li>
+    );
+  }
 
   return (
     <li>

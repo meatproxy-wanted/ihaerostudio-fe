@@ -40,6 +40,7 @@ import { routes } from "@/lib/routes";
 import { useAutosave } from "@/lib/stores/autosave";
 
 import { EditorCanvas } from "./editor-canvas";
+import { EditorReaderContext } from "./editor-context";
 import { EditorSource } from "./editor-source";
 import {
   createEditorStore,
@@ -47,7 +48,9 @@ import {
   type EditorSelection,
   type EditorStore,
 } from "./editor-store";
+import { EditorToolbar } from "./editor-toolbar";
 import { ToolPanel } from "./tool-panel";
+import { useEditorKeyboard } from "./use-editor-keyboard";
 
 export function EditorScreen() {
   const project = useCurrentProject();
@@ -129,6 +132,7 @@ function EditorWorkspace({
     panelIds: ["source", "canvas", "tools"],
   });
   useSelectionInUrl(store);
+  useEditorKeyboard(store);
 
   const autosave = useAutosave({
     store,
@@ -151,72 +155,75 @@ function EditorWorkspace({
 
   return (
     <EditorStoreContext value={store}>
-      <SourceTextProvider source={source}>
-        <ShellActions>
-          <SaveIndicator
-            status={autosave.saveStatus}
-            dirty={autosave.dirty}
-            onRetry={() => void autosave.flush()}
-          />
-          <Button
-            size="sm"
-            nativeButton={false}
-            render={<Link href={routes.step(project.id, "review")} />}
-          >
-            검토하기
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              strokeWidth={2}
-              data-icon="inline-end"
+      <EditorReaderContext value={context}>
+        <SourceTextProvider source={source}>
+          <ShellActions>
+            <EditorToolbar />
+            <SaveIndicator
+              status={autosave.saveStatus}
+              dirty={autosave.dirty}
+              onRetry={() => void autosave.flush()}
             />
-          </Button>
-        </ShellActions>
+            <Button
+              size="sm"
+              nativeButton={false}
+              render={<Link href={routes.step(project.id, "review")} />}
+            >
+              검토하기
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                strokeWidth={2}
+                data-icon="inline-end"
+              />
+            </Button>
+          </ShellActions>
 
-        <ResizablePanelGroup
-          orientation="horizontal"
-          defaultLayout={layout.defaultLayout}
-          onLayoutChanged={layout.onLayoutChanged}
-        >
-          <ResizablePanel
-            id="source"
-            panelRef={sourcePanel}
-            defaultSize="30"
-            minSize="18"
-            collapsible
-            collapsedSize="0"
-            onResize={(size) => setSourceCollapsed(size.asPercentage === 0)}
+          <ResizablePanelGroup
+            orientation="horizontal"
+            defaultLayout={layout.defaultLayout}
+            onLayoutChanged={layout.onLayoutChanged}
           >
-            <EditorSource source={source} />
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel id="canvas" defaultSize="44" minSize="30">
-            <div className="relative h-full">
-              <Button
-                variant="secondary"
-                size="xs"
-                className="absolute top-3 left-3 z-10"
-                onClick={() =>
-                  sourceCollapsed
-                    ? sourcePanel.current?.expand()
-                    : sourcePanel.current?.collapse()
-                }
-              >
-                <HugeiconsIcon
-                  icon={SidebarLeftIcon}
-                  strokeWidth={2}
-                  data-icon="inline-start"
-                />
-                {sourceCollapsed ? "원문 펼치기" : "원문 접기"}
-              </Button>
-              <EditorCanvas context={context} />
-            </div>
-          </ResizablePanel>
-          <ResizableHandle withHandle />
-          <ResizablePanel id="tools" defaultSize="26" minSize={320}>
-            <ToolPanel />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </SourceTextProvider>
+            <ResizablePanel
+              id="source"
+              panelRef={sourcePanel}
+              defaultSize="30"
+              minSize="18"
+              collapsible
+              collapsedSize="0"
+              onResize={(size) => setSourceCollapsed(size.asPercentage === 0)}
+            >
+              <EditorSource source={source} />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel id="canvas" defaultSize="44" minSize="30">
+              <div className="relative h-full">
+                <Button
+                  variant="secondary"
+                  size="xs"
+                  className="absolute top-3 left-3 z-10"
+                  onClick={() =>
+                    sourceCollapsed
+                      ? sourcePanel.current?.expand()
+                      : sourcePanel.current?.collapse()
+                  }
+                >
+                  <HugeiconsIcon
+                    icon={SidebarLeftIcon}
+                    strokeWidth={2}
+                    data-icon="inline-start"
+                  />
+                  {sourceCollapsed ? "원문 펼치기" : "원문 접기"}
+                </Button>
+                <EditorCanvas context={context} />
+              </div>
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+            <ResizablePanel id="tools" defaultSize="26" minSize={320}>
+              <ToolPanel />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </SourceTextProvider>
+      </EditorReaderContext>
     </EditorStoreContext>
   );
 }
