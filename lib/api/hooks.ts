@@ -61,3 +61,11 @@ export function useResetDemo() {
     },
   });
 }
+
+export function useSource(projectId: string) {
+  return useQuery({
+    queryKey: queryKeys.source(projectId),
+    queryFn: () => api.source.get(projectId),
+    staleTime: Infinity,
+  });
+}
