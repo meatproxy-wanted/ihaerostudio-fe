@@ -12,9 +12,10 @@ export const metadata: Metadata = {
 
 /*
  * Applied before paint so a stored dark theme never flashes light. Mirrors
- * `applyTheme` in components/theme-toggle.tsx.
+ * `applyTheme` in components/theme-toggle.tsx. Reader and print pages are
+ * paper for everyone, so they always stay light.
  */
-const themeScript = `(function(){try{var s=localStorage.getItem("ihaerostudio-theme");var d=s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
+const themeScript = `(function(){try{var p=location.pathname;var paper=p.indexOf("/read/")===0||p.indexOf("/print/")===0;var s=localStorage.getItem("ihaerostudio-theme");var d=!paper&&(s==="dark"||(s!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches));document.documentElement.classList.toggle("dark",d);document.documentElement.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
