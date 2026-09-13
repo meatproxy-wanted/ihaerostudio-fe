@@ -49,8 +49,10 @@ import type { EasyDocument } from "@/lib/domain/document";
 import type { Project } from "@/lib/domain/project";
 import type { ReviewItem, ReviewRun } from "@/lib/domain/review";
 import type { SourceDocument } from "@/lib/domain/source";
+import { getReviewStatus } from "@/lib/domain/steps";
 import { routes } from "@/lib/routes";
 
+import { FinishReviewDialog } from "./finish-review-dialog";
 import { ReviewDetail } from "./review-detail";
 import { ReviewList } from "./review-list";
 import { isHandled, visibleItems, type ReviewFilter } from "./review-model";
@@ -231,6 +233,7 @@ function ReviewWorkspace({
     dismiss.isPending ||
     restore.isPending ||
     applyFix.isPending;
+  const reviewStatus = getReviewStatus(project);
 
   return (
     <div className="flex h-full flex-col">
@@ -252,6 +255,23 @@ function ReviewWorkspace({
           )}
           다시 점검
         </Button>
+        {reviewStatus === "completed" ? (
+          <Button
+            size="sm"
+            nativeButton={false}
+            render={<Link href={routes.step(project.id, "export")} />}
+          >
+            내보내기로
+          </Button>
+        ) : (
+          <FinishReviewDialog
+            project={project}
+            document={document}
+            run={run}
+            onRecheck={() => check.mutate()}
+            checking={check.isPending}
+          />
+        )}
       </ShellActions>
 
       <div className="flex shrink-0 flex-col gap-3 border-b border-hairline px-6 py-4">
@@ -267,6 +287,16 @@ function ReviewWorkspace({
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="mr-2 text-lg font-bold tracking-tight">검토하기</h2>
+          {reviewStatus === "completed" && (
+            <Badge variant="success" size="lg">
+              검토 완료
+            </Badge>
+          )}
+          {reviewStatus === "stale" && (
+            <Badge variant="warning" size="lg">
+              검토 후 수정됨 · 다시 마쳐 주세요
+            </Badge>
+          )}
           <Badge variant="warning" size="lg">
             확인 필요 남음 {required.length}
           </Badge>
