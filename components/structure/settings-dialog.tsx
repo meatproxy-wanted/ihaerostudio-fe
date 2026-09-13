@@ -85,7 +85,7 @@ export function SettingsDialog({
         </DialogHeader>
         <SettingsPicker value={draft} onChange={setDraft} />
         {namingChanged && (
-          <Alert variant="warning">
+          <Alert role="note" variant="warning">
             <AlertDescription>
               인물 호칭 방식을 바꾸면 등장인물의 호칭이 새 방식으로 바뀌어요.
               직접 고친 호칭도 새 방식으로 바뀌어요.

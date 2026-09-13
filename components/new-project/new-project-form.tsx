@@ -130,7 +130,7 @@ export function NewProjectForm() {
           </Button>
         </div>
 
-        <Alert variant="info" className="mt-6">
+        <Alert role="note" variant="info" className="mt-6">
           <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
           <AlertTitle>데모 모드예요</AlertTitle>
           <AlertDescription>

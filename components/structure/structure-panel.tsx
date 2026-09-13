@@ -162,7 +162,7 @@ export function StructurePanel({
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col gap-9 px-5 pt-5 pb-10">
           {hasDraft && (
-            <Alert variant="info">
+            <Alert role="note" variant="info">
               <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
               <AlertTitle>초안이 이미 있어요</AlertTitle>
               <AlertDescription>
