@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "ihaerostudio",
-  description: "이해로스튜디오",
+  title: {
+    default: "이해로 스튜디오",
+    template: "%s · 이해로 스튜디오",
+  },
+  description: "판결문을 원문과 대조하며 쉬운 설명자료로 완성하는 제작 도구",
 };
 
 /*
@@ -18,7 +22,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

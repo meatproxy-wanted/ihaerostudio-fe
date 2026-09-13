@@ -3,7 +3,11 @@
 @import "shadcn/tailwind.css";
 @import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
-@custom-variant dark (&:is(.dark *));
+/*
+ * The paper surface (below) stays light inside a dark app, so dark: utilities
+ * must not reach into it.
+ */
+@custom-variant dark (&:is(.dark *):not(:is(.paper, .paper *)));
 
 /*
  * Design tokens adapted from Toss Invest (tossinvest.com).
@@ -340,6 +344,49 @@
   --sidebar-accent-foreground: #dadfe9;
   --sidebar-border: rgba(213, 223, 244, 0.13);
   --sidebar-ring: oklch(0.556 0.02 265);
+}
+
+/*
+ * Paper surface: wherever the finished material is shown (editor canvas,
+ * preview, reader view, print). It stays light in both themes so producers see
+ * exactly what readers and printers get.
+ */
+.paper {
+  color-scheme: light;
+  --background: #ffffff;
+  --foreground: #25282d;
+  --card: #f6f7f9;
+  --card-foreground: #25282d;
+  --popover: #ffffff;
+  --popover-foreground: #25282d;
+  --primary: oklch(0.852 0.199 91.936);
+  --primary-foreground: oklch(0.421 0.095 57.708);
+  --primary-text: oklch(0.554 0.122 75.6);
+  --secondary: rgba(2, 32, 71, 0.06);
+  --secondary-foreground: #25282d;
+  --muted: rgba(2, 32, 71, 0.05);
+  --muted-foreground: #5c6370;
+  --accent: rgba(2, 32, 71, 0.05);
+  --accent-foreground: #25282d;
+  --destructive: #de2b39;
+  --destructive-foreground: #ffffff;
+  --positive: #de2b39;
+  --negative: #2272eb;
+  --info: #2272eb;
+  --warning: #c2410c;
+  --success: #009467;
+  --border: rgba(3, 31, 63, 0.1);
+  --input: rgba(2, 32, 59, 0.17);
+  --ring: oklch(0.708 0 0);
+  --hairline: rgba(2, 32, 71, 0.06);
+  --overlay: rgba(0, 0, 0, 0.2);
+  --segment: #ffffff;
+  --elevation-popover:
+    0 16px 24px -2px rgba(0, 0, 0, 0.06), 0 8px 56px 0 rgba(0, 0, 0, 0.1);
+  --elevation-dialog:
+    0 10px 40px 0 rgba(2, 32, 71, 0.05), 0 20px 50px 0 rgba(0, 23, 51, 0.02);
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 /* TDS Loader: the ring spins while the arc length breathes. */
