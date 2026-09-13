@@ -295,11 +295,11 @@
 }
 
 .dark {
-  --background: #101013;
+  --background: #0f172a;
   --foreground: #dadfe9;
-  --card: #17171c;
+  --card: #16203a;
   --card-foreground: #dadfe9;
-  --popover: #202025;
+  --popover: #1c2745;
   --popover-foreground: #dadfe9;
   --primary: oklch(0.795 0.184 86.047);
   --primary-foreground: oklch(0.421 0.095 57.708);
@@ -307,7 +307,7 @@
   --secondary: rgba(214, 224, 239, 0.09);
   --secondary-foreground: #dadfe9;
   --muted: rgba(214, 224, 239, 0.09);
-  --muted-foreground: #888d97;
+  --muted-foreground: #8c95a8;
   --accent: rgba(214, 224, 239, 0.09);
   --accent-foreground: #dadfe9;
   --destructive: #f5445a;
@@ -319,7 +319,7 @@
   --success: #07a978;
   --border: rgba(213, 223, 244, 0.13);
   --input: rgba(212, 223, 248, 0.19);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.556 0.02 265);
   --hairline: rgba(214, 224, 239, 0.09);
   --overlay: rgba(0, 0, 0, 0.56);
   --segment: rgba(214, 224, 239, 0.12);
@@ -332,14 +332,14 @@
   --chart-3: oklch(0.646 0.222 41.116);
   --chart-4: oklch(0.553 0.195 38.402);
   --chart-5: oklch(0.47 0.157 37.304);
-  --sidebar: #101013;
+  --sidebar: #0f172a;
   --sidebar-foreground: #dadfe9;
   --sidebar-primary: oklch(0.795 0.184 86.047);
   --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
   --sidebar-accent: rgba(214, 224, 239, 0.09);
   --sidebar-accent-foreground: #dadfe9;
   --sidebar-border: rgba(213, 223, 244, 0.13);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.556 0.02 265);
 }
 
 /* TDS Loader: the ring spins while the arc length breathes. */
