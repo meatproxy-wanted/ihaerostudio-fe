@@ -1,5 +1,15 @@
+.next
+out
+build
 node_modules
 pnpm-lock.yaml
-.next/*
+next-env.d.ts
+.agents/*
+.claude/*
+.github/*
 .vscode/*
-next.config.ts
+.env/*
+.env.local/*
+.env.development.local/*
+.env.test.local/*
+.env.production.local/*
