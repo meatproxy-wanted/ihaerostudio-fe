@@ -113,10 +113,12 @@ function AddButton({
 
 export function StructurePanel({
   hasDraft,
+  sourceToggle,
   settingsButton,
   footer,
 }: {
   hasDraft: boolean;
+  sourceToggle: ReactNode;
   settingsButton: ReactNode;
   footer: ReactNode;
 }) {
@@ -136,6 +138,7 @@ export function StructurePanel({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            {sourceToggle}
             {flagCount > 0 && (
               <Badge variant="warning" size="lg">
                 확인 필요 {flagCount}

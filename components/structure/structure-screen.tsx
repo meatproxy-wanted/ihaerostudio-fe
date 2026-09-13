@@ -16,6 +16,7 @@ import {
   SaveIndicator,
   useSaveFailureToast,
 } from "@/components/app/save-indicator";
+import { SourceFoldButton, useSourceFold } from "@/components/app/source-fold";
 import {
   ShellActions,
   useCurrentProject,
@@ -129,6 +130,7 @@ function StructureEditor({
     id: "structure-panes",
     panelIds: ["source", "structure"],
   });
+  const sourceFold = useSourceFold();
 
   const autosave = useAutosave({
     store,
@@ -183,13 +185,19 @@ function StructureEditor({
           defaultLayout={layout.defaultLayout}
           onLayoutChanged={layout.onLayoutChanged}
         >
-          <ResizablePanel id="source" defaultSize="42" minSize="25">
+          <ResizablePanel
+            id="source"
+            defaultSize="42"
+            minSize="25"
+            {...sourceFold.panelProps}
+          >
             <StructureSource source={source} store={store} />
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel id="structure" defaultSize="58" minSize="35">
             <StructurePanel
               hasDraft={hasDraft}
+              sourceToggle={<SourceFoldButton fold={sourceFold} />}
               settingsButton={
                 <SettingsDialog
                   project={project}

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useDefaultLayout, usePanelRef } from "react-resizable-panels";
+import { useDefaultLayout } from "react-resizable-panels";
 import { useStore } from "zustand";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowRight01Icon, SidebarLeftIcon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
 import { ErrorState } from "@/components/app/error-state";
 import { PanesSkeleton } from "@/components/app/panes-skeleton";
@@ -15,6 +15,7 @@ import {
   SaveIndicator,
   useSaveFailureToast,
 } from "@/components/app/save-indicator";
+import { SourceFoldButton, useSourceFold } from "@/components/app/source-fold";
 import {
   ShellActions,
   useCurrentProject,
@@ -26,7 +27,6 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import { useSearchParamsSync } from "@/hooks/use-search-params-sync";
 import { api } from "@/lib/api/client";
 import {
@@ -121,9 +121,6 @@ function useSelectionInUrl(store: EditorStore) {
   });
 }
 
-/** Below 1280px the source pane starts folded so the canvas keeps its room. */
-const NARROW_EDITOR = "(max-width: 1279px)";
-
 function EditorWorkspace({
   project,
   fromReview,
@@ -153,26 +150,13 @@ function EditorWorkspace({
     }
     return created;
   });
-  const [sourceCollapsed, setSourceCollapsed] = useState(false);
-  const sourcePanel = usePanelRef();
+  const sourceFold = useSourceFold();
   const layout = useDefaultLayout({
     id: "editor-panes",
     panelIds: ["source", "canvas", "tools"],
   });
   useSelectionInUrl(store);
   useEditorKeyboard(store);
-
-  // Fold the source when the window gets narrow and unfold it when it widens
-  // again; a wide window on arrival keeps the producer's saved layout.
-  const narrow = useMediaQuery(NARROW_EDITOR);
-  const wasNarrow = useRef<boolean | null>(null);
-  useEffect(() => {
-    const previous = wasNarrow.current;
-    wasNarrow.current = narrow;
-    if (narrow === (previous ?? false)) return;
-    if (narrow) sourcePanel.current?.collapse();
-    else sourcePanel.current?.expand();
-  }, [narrow, sourcePanel]);
 
   const autosave = useAutosave({
     store,
@@ -239,14 +223,9 @@ function EditorWorkspace({
               >
                 <ResizablePanel
                   id="source"
-                  panelRef={sourcePanel}
                   defaultSize="30"
                   minSize="18"
-                  collapsible
-                  collapsedSize="0"
-                  onResize={(size) =>
-                    setSourceCollapsed(size.asPercentage === 0)
-                  }
+                  {...sourceFold.panelProps}
                 >
                   <EditorSource source={source} />
                 </ResizablePanel>
@@ -254,25 +233,7 @@ function EditorWorkspace({
                 <ResizablePanel id="canvas" defaultSize="44" minSize="30">
                   <EditorCanvas
                     context={context}
-                    leading={
-                      <Button
-                        variant="secondary"
-                        size="xs"
-                        aria-expanded={!sourceCollapsed}
-                        onClick={() =>
-                          sourceCollapsed
-                            ? sourcePanel.current?.expand()
-                            : sourcePanel.current?.collapse()
-                        }
-                      >
-                        <HugeiconsIcon
-                          icon={SidebarLeftIcon}
-                          strokeWidth={2}
-                          data-icon="inline-start"
-                        />
-                        {sourceCollapsed ? "원문 펼치기" : "원문 접기"}
-                      </Button>
-                    }
+                    leading={<SourceFoldButton fold={sourceFold} />}
                   />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
