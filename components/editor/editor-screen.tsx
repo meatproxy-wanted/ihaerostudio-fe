@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -11,7 +11,10 @@ import { ArrowRight01Icon, SidebarLeftIcon } from "@hugeicons/core-free-icons";
 
 import { ErrorState } from "@/components/app/error-state";
 import { PanesSkeleton } from "@/components/app/panes-skeleton";
-import { SaveIndicator } from "@/components/app/save-indicator";
+import {
+  SaveIndicator,
+  useSaveFailureToast,
+} from "@/components/app/save-indicator";
 import {
   ShellActions,
   useCurrentProject,
@@ -23,6 +26,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { useSearchParamsSync } from "@/hooks/use-search-params-sync";
 import { api } from "@/lib/api/client";
 import {
   cacheProject,
@@ -36,7 +41,7 @@ import type { Project } from "@/lib/domain/project";
 import type { ReaderContext } from "@/lib/domain/reader-content";
 import type { SourceDocument } from "@/lib/domain/source";
 import type { CaseStructure } from "@/lib/domain/structure";
-import { routes } from "@/lib/routes";
+import { parseEditorTool, routes, type EditorTool } from "@/lib/routes";
 import { useAutosave } from "@/lib/stores/autosave";
 
 import { EditorCanvas } from "./editor-canvas";
@@ -69,7 +74,9 @@ export function EditorScreen() {
     if (card) return { type: "card", id: card };
     return null;
   });
-  const [initialTool] = useState(() => searchParams.get("tool"));
+  const [initialTool] = useState(() =>
+    parseEditorTool(searchParams.get("tool")),
+  );
 
   if (source.isPending || structure.isPending || document.isPending) {
     return <PanesSkeleton panes={3} />;
@@ -107,18 +114,15 @@ export function EditorScreen() {
 function useSelectionInUrl(store: EditorStore) {
   const selection = useStore(store, (state) => state.selection);
   const tool = useStore(store, (state) => state.tool);
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete("sentence");
-    url.searchParams.delete("card");
-    url.searchParams.delete("tool");
-    if (selection) url.searchParams.set(selection.type, selection.id);
-    if (selection && tool) url.searchParams.set("tool", tool);
-    window.history.replaceState(null, "", url);
-  }, [selection, tool]);
+  useSearchParamsSync({
+    sentence: selection?.type === "sentence" ? selection.id : null,
+    card: selection?.type === "card" ? selection.id : null,
+    tool: selection && tool ? tool : null,
+  });
 }
 
-const TOOLS = ["simplify", "split", "term", "image"] as const;
+/** Below 1280px the source pane starts folded so the canvas keeps its room. */
+const NARROW_EDITOR = "(max-width: 1279px)";
 
 function EditorWorkspace({
   project,
@@ -137,13 +141,16 @@ function EditorWorkspace({
   structure: CaseStructure;
   initialDocument: EasyDocument;
   initialSelection: EditorSelection;
-  initialTool: string | null;
+  initialTool: EditorTool | null;
 }) {
   const queryClient = useQueryClient();
   const [store] = useState(() => {
     const created = createEditorStore(initialDocument, initialSelection);
-    const tool = TOOLS.find((key) => key === initialTool);
-    if (initialSelection && tool) created.getState().openTool(tool);
+    const usable =
+      initialTool !== "image" || project.settings.illustrations === "with";
+    if (initialSelection && initialTool && usable) {
+      created.getState().openTool(initialTool);
+    }
     return created;
   });
   const [sourceCollapsed, setSourceCollapsed] = useState(false);
@@ -155,6 +162,18 @@ function EditorWorkspace({
   useSelectionInUrl(store);
   useEditorKeyboard(store);
 
+  // Fold the source when the window gets narrow and unfold it when it widens
+  // again; a wide window on arrival keeps the producer's saved layout.
+  const narrow = useMediaQuery(NARROW_EDITOR);
+  const wasNarrow = useRef<boolean | null>(null);
+  useEffect(() => {
+    const previous = wasNarrow.current;
+    wasNarrow.current = narrow;
+    if (narrow === (previous ?? false)) return;
+    if (narrow) sourcePanel.current?.collapse();
+    else sourcePanel.current?.expand();
+  }, [narrow, sourcePanel]);
+
   const autosave = useAutosave({
     store,
     save: async (value) => {
@@ -164,6 +183,7 @@ function EditorWorkspace({
       return result.document;
     },
   });
+  useSaveFailureToast(autosave.saveStatus, () => void autosave.flush());
 
   const context = useMemo<ReaderContext>(
     () => ({
@@ -236,26 +256,28 @@ function EditorWorkspace({
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel id="canvas" defaultSize="44" minSize="30">
-                  <div className="relative h-full">
-                    <Button
-                      variant="secondary"
-                      size="xs"
-                      className="absolute top-3 left-3 z-10"
-                      onClick={() =>
-                        sourceCollapsed
-                          ? sourcePanel.current?.expand()
-                          : sourcePanel.current?.collapse()
-                      }
-                    >
-                      <HugeiconsIcon
-                        icon={SidebarLeftIcon}
-                        strokeWidth={2}
-                        data-icon="inline-start"
-                      />
-                      {sourceCollapsed ? "원문 펼치기" : "원문 접기"}
-                    </Button>
-                    <EditorCanvas context={context} />
-                  </div>
+                  <EditorCanvas
+                    context={context}
+                    leading={
+                      <Button
+                        variant="secondary"
+                        size="xs"
+                        aria-expanded={!sourceCollapsed}
+                        onClick={() =>
+                          sourceCollapsed
+                            ? sourcePanel.current?.expand()
+                            : sourcePanel.current?.collapse()
+                        }
+                      >
+                        <HugeiconsIcon
+                          icon={SidebarLeftIcon}
+                          strokeWidth={2}
+                          data-icon="inline-start"
+                        />
+                        {sourceCollapsed ? "원문 펼치기" : "원문 접기"}
+                      </Button>
+                    }
+                  />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel id="tools" defaultSize="26" minSize={320}>

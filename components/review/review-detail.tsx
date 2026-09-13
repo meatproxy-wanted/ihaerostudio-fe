@@ -4,10 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  CheckmarkCircle02Icon,
-  PencilEdit02Icon,
-} from "@hugeicons/core-free-icons";
+import { PencilEdit02Icon } from "@hugeicons/core-free-icons";
 
 import { CardLabel } from "@/components/document/card-label";
 import { DiffView, NumberWarning } from "@/components/editor/diff-view";
@@ -16,11 +13,16 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import type { EasyDocument } from "@/lib/domain/document";
 import { findCard, findSentence } from "@/lib/domain/document-ops";
-import { REVIEW_CATEGORY_LABELS, type ReviewItem } from "@/lib/domain/review";
+import {
+  REVIEW_CATEGORY_LABELS,
+  REVIEW_STATUS_LABELS,
+  type ReviewItem,
+} from "@/lib/domain/review";
 import type { SourceDocument } from "@/lib/domain/source";
 import { routes } from "@/lib/routes";
 
 import { editorLinkFor } from "./review-model";
+import { REVIEW_STATUS_STYLES } from "./review-status";
 
 function Block({
   title,
@@ -104,16 +106,19 @@ export function ReviewDetail({
     >
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <Badge variant={item.level === "required" ? "warning" : "negative"}>
-            {item.level === "required" ? "확인 필요" : "살펴보기"}
+          <Badge variant={REVIEW_STATUS_STYLES[item.level].badge}>
+            {REVIEW_STATUS_LABELS[item.level]}
           </Badge>
           <Badge variant="secondary">
             {REVIEW_CATEGORY_LABELS[item.category]}
           </Badge>
           {item.dismissal && (
-            <Badge variant="outline">
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} strokeWidth={2} />
-              문제없음 확인
+            <Badge variant={REVIEW_STATUS_STYLES.handled.badge}>
+              <HugeiconsIcon
+                icon={REVIEW_STATUS_STYLES.handled.icon}
+                strokeWidth={2}
+              />
+              {REVIEW_STATUS_LABELS.handled}
             </Badge>
           )}
         </div>

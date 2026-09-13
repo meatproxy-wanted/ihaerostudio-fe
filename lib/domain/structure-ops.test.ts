@@ -11,6 +11,7 @@ import {
   moveItem,
   removeAnchor,
   removeItem,
+  removeItemWithUndo,
   updateItem,
 } from "./structure-ops";
 
@@ -322,5 +323,66 @@ describe("초안 만들기 조건", () => {
 
   it("AI 확인 표시 수를 센다", () => {
     expect(countFlags(makeStructure())).toBe(2);
+  });
+});
+
+describe("지운 항목 되돌리기", () => {
+  it("지운 뒤에 고친 내용은 그대로 두고 지운 항목만 제자리에 되살린다", () => {
+    const { structure: removed, restore } = removeItemWithUndo(
+      makeStructure(),
+      { list: "claims", id: "claim-1" },
+    );
+    const edited = updateItem(
+      removed,
+      { list: "decisions", id: "decision-1" },
+      { text: "피고는 원고에게 9,850만 원을 줘라." },
+    );
+
+    const restored = restore(edited);
+
+    expect(restored.claims.map((claim) => claim.id)).toEqual([
+      "claim-1",
+      "claim-2",
+    ]);
+    expect(restored.decisions[0].text).toBe(
+      "피고는 원고에게 9,850만 원을 줘라.",
+    );
+  });
+
+  it("인물을 되살리면 함께 지워진 주장과 판단의 연결도 되살린다", () => {
+    const { structure: removed, restore } = removeItemWithUndo(
+      makeStructure(),
+      { list: "parties", id: "party-b" },
+    );
+
+    expect(removed.claims.map((claim) => claim.id)).toEqual(["claim-1"]);
+
+    const restored = restore(removed);
+
+    expect(restored.parties.map((party) => party.id)).toEqual([
+      "party-a",
+      "party-b",
+    ]);
+    expect(restored.claims.map((claim) => claim.id)).toEqual([
+      "claim-1",
+      "claim-2",
+    ]);
+    expect(restored.findings[0].claimIds).toEqual(["claim-2"]);
+  });
+
+  it("지운 결과가 이미 되살아나 있으면 두 번 넣지 않는다", () => {
+    const { structure: removed, restore } = removeItemWithUndo(
+      makeStructure(),
+      { list: "decisions", id: "decision-1" },
+    );
+
+    expect(restore(restore(removed)).decisions).toHaveLength(1);
+  });
+
+  it("지운 인물에 딸린 주장 수를 알려 준다", () => {
+    expect(
+      removeItemWithUndo(makeStructure(), { list: "parties", id: "party-b" })
+        .removedClaims,
+    ).toBe(1);
   });
 });

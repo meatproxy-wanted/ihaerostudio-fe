@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/resizable";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
+import { useSearchParamsSync } from "@/hooks/use-search-params-sync";
 import { api } from "@/lib/api/client";
 import { errorMessage } from "@/lib/api/errors";
 import {
@@ -47,10 +48,16 @@ import {
 } from "@/lib/domain/document-ops";
 import type { EasyDocument } from "@/lib/domain/document";
 import type { Project } from "@/lib/domain/project";
-import type { ReviewItem, ReviewRun } from "@/lib/domain/review";
+import {
+  countByStatus,
+  type ReviewCategory,
+  type ReviewItem,
+  type ReviewRun,
+} from "@/lib/domain/review";
 import type { SourceDocument } from "@/lib/domain/source";
 import { getReviewStatus } from "@/lib/domain/steps";
 import { routes } from "@/lib/routes";
+import { shouldIgnoreShortcut } from "@/lib/shortcuts";
 
 import { FinishReviewDialog } from "./finish-review-dialog";
 import { ReviewDetail } from "./review-detail";
@@ -58,6 +65,7 @@ import { ReviewList } from "./review-list";
 import {
   groupItems,
   isHandled,
+  parseReviewParams,
   visibleItems,
   type ReviewFilter,
 } from "./review-model";
@@ -109,8 +117,10 @@ function ReviewWorkspace({
 }) {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
-  const [filter, setFilter] = useState<ReviewFilter>(
-    (searchParams.get("show") as ReviewFilter | null) ?? "open",
+  const [initial] = useState(() => parseReviewParams(searchParams));
+  const [filter, setFilter] = useState<ReviewFilter>(initial.filter);
+  const [category, setCategory] = useState<ReviewCategory | null>(
+    initial.category,
   );
   const [selectedKey, setSelectedKey] = useState<string | null>(
     searchParams.get("item"),
@@ -128,21 +138,54 @@ function ReviewWorkspace({
   const check = useMutation({
     mutationFn: () => api.review.run(project.id),
     onSuccess: storeRun,
-    onError: (error) =>
+    onError: (error) => {
       toast.add({
         title: "점검하지 못했어요",
         description: errorMessage(error),
         type: "error",
-      }),
+        actionProps: {
+          children: "다시 시도",
+          onClick: () => {
+            check.mutate();
+          },
+        },
+      });
+    },
   });
   const dismiss = useMutation({
     mutationFn: (input: { key: string; memo: string }) =>
       api.review.dismiss(project.id, input),
     onSuccess: storeRun,
+    onError: (error, input) => {
+      toast.add({
+        title: "문제없음 확인을 저장하지 못했어요",
+        description: errorMessage(error),
+        type: "error",
+        actionProps: {
+          children: "다시 시도",
+          onClick: () => {
+            dismiss.mutate(input);
+          },
+        },
+      });
+    },
   });
   const restore = useMutation({
     mutationFn: (key: string) => api.review.restore(project.id, { key }),
     onSuccess: storeRun,
+    onError: (error, key) => {
+      toast.add({
+        title: "확인을 취소하지 못했어요",
+        description: errorMessage(error),
+        type: "error",
+        actionProps: {
+          children: "다시 시도",
+          onClick: () => {
+            restore.mutate(key);
+          },
+        },
+      });
+    },
   });
   const applyFix = useMutation({
     mutationFn: async (item: ReviewItem) => {
@@ -165,12 +208,19 @@ function ReviewWorkspace({
       });
       check.mutate();
     },
-    onError: (error) =>
+    onError: (error, item) => {
       toast.add({
         title: "수정안을 적용하지 못했어요",
         description: errorMessage(error),
         type: "error",
-      }),
+        actionProps: {
+          children: "다시 시도",
+          onClick: () => {
+            applyFix.mutate(item);
+          },
+        },
+      });
+    },
   });
 
   // Check again on arrival when the content moved since the last check.
@@ -186,54 +236,45 @@ function ReviewWorkspace({
 
   const items = run?.items ?? [];
   // The order the list shows: grouped, required before suggested.
-  const shown = groupItems(visibleItems(items, filter)).flatMap(
+  const shown = groupItems(visibleItems(items, filter, category)).flatMap(
     (entry) => entry.items,
   );
   const selected =
     items.find((item) => item.key === selectedKey) ?? shown[0] ?? null;
 
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("show", filter);
-    if (selected) url.searchParams.set("item", selected.key);
-    else url.searchParams.delete("item");
-    window.history.replaceState(null, "", url);
-  }, [filter, selected]);
+  useSearchParamsSync({
+    show: filter,
+    category,
+    item: selected?.key ?? null,
+  });
 
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      const target = event.target as HTMLElement | null;
-      if (
-        !target ||
-        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
-        target.closest("[role=dialog]")
-      ) {
-        return;
-      }
-      if (event.key !== "j" && event.key !== "k") return;
-      const index = shown.findIndex((item) => item.key === selected?.key);
-      const next = shown[index + (event.key === "j" ? 1 : -1)];
-      if (next) {
-        event.preventDefault();
-        setSelectedKey(next.key);
-      }
+  const onShortcut = useEffectEvent((event: KeyboardEvent) => {
+    if (shouldIgnoreShortcut(event) || event.metaKey || event.ctrlKey) return;
+    if (event.key !== "j" && event.key !== "k") return;
+    const index = shown.findIndex((item) => item.key === selected?.key);
+    const next = shown[index + (event.key === "j" ? 1 : -1)];
+    if (next) {
+      event.preventDefault();
+      setSelectedKey(next.key);
     }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [shown, selected]);
+  });
+  useEffect(() => {
+    const listener = (event: KeyboardEvent) => onShortcut(event);
+    window.addEventListener("keydown", listener);
+    return () => window.removeEventListener("keydown", listener);
+  }, []);
 
+  /** After handling an item, move on to the next open one in list order. */
   function selectNextOpen(after: ReviewItem) {
-    const open = items.filter(
-      (item) => !isHandled(item) && item.key !== after.key,
-    );
-    setSelectedKey(open[0]?.key ?? null);
+    const index = shown.findIndex((item) => item.key === after.key);
+    const rest = [
+      ...shown.slice(index + 1),
+      ...shown.slice(0, Math.max(index, 0)),
+    ];
+    setSelectedKey(rest.find((item) => !isHandled(item))?.key ?? null);
   }
 
-  const required = items.filter((i) => i.level === "required" && !isHandled(i));
-  const suggested = items.filter(
-    (i) => i.level === "suggested" && !isHandled(i),
-  );
-  const handled = items.filter(isHandled);
+  const counts = countByStatus(items);
   const progress = verificationProgress(document);
   const firstUnverified = allSentences(document).find((s) => !s.verified);
   const busy =
@@ -306,13 +347,13 @@ function ReviewWorkspace({
             </Badge>
           )}
           <Badge variant="warning" size="lg">
-            확인 필요 남음 {required.length}
+            확인 필요 남음 {counts.required}
           </Badge>
           <Badge variant="negative" size="lg">
-            살펴보기 {suggested.length}
+            살펴보기 {counts.suggested}
           </Badge>
           <Badge variant="secondary" size="lg">
-            처리함 {handled.length}
+            처리함 {counts.handled}
           </Badge>
           <span className="mx-1 h-4 w-px bg-border" />
           <span className="text-2sm font-semibold tabular-nums">
@@ -376,6 +417,11 @@ function ReviewWorkspace({
                 filter={filter}
                 onFilter={(next) => {
                   setFilter(next);
+                  setSelectedKey(null);
+                }}
+                category={category}
+                onCategory={(next) => {
+                  setCategory(next);
                   setSelectedKey(null);
                 }}
                 selectedKey={selected?.key ?? null}

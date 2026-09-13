@@ -9,18 +9,18 @@ import {
   Link04Icon,
 } from "@hugeicons/core-free-icons";
 
+import { useAnchorQuote } from "@/components/source-viewer/source-text";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
 import type { AiFlag, Anchor } from "@/lib/domain/common";
 import {
   dismissFlags,
   removeAnchor,
-  removeItem,
+  removeItemWithUndo,
   type ItemRef,
 } from "@/lib/domain/structure-ops";
 import { cn } from "@/lib/utils";
 
-import { useAnchorQuote } from "@/components/source-viewer/source-text";
 import { useStructure, useStructureStore } from "./structure-store";
 
 export function itemElementId(id: string) {
@@ -60,14 +60,22 @@ export function ItemShell({
   }
 
   function remove() {
-    const before = store.getState().value;
-    store.getState().apply((structure) => removeItem(structure, itemRef));
-    store.getState().select(null);
+    const state = store.getState();
+    const { structure, restore, removedClaims } = removeItemWithUndo(
+      state.value,
+      itemRef,
+    );
+    state.apply(() => structure);
+    state.select(null);
     toast.add({
-      title: "항목을 지웠어요",
+      title:
+        removedClaims > 0
+          ? `인물과 그 인물의 주장 ${removedClaims}개를 지웠어요`
+          : "항목을 지웠어요",
       actionProps: {
         children: "되돌리기",
-        onClick: () => store.getState().apply(() => before),
+        // Brings back only what was removed, on top of later edits.
+        onClick: () => store.getState().apply(restore),
       },
     });
   }

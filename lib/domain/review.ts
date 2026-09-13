@@ -126,3 +126,28 @@ export function checklistFor(illustrations: "with" | "none"): ChecklistKey[] {
     ? ["numbers", "relations", "images", "claims"]
     : ["numbers", "relations", "claims"];
 }
+
+/** Once confirmed as fine, an item counts as handled whatever its level. */
+export type ReviewItemStatus = ReviewLevel | "handled";
+
+export function reviewItemStatus(item: ReviewItem): ReviewItemStatus {
+  return item.dismissal ? "handled" : item.level;
+}
+
+export function countByStatus(
+  items: ReviewItem[],
+): Record<ReviewItemStatus, number> {
+  const counts: Record<ReviewItemStatus, number> = {
+    required: 0,
+    suggested: 0,
+    handled: 0,
+  };
+  for (const item of items) counts[reviewItemStatus(item)] += 1;
+  return counts;
+}
+
+export const REVIEW_STATUS_LABELS: Record<ReviewItemStatus, string> = {
+  required: "확인 필요",
+  suggested: "살펴보기",
+  handled: "문제없음 확인",
+};

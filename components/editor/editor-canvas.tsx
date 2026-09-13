@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -41,7 +41,32 @@ export function cardElementId(id: string) {
   return `canvas-card-${id}`;
 }
 
-export function EditorCanvas({ context }: { context: ReaderContext }) {
+function sectionElementId(kind: string) {
+  return `canvas-section-${kind}`;
+}
+
+function scrollToSection(kind: string) {
+  const section = window.document.getElementById(sectionElementId(kind));
+  if (!section) return;
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  section.scrollIntoView({
+    block: "start",
+    behavior: reduceMotion ? "auto" : "smooth",
+  });
+  // Move keyboard users along with the view.
+  section.focus({ preventScroll: true });
+}
+
+export function EditorCanvas({
+  context,
+  leading,
+}: {
+  context: ReaderContext;
+  /** Controls placed before the section contents bar (e.g. folding the source). */
+  leading?: ReactNode;
+}) {
   const store = useEditorStore();
   const document = useEditor((state) => state.value);
   const selection = useEditor((state) => state.selection);
@@ -81,7 +106,31 @@ export function EditorCanvas({ context }: { context: ReaderContext }) {
         if (event.target === event.currentTarget) store.getState().select(null);
       }}
     >
-      <div className="mx-auto flex max-w-[44rem] flex-col gap-10 px-8 pt-14 pb-24 text-lg">
+      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-hairline bg-background/95 px-3 py-2 backdrop-blur-sm">
+        {leading}
+        <nav
+          aria-label="구획 목차"
+          className="min-w-0 flex-1 [scrollbar-width:none] overflow-x-auto"
+        >
+          <ol className="flex items-center gap-0.5">
+            {content.sections.map((section, index) => (
+              <li key={section.kind}>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection(section.kind)}
+                  className="inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-2sm font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
+                >
+                  <span className="text-xs font-bold tabular-nums">
+                    {index + 1}
+                  </span>
+                  {section.title || "제목 없는 구획"}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      </div>
+      <div className="mx-auto flex max-w-[44rem] flex-col gap-10 px-8 pt-8 pb-24 text-lg">
         <p className="flex items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-2sm text-muted-foreground">
           <span className="font-semibold text-foreground">
             자동으로 들어가는 안내
@@ -113,7 +162,12 @@ export function EditorCanvas({ context }: { context: ReaderContext }) {
         </header>
 
         {content.sections.map((section, index) => (
-          <section key={section.kind} className="flex flex-col gap-4">
+          <section
+            key={section.kind}
+            id={sectionElementId(section.kind)}
+            tabIndex={-1}
+            className="flex scroll-mt-16 flex-col gap-4 outline-none"
+          >
             <SectionHeading number={index + 1}>
               <h2 className="flex-1 text-2xl font-bold tracking-tight">
                 <InlineText

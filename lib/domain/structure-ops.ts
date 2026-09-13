@@ -177,6 +177,84 @@ export function removeItem(
 }
 
 /**
+ * Removes an item and returns how to bring it back onto whatever the
+ * structure has become since: only the removed item, the claims removed
+ * with a party, and their finding links are restored, at their old places.
+ */
+export function removeItemWithUndo(
+  structure: CaseStructure,
+  ref: ItemRef,
+): {
+  structure: CaseStructure;
+  restore: (current: CaseStructure) => CaseStructure;
+  removedClaims: number;
+} {
+  const items: AnyItem[] = structure[ref.list];
+  const index = items.findIndex((item) => item.id === ref.id);
+  if (index === -1) {
+    return { structure, restore: (current) => current, removedClaims: 0 };
+  }
+  const item = items[index];
+  const claims = structure.claims
+    .map((claim, claimIndex) => ({ claim, claimIndex }))
+    .filter(({ claim }) =>
+      ref.list === "claims"
+        ? claim.id === ref.id
+        : ref.list === "parties" && claim.partyId === ref.id,
+    );
+  const claimIds = new Set(claims.map(({ claim }) => claim.id));
+  const links = structure.findings.flatMap((finding) =>
+    finding.claimIds
+      .filter((id) => claimIds.has(id))
+      .map((claimId) => ({ findingId: finding.id, claimId })),
+  );
+
+  const restore = (current: CaseStructure): CaseStructure => {
+    let next = current;
+    if (ref.list !== "claims") {
+      const list: AnyItem[] = next[ref.list];
+      if (!list.some((existing) => existing.id === item.id)) {
+        const copy = [...list];
+        copy.splice(Math.min(index, copy.length), 0, item);
+        next = { ...next, [ref.list]: copy };
+      }
+    }
+    const restoredClaims = [...next.claims];
+    for (const { claim, claimIndex } of claims) {
+      if (restoredClaims.some((existing) => existing.id === claim.id)) continue;
+      restoredClaims.splice(
+        Math.min(claimIndex, restoredClaims.length),
+        0,
+        claim,
+      );
+    }
+    next = { ...next, claims: restoredClaims };
+    next = {
+      ...next,
+      findings: next.findings.map((finding) => {
+        const missing = links
+          .filter(
+            (link) =>
+              link.findingId === finding.id &&
+              !finding.claimIds.includes(link.claimId),
+          )
+          .map((link) => link.claimId);
+        return missing.length > 0
+          ? { ...finding, claimIds: [...finding.claimIds, ...missing] }
+          : finding;
+      }),
+    };
+    return next;
+  };
+
+  return {
+    structure: removeItem(structure, ref),
+    restore,
+    removedClaims: ref.list === "parties" ? claims.length : 0,
+  };
+}
+
+/**
  * Moves a statement between claims, court findings, and decisions. The text
  * and anchors travel; flags clear because moving is the producer's fix.
  */

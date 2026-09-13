@@ -12,11 +12,15 @@ import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { ErrorState } from "@/components/app/error-state";
 import { LongJobLoader, useLongJob } from "@/components/app/long-job";
 import { PanesSkeleton } from "@/components/app/panes-skeleton";
-import { SaveIndicator } from "@/components/app/save-indicator";
+import {
+  SaveIndicator,
+  useSaveFailureToast,
+} from "@/components/app/save-indicator";
 import {
   ShellActions,
   useCurrentProject,
 } from "@/components/project-shell/project-context";
+import { SourceTextProvider } from "@/components/source-viewer/source-text";
 import {
   SourceViewer,
   type SourceMark,
@@ -47,11 +51,11 @@ import {
 } from "@/lib/domain/structure-ops";
 import { routes } from "@/lib/routes";
 import { useAutosave } from "@/lib/stores/autosave";
+
 import { DRAFT_STEPS } from "./draft-steps";
 import { DraftFooter } from "./draft-footer";
 import { itemElementId } from "./item-shell";
 import { SettingsDialog } from "./settings-dialog";
-import { SourceTextProvider } from "@/components/source-viewer/source-text";
 import { StructurePanel } from "./structure-panel";
 import {
   createStructureStore,
@@ -137,6 +141,7 @@ function StructureEditor({
       return result.structure;
     },
   });
+  useSaveFailureToast(autosave.saveStatus, () => void autosave.flush());
 
   const draft = useLongJob({
     run: async (_input: void, signal) => {

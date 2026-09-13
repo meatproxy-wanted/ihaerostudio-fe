@@ -12,9 +12,10 @@ import {
   undo,
   type History,
 } from "@/lib/domain/history";
+import type { EditorTool } from "@/lib/routes";
 import { autosaveDefaults, type AutosaveSlice } from "@/lib/stores/autosave";
 
-export type ToolKey = "simplify" | "split" | "term" | "image";
+export type ToolKey = EditorTool;
 
 export type EditorSelection =
   { type: "sentence"; id: string } | { type: "card"; id: string } | null;

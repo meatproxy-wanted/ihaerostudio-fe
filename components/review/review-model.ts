@@ -1,26 +1,56 @@
 import type { EditorLink } from "@/lib/routes";
 import {
   REVIEW_CATEGORY_GROUP,
+  reviewCategorySchema,
+  reviewItemStatus,
+  type ReviewCategory,
   type ReviewGroup,
   type ReviewItem,
 } from "@/lib/domain/review";
 
 export type ReviewFilter = "open" | "done" | "all";
 
+const REVIEW_FILTERS: readonly ReviewFilter[] = ["open", "done", "all"];
+
 export const GROUP_ORDER: ReviewGroup[] = ["meaning", "readability", "output"];
 
-export function isHandled(item: ReviewItem) {
-  return item.dismissal !== null;
+/** Reads `?show=` and `?category=`, ignoring values the screen doesn't know. */
+export function parseReviewParams(params: URLSearchParams): {
+  filter: ReviewFilter;
+  category: ReviewCategory | null;
+} {
+  const show = params.get("show");
+  const category = reviewCategorySchema.safeParse(params.get("category"));
+  return {
+    filter: REVIEW_FILTERS.find((filter) => filter === show) ?? "open",
+    category: category.success ? category.data : null,
+  };
 }
 
-export function visibleItems(items: ReviewItem[], filter: ReviewFilter) {
-  return items.filter((item) =>
-    filter === "all"
-      ? true
-      : filter === "open"
-        ? !isHandled(item)
-        : isHandled(item),
+export function isHandled(item: ReviewItem) {
+  return reviewItemStatus(item) === "handled";
+}
+
+export function visibleItems(
+  items: ReviewItem[],
+  filter: ReviewFilter,
+  category: ReviewCategory | null = null,
+) {
+  return items.filter(
+    (item) =>
+      (filter === "all" || (filter === "open") !== isHandled(item)) &&
+      (category === null || item.category === category),
   );
+}
+
+/** Categories present in the items, in the order the list groups them. */
+export function categoryCounts(items: ReviewItem[]) {
+  const counts = new Map<ReviewCategory, number>();
+  for (const category of reviewCategorySchema.options) {
+    const count = items.filter((item) => item.category === category).length;
+    if (count > 0) counts.set(category, count);
+  }
+  return counts;
 }
 
 /** Items grouped the way the list shows them: required before suggested. */

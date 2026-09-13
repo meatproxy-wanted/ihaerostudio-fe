@@ -184,6 +184,7 @@ describe("문장과 카드 편집", () => {
       ["b", "a"],
     );
     expect(moveSentence(document, "a", -1)).toBe(document);
+    expect(moveSentence(document, "b", 1)).toBe(document);
   });
 
   it("카드를 추가하면 빈 문장 하나로 시작한다", () => {
@@ -222,6 +223,14 @@ describe("문장과 카드 편집", () => {
       "c3",
       "c2",
     ]);
+  });
+
+  it("카드는 구획의 처음과 끝에서 더 옮기지 않고 다른 구획으로 넘어가지 않는다", () => {
+    const document = makeDocument();
+
+    expect(moveCard(document, "c2", -1)).toBe(document);
+    expect(moveCard(document, "c3", 1)).toBe(document);
+    expect(moveCard(document, "c1", 1)).toBe(document);
   });
 });
 

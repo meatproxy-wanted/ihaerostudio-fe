@@ -13,6 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   NativeSelect,
@@ -293,7 +294,9 @@ function StatementText({
 
 export function ClaimItem({ claim }: { claim: Claim }) {
   const apply = useApply();
+  const parties = useStructure((state) => state.value.parties);
   const ref = { list: "claims" as const, id: claim.id };
+  const hasParty = parties.some((party) => party.id === claim.partyId);
   return (
     <ItemShell
       itemRef={ref}
@@ -309,6 +312,29 @@ export function ClaimItem({ claim }: { claim: Claim }) {
           apply((structure) => updateItem(structure, ref, { text }))
         }
       />
+      <Field label="누구의 주장인가요" className="mt-2 block">
+        <NativeSelect
+          size="sm"
+          value={hasParty ? claim.partyId : ""}
+          aria-invalid={!hasParty || undefined}
+          onChange={(event) =>
+            apply((structure) =>
+              updateItem(structure, ref, { partyId: event.target.value }),
+            )
+          }
+        >
+          {!hasParty && (
+            <NativeSelectOption value="" disabled>
+              인물을 골라 주세요
+            </NativeSelectOption>
+          )}
+          {parties.map((party) => (
+            <NativeSelectOption key={party.id} value={party.id}>
+              {party.displayName || "이름 없는 인물"}
+            </NativeSelectOption>
+          ))}
+        </NativeSelect>
+      </Field>
     </ItemShell>
   );
 }
@@ -336,27 +362,41 @@ export function FindingItem({ finding }: { finding: Finding }) {
         placeholder="법원이 판단한 내용"
         onChange={(text) => update({ text })}
       />
-      <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
-        <Field label="어느 주장에 대한 판단인가요">
-          <NativeSelect
-            size="sm"
-            className="w-full"
-            value={finding.claimIds[0] ?? ""}
-            onChange={(event) =>
-              update({
-                claimIds: event.target.value ? [event.target.value] : [],
-              })
-            }
-          >
-            <NativeSelectOption value="">특정 주장 없음</NativeSelectOption>
-            {claims.map((claim) => (
-              <NativeSelectOption key={claim.id} value={claim.id}>
-                {partyName(claim.partyId)} · {claim.text.slice(0, 28)}
-                {claim.text.length > 28 ? "…" : ""}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </Field>
+      <div className="mt-2 grid grid-cols-[1fr_auto] items-start gap-3">
+        <fieldset className="min-w-0">
+          <legend className="mb-1 text-2sm font-medium text-muted-foreground">
+            어느 주장에 대한 판단인가요
+          </legend>
+          {claims.length === 0 ? (
+            <p className="text-2sm text-muted-foreground">주장이 없어요.</p>
+          ) : (
+            <ul className="flex flex-col gap-1">
+              {claims.map((claim) => (
+                <li key={claim.id}>
+                  <label className="flex items-start gap-2 text-2sm">
+                    <Checkbox
+                      className="mt-0.5"
+                      checked={finding.claimIds.includes(claim.id)}
+                      onCheckedChange={(checked) =>
+                        update({
+                          claimIds: checked
+                            ? [...finding.claimIds, claim.id]
+                            : finding.claimIds.filter((id) => id !== claim.id),
+                        })
+                      }
+                    />
+                    <span className="line-clamp-2">
+                      <span className="font-semibold">
+                        {partyName(claim.partyId)}
+                      </span>{" "}
+                      · {claim.text || "(빈 주장)"}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          )}
+        </fieldset>
         <Field label="받아들임">
           <NativeSelect
             size="sm"

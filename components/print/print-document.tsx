@@ -6,7 +6,12 @@ import Image from "next/image";
 import { SectionHeading } from "@/components/document/card-frame";
 import { CardLabel } from "@/components/document/card-label";
 import { DISCLAIMER } from "@/components/document/disclaimer";
-import { paginate, type PrintBlock } from "@/lib/domain/pagination";
+import {
+  numberPages,
+  paginate,
+  type NumberedPage,
+  type PrintBlock,
+} from "@/lib/domain/pagination";
 import type { ReaderCard, ReaderContent } from "@/lib/domain/publication";
 import { formatKoreanDate } from "@/lib/domain/reading";
 import { cn } from "@/lib/utils";
@@ -170,7 +175,7 @@ export function PrintDocument({
   onReady?: (pageCount: number) => void;
 }) {
   const measureRef = useRef<HTMLDivElement>(null);
-  const [pages, setPages] = useState<string[][] | null>(null);
+  const [pages, setPages] = useState<NumberedPage[] | null>(null);
   const blocks = buildBlocks(content);
   const byId = new Map(blocks.map((block) => [block.id, block]));
   const signature = JSON.stringify(content) + String(draft);
@@ -207,7 +212,7 @@ export function PrintDocument({
         pageHeight: bodyHeight,
         gap: GAP_MM * MM_TO_PX,
       });
-      setPages(result);
+      setPages(numberPages(result));
       onReadyRef.current?.(result.length);
     });
     return () => {
@@ -236,10 +241,10 @@ export function PrintDocument({
         className="flex flex-col items-center gap-[8mm] print:block print:gap-0"
         style={{ zoom }}
       >
-        {pages?.map((ids, index) => (
+        {pages?.map((page) => (
           <section
-            key={index}
-            aria-label={`${index + 1}쪽`}
+            key={page.number}
+            aria-label={`${page.number}쪽`}
             className="print-page paper relative flex shrink-0 flex-col overflow-hidden bg-white shadow-dialog ring-1 ring-hairline print:shadow-none print:ring-0"
             style={{
               width: `${PAGE.width}mm`,
@@ -259,7 +264,7 @@ export function PrintDocument({
               className="flex min-h-0 flex-1 flex-col"
               style={{ gap: `${GAP_MM}mm` }}
             >
-              {ids.map((id) => (
+              {page.blockIds.map((id) => (
                 <Fragment key={id}>{byId.get(id)?.node}</Fragment>
               ))}
             </div>
@@ -270,9 +275,7 @@ export function PrintDocument({
               style={{ height: `${PAGE.footer}mm` }}
             >
               <span>{DISCLAIMER.short[content.tone]}</span>
-              <span className="tabular-nums">
-                {index + 1} / {pages.length}
-              </span>
+              <span className="tabular-nums">{page.label}</span>
             </footer>
           </section>
         ))}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { paginate } from "./pagination";
+import { numberPages, paginate } from "./pagination";
 
 describe("쪽 채우기", () => {
   it("한 쪽에 들어가면 한 쪽에 모두 넣는다", () => {
@@ -85,5 +85,17 @@ describe("쪽 채우기", () => {
     );
 
     expect(pages).toEqual([["card-1"], ["heading", "card-2"]]);
+  });
+});
+
+describe("쪽 번호", () => {
+  it("표지를 1쪽으로 세고 모든 쪽에 전체 쪽 수를 함께 붙인다", () => {
+    const pages = numberPages([["cover"], ["section-1", "card"], ["term"]]);
+
+    expect(pages).toEqual([
+      { number: 1, label: "1 / 3", blockIds: ["cover"] },
+      { number: 2, label: "2 / 3", blockIds: ["section-1", "card"] },
+      { number: 3, label: "3 / 3", blockIds: ["term"] },
+    ]);
   });
 });

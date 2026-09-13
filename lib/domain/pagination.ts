@@ -50,3 +50,18 @@ export function paginate(
   flush();
   return pages;
 }
+
+export interface NumberedPage {
+  number: number;
+  /** "2 / 6": the cover counts as page 1. */
+  label: string;
+  blockIds: string[];
+}
+
+export function numberPages(pages: string[][]): NumberedPage[] {
+  return pages.map((blockIds, index) => ({
+    number: index + 1,
+    label: `${index + 1} / ${pages.length}`,
+    blockIds,
+  }));
+}

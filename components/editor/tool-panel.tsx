@@ -29,6 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
 import { Progress } from "@/components/ui/progress";
 import {
   allSentences,
@@ -45,11 +46,12 @@ import {
   verificationProgress,
 } from "@/lib/domain/document-ops";
 import { CARD_ROLE_LABELS } from "@/lib/domain/document";
-import { cn } from "@/lib/utils";
 
+import { LastCheckSummary, SentenceCheckItems } from "./check-notes";
 import { useReaderContext } from "./editor-context";
 import { GlossaryManager } from "./glossary-manager";
 import { useEditor, useEditorStore, type ToolKey } from "./editor-store";
+import { PanelSection } from "./panel-section";
 import { ToolResult } from "./tool-result";
 
 const TOOLS: {
@@ -64,25 +66,15 @@ const TOOLS: {
   { key: "image", label: "그림 바꾸기", icon: Image01Icon },
 ];
 
+const SHORTCUTS: [keys: string, label: string][] = [
+  ["↑ ↓", "이전·다음 문장"],
+  ["Enter", "직접 수정"],
+  ["⌘ Enter", "대조했어요 · 다음 문장"],
+  ["⌘ Z", "되돌리기"],
+];
+
 function newSentenceId() {
   return `s-${crypto.randomUUID().slice(0, 8)}`;
-}
-
-function PanelSection({
-  title,
-  children,
-  className,
-}: {
-  title: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={cn("flex flex-col gap-2.5 px-4 py-4", className)}>
-      <h3 className="text-2sm font-semibold text-muted-foreground">{title}</h3>
-      {children}
-    </section>
-  );
 }
 
 export function ToolPanel() {
@@ -173,28 +165,21 @@ function DocumentSummary() {
           </ul>
         )}
       </PanelSection>
+      <LastCheckSummary />
       <PanelSection title="어려운 말 풀이">
         <GlossaryManager />
       </PanelSection>
       <PanelSection title="단축키">
-        <ul className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-2sm">
-          <li className="contents">
-            <kbd className="font-mono text-muted-foreground">↑ ↓</kbd>
-            <span>이전·다음 문장</span>
-          </li>
-          <li className="contents">
-            <kbd className="font-mono text-muted-foreground">Enter</kbd>
-            <span>직접 수정</span>
-          </li>
-          <li className="contents">
-            <kbd className="font-mono text-muted-foreground">⌘ Enter</kbd>
-            <span>대조했어요 · 다음 문장</span>
-          </li>
-          <li className="contents">
-            <kbd className="font-mono text-muted-foreground">⌘ Z</kbd>
-            <span>되돌리기</span>
-          </li>
-        </ul>
+        <dl className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1.5 text-2sm">
+          {SHORTCUTS.map(([keys, label]) => (
+            <div key={label} className="contents">
+              <dt>
+                <Kbd>{keys}</Kbd>
+              </dt>
+              <dd>{label}</dd>
+            </div>
+          ))}
+        </dl>
       </PanelSection>
     </>
   );
@@ -282,6 +267,8 @@ function SentencePanel({ id }: { id: string }) {
           </ul>
         )}
       </PanelSection>
+
+      <SentenceCheckItems sentenceId={id} text={sentence.text} />
     </>
   );
 }
@@ -407,31 +394,32 @@ function SentenceTools({
     <>
       <PanelSection title="문장 도구">
         <div className="grid grid-cols-2 gap-1.5">
-          {TOOLS.map((item) => {
-            const active = item.key === tool;
-            return (
-              <Button
-                key={item.key}
-                variant={active ? "weak" : "secondary"}
-                size="sm"
-                aria-pressed={item.key === "edit" ? undefined : active}
-                className="justify-start"
-                disabled={item.key === "image" && !withPictures}
-                onClick={() => {
-                  const state = store.getState();
-                  if (item.key === "edit") state.startEditing(id);
-                  else state.openTool(active ? null : item.key);
-                }}
-              >
-                <HugeiconsIcon
-                  icon={item.icon}
-                  strokeWidth={2}
-                  data-icon="inline-start"
-                />
-                {item.label}
-              </Button>
-            );
-          })}
+          {TOOLS.filter((item) => item.key !== "image" || withPictures).map(
+            (item) => {
+              const active = item.key === tool;
+              return (
+                <Button
+                  key={item.key}
+                  variant={active ? "weak" : "secondary"}
+                  size="sm"
+                  aria-pressed={item.key === "edit" ? undefined : active}
+                  className="justify-start"
+                  onClick={() => {
+                    const state = store.getState();
+                    if (item.key === "edit") state.startEditing(id);
+                    else state.openTool(active ? null : item.key);
+                  }}
+                >
+                  <HugeiconsIcon
+                    icon={item.icon}
+                    strokeWidth={2}
+                    data-icon="inline-start"
+                  />
+                  {item.label}
+                </Button>
+              );
+            },
+          )}
         </div>
         <div className="flex flex-wrap gap-1">
           <Button
@@ -503,7 +491,9 @@ function SentenceTools({
           </Button>
         </div>
       </PanelSection>
-      {tool && <ToolResult tool={tool} sentenceId={id} />}
+      {tool && (tool !== "image" || withPictures) && (
+        <ToolResult tool={tool} sentenceId={id} />
+      )}
     </>
   );
 }

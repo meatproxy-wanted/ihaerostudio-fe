@@ -32,11 +32,11 @@ import {
   CHECKLIST_LABELS,
   checklistFor,
   type ChecklistKey,
+  countByStatus,
+  reviewItemStatus,
   type ReviewRun,
 } from "@/lib/domain/review";
 import { cn } from "@/lib/utils";
-
-import { isHandled } from "./review-model";
 
 export function FinishReviewDialog({
   project,
@@ -76,12 +76,11 @@ export function FinishReviewDialog({
   });
 
   const stale = !run || run.contentRevision !== document.contentRevision;
-  const requiredOpen = (run?.items ?? []).filter(
-    (item) => item.level === "required" && !isHandled(item),
+  const runItems = run?.items ?? [];
+  const requiredOpen = runItems.filter(
+    (item) => reviewItemStatus(item) === "required",
   );
-  const suggestedOpen = (run?.items ?? []).filter(
-    (item) => item.level === "suggested" && !isHandled(item),
-  ).length;
+  const suggestedOpen = countByStatus(runItems).suggested;
   const { verified, total } = verificationProgress(document);
   const allChecked = checklist.every((key) => checked.includes(key));
   const canComplete = !stale && requiredOpen.length === 0 && allChecked;

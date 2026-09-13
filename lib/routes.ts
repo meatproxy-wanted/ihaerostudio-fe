@@ -2,10 +2,18 @@ import type { StepKey } from "@/lib/domain/steps";
 
 export type ProjectStep = Exclude<StepKey, "upload">;
 
+/** Editor tools a link can open, in the order the tool panel lists them. */
+export const EDITOR_TOOLS = ["simplify", "split", "term", "image"] as const;
+export type EditorTool = (typeof EDITOR_TOOLS)[number];
+
+export function parseEditorTool(value: string | null): EditorTool | null {
+  return EDITOR_TOOLS.find((tool) => tool === value) ?? null;
+}
+
 export interface EditorLink {
   sentence?: string;
   card?: string;
-  tool?: string;
+  tool?: EditorTool;
   /** Show a "back to review" link in the editor. */
   fromReview?: boolean;
 }
@@ -33,6 +41,8 @@ export const routes = {
       tool: link.tool,
       from: link.fromReview ? "review" : undefined,
     }),
+  review: (projectId: string, options: { item?: string } = {}) =>
+    withQuery(`/projects/${projectId}/review`, { item: options.item }),
   read: (projectId: string) => `/read/${projectId}`,
   print: (projectId: string, publicationId: string) =>
     withQuery(`/print/${projectId}`, { publication: publicationId }),
