@@ -79,6 +79,29 @@ export function useResetDemo() {
   });
 }
 
+export function useServerHealth() {
+  return useQuery({
+    queryKey: queryKeys.serverHealth(),
+    queryFn: () => api.server.health(),
+    staleTime: 5 * 60_000,
+    retry: 0,
+  });
+}
+
+/**
+ * How the server runs, for notices and dev-only controls. Both flags stay
+ * false while the probe is loading or the server cannot be reached.
+ */
+export function useServerMode() {
+  const health = useServerHealth();
+  const demo = health.data?.aiProvider === "demo";
+  return {
+    demo,
+    /** The server clears a producer's projects only in demo mode outside production. */
+    canReset: demo && health.data?.environment !== "production",
+  };
+}
+
 export function useSource(projectId: string) {
   return useQuery({
     queryKey: queryKeys.source(projectId),

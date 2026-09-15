@@ -12,7 +12,11 @@ import { sourceDocumentSchema } from "@/lib/domain/source";
 import { caseStructureSchema } from "@/lib/domain/structure";
 
 import { ApiError } from "./errors";
-import { imageCandidateSchema, type ApiClient } from "./types";
+import {
+  imageCandidateSchema,
+  serverHealthSchema,
+  type ApiClient,
+} from "./types";
 
 function toApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
@@ -169,7 +173,9 @@ export function createValidatedClient(raw: ApiClient): ApiClient {
     },
     demo: {
       reset: () => parsed(z.void(), () => raw.demo.reset()),
-      sampleText: () => parsed(z.string(), () => raw.demo.sampleText()),
+    },
+    server: {
+      health: () => parsed(serverHealthSchema, () => raw.server.health()),
     },
   };
 }

@@ -6,6 +6,15 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
       "port": 3000
+    },
+    {
+      "name": "ihaerostudio-be",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd ../ihaerostudio-be && set -a && { [ -f .env ] && . ./.env; } ; set +a; export AI_PROVIDER=\"${AI_PROVIDER:-demo}\"; exec .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8100"
+      ],
+      "port": 8100
     }
   ]
 }

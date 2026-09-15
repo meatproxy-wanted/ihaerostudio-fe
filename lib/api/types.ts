@@ -35,10 +35,19 @@ export const imageCandidateSchema = z.object({
 });
 export type ImageCandidate = z.infer<typeof imageCandidateSchema>;
 
+/** What the server reports about itself, for notices and dev-only controls. */
+export const serverHealthSchema = z.object({
+  status: z.string(),
+  /** `demo` copies the source and only sorts labeled lines; `openai` runs the model. */
+  aiProvider: z.string(),
+  environment: z.string(),
+});
+export type ServerHealth = z.infer<typeof serverHealthSchema>;
+
 /**
- * Everything the screens need from the server, grouped by feature. This is
- * not an endpoint list: names and shapes will be aligned with the real server
- * when it exists. Screens depend on this interface only.
+ * Everything the screens need from the server, grouped by feature. The HTTP
+ * client implements it against the server's `/api/studio` routes; screens
+ * depend on this interface only.
  */
 export interface ApiClient {
   projects: {
@@ -142,7 +151,10 @@ export interface ApiClient {
     get(projectId: string): Promise<PublicReading>;
   };
   demo: {
+    /** Deletes every project of this producer. The server allows it in demo mode only. */
     reset(): Promise<void>;
-    sampleText(): Promise<string>;
+  };
+  server: {
+    health(): Promise<ServerHealth>;
   };
 }

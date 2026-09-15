@@ -1,9 +1,9 @@
-import { createMockApi } from "@/lib/mock/api";
-
+import { STUDIO_SERVER } from "./config";
+import { createHttpApi } from "./http-client";
 import { createValidatedClient } from "./validated-client";
 
 /**
- * The single place the app picks its API implementation. Swap the mock for an
- * HTTP client with the same interface once the server exists.
+ * The single place the app picks its API implementation: the studio server
+ * over HTTP, with every response checked against the domain schemas.
  */
-export const api = createValidatedClient(createMockApi());
+export const api = createValidatedClient(createHttpApi(STUDIO_SERVER));

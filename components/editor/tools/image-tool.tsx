@@ -347,6 +347,10 @@ export function ImageTool({
             error={candidates.error}
             onRetry={() => candidates.refetch()}
           />
+        ) : candidates.data.candidates.length === 0 ? (
+          <p className="text-2sm text-muted-foreground">
+            아직 고를 수 있는 그림이 없어요. 내 그림을 올리면 여기에 모여요.
+          </p>
         ) : (
           <ul className="grid grid-cols-2 gap-2">
             {candidates.data.candidates.map((item) => (

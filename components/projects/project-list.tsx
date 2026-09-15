@@ -43,7 +43,12 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { errorMessage } from "@/lib/api/errors";
-import { useProjects, useRemoveProject, useResetDemo } from "@/lib/api/hooks";
+import {
+  useProjects,
+  useRemoveProject,
+  useResetDemo,
+  useServerMode,
+} from "@/lib/api/hooks";
 import type { Project } from "@/lib/domain/project";
 import { getResumeStep, STEP_LABELS } from "@/lib/domain/steps";
 import { routes } from "@/lib/routes";
@@ -257,9 +262,13 @@ function EmptyProjects() {
   );
 }
 
+/** Clears this producer's projects. Shown only where the server allows it: demo mode outside production. */
 function ResetDemoData() {
   const [open, setOpen] = useState(false);
   const resetDemo = useResetDemo();
+  const { canReset } = useServerMode();
+
+  if (!canReset) return null;
 
   return (
     <div className="mt-auto flex justify-center pt-10">
@@ -278,8 +287,8 @@ function ResetDemoData() {
               {"데모 데이터를\n모두 지울까요?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              이 브라우저에 저장된 자료가 모두 사라져요. 시연을 처음부터 다시 할
-              때 쓰세요.
+              서버에 저장된 내 자료가 모두 사라져요. 시연을 처음부터 다시 할 때
+              쓰세요.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -296,6 +305,12 @@ function ResetDemoData() {
                       type: "success",
                     });
                   },
+                  onError: (error) =>
+                    toast.add({
+                      title: "지우지 못했어요",
+                      description: errorMessage(error),
+                      type: "error",
+                    }),
                 })
               }
             >

@@ -1,5 +1,13 @@
 export type ApiErrorCode =
-  "aborted" | "not-found" | "invalid-input" | "invalid-response" | "failed";
+  | "aborted"
+  | "not-found"
+  | "invalid-input"
+  /** The server holds a newer version than the one being saved. */
+  | "conflict"
+  /** The server did not accept the token, or refuses this action here. */
+  | "unauthorized"
+  | "invalid-response"
+  | "failed";
 
 /** Every API failure reaches the UI as this, with a message fit to show. */
 export class ApiError extends Error {

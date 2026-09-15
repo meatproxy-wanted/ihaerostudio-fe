@@ -1,19 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  AiMagicIcon,
-  InformationCircleIcon,
-  SparklesIcon,
-} from "@hugeicons/core-free-icons";
+import { AiMagicIcon, SparklesIcon } from "@hugeicons/core-free-icons";
 
 import { LongJobLoader, useLongJob } from "@/components/app/long-job";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ServerModeNotice } from "@/components/app/server-mode-notice";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
 import { api } from "@/lib/api/client";
 import { errorMessage } from "@/lib/api/errors";
 import { cacheProject } from "@/lib/api/hooks";
@@ -21,23 +16,22 @@ import { queryKeys } from "@/lib/api/query-keys";
 import type { CreateProjectInput } from "@/lib/api/types";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/domain/common";
 import { routes } from "@/lib/routes";
+import { SAMPLE_JUDGMENT_TEXT } from "@/lib/sample-judgment";
 
 import { ANALYSIS_STEPS } from "./analysis-steps";
 import { SettingsPicker } from "./settings-picker";
 import { SourceInput, sourceProblem, type SourceDraft } from "./source-input";
 
+const SAMPLE_SOURCE: SourceDraft = {
+  tab: "text",
+  file: null,
+  text: SAMPLE_JUDGMENT_TEXT,
+};
+
 function toSourceInput(source: SourceDraft): CreateProjectInput["source"] {
   return source.tab === "pdf" && source.file
     ? { kind: "pdf", file: source.file }
     : { kind: "text", text: source.text };
-}
-
-function showSampleError(error: unknown) {
-  toast.add({
-    title: "샘플 판결문을 불러오지 못했어요",
-    description: errorMessage(error),
-    type: "error",
-  });
 }
 
 function SectionHeading({
@@ -70,40 +64,11 @@ export function NewProjectForm() {
   const queryClient = useQueryClient();
   const wantsSample = useSearchParams().get("sample") === "1";
 
-  const [source, setSource] = useState<SourceDraft>({
-    tab: wantsSample ? "text" : "pdf",
-    file: null,
-    text: "",
-  });
+  const [source, setSource] = useState<SourceDraft>(() =>
+    wantsSample ? SAMPLE_SOURCE : { tab: "pdf", file: null, text: "" },
+  );
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [attempted, setAttempted] = useState(false);
-
-  // Cached, so arriving with ?sample=1 and then pressing the sample button
-  // asks the server once.
-  const loadSample = useCallback(
-    () =>
-      queryClient.fetchQuery({
-        queryKey: queryKeys.sampleText(),
-        queryFn: () => api.demo.sampleText(),
-        staleTime: Infinity,
-      }),
-    [queryClient],
-  );
-
-  useEffect(() => {
-    if (!wantsSample) return;
-    let active = true;
-    loadSample()
-      .then((text) => {
-        if (active) setSource({ tab: "text", file: null, text });
-      })
-      .catch((error: unknown) => {
-        if (active) showSampleError(error);
-      });
-    return () => {
-      active = false;
-    };
-  }, [wantsSample, loadSample]);
 
   const analysis = useLongJob({
     run: (input: CreateProjectInput, signal) =>
@@ -123,16 +88,10 @@ export function NewProjectForm() {
     void analysis.start({ source: toSourceInput(source), settings });
   }
 
-  async function startWithSample() {
-    let text: string;
-    try {
-      text = await loadSample();
-    } catch (error) {
-      showSampleError(error);
-      return;
-    }
-    setSource({ tab: "text", file: null, text });
-    void analysis.start({ source: { kind: "text", text }, settings });
+  /** Fills in the sample judgment and sends it to the server like any text. */
+  function startWithSample() {
+    setSource(SAMPLE_SOURCE);
+    void analysis.start({ source: toSourceInput(SAMPLE_SOURCE), settings });
   }
 
   return (
@@ -161,14 +120,7 @@ export function NewProjectForm() {
           </Button>
         </div>
 
-        <Alert role="note" variant="info" className="mt-6">
-          <HugeiconsIcon icon={InformationCircleIcon} strokeWidth={2} />
-          <AlertTitle>데모 모드예요</AlertTitle>
-          <AlertDescription>
-            어떤 판결문을 넣어도 가상의 샘플 사건(임대차보증금 반환)으로
-            분석해요. 서버가 연결되면 올린 판결문을 실제로 분석해요.
-          </AlertDescription>
-        </Alert>
+        <ServerModeNotice className="mt-6" />
 
         <section className="mt-10">
           <SectionHeading
@@ -201,7 +153,7 @@ export function NewProjectForm() {
             </p>
           ) : (
             <p className="text-2sm text-muted-foreground">
-              {problem ?? "준비됐어요. 분석은 1분 안에 끝나요."}
+              {problem ?? "준비됐어요. 분석에는 1분 정도 걸릴 수 있어요."}
             </p>
           )}
           <Button size="lg" onClick={start} className="sm:min-w-44">

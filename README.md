@@ -16,15 +16,43 @@
 
 독자용 읽기 화면은 `/read/[id]`, 인쇄 화면은 `/print/[id]?publication=...`이에요.
 
-## 서버와 목 API
+## 서버 연결
 
-이 저장소에는 서버 코드가 없어요. AI와 API는 별도 서버 프로젝트가 맡아요.
+AI와 API는 별도 서버 프로젝트 `ihaerostudio-be`가 맡아요. 이 저장소에는 서버 코드가 없어요.
 
 - 화면은 `lib/api/types.ts`의 `ApiClient` 인터페이스만 사용하고, 응답은 `lib/domain`의 zod 스키마로 검증해요.
-- 지금은 `lib/api/client.ts`가 `lib/mock`의 목 구현을 연결해요. 서버가 준비되면 같은 인터페이스의 HTTP 구현으로 바꾸고 `lib/mock`, `public/mock`, `scripts/generate-mock-illustrations.mjs`를 지우면 돼요.
-- **데모 모드**: 어떤 판결문을 넣어도 가상의 샘플 사건(가온지방법원 임대차보증금 반환)으로 분석해요. 초안에는 검토 기능을 보여 주려고 일부러 넣은 문제가 있어요.
-- 데이터는 브라우저 IndexedDB에 저장돼요. 작업함 맨 아래 [데모 데이터 초기화]로 지울 수 있어요.
-- 오류 화면 확인: 주소에 `?mockFail=analyze,draft,save,assist,check,publish` 중 필요한 값을 붙이면 그 탭에서 해당 요청이 실패해요. `?mockFail=`로 끌 수 있어요.
+- `lib/api/http-client.ts`가 이 인터페이스를 서버의 `/api/studio` HTTP API로 구현하고, `lib/api/client.ts`가 연결해요.
+- 서버 주소와 토큰은 환경 변수로 정해요. `.env.example`을 `.env.local`로 복사해서 고쳐요.
+
+| 변수                           | 기본값                  | 뜻                                                                 |
+| ------------------------------ | ----------------------- | ------------------------------------------------------------------ |
+| `NEXT_PUBLIC_STUDIO_API_URL`   | `http://127.0.0.1:8100` | 서버 주소(origin)                                                  |
+| `NEXT_PUBLIC_STUDIO_API_TOKEN` | `dev-only-change-me`    | 제작자 식별용 Bearer 토큰. 서버의 `API_KEYS` 중 하나와 같아야 해요 |
+
+`NEXT_PUBLIC_` 값은 빌드 때 브라우저 번들에 들어가요. 토큰은 로그인 대신 제작자를 구분하는 값이라 화면을 여는 사람이 볼 수 있어요. 운영 서버는 개발용 토큰을 거부해요.
+
+### 서버 실행 (로컬)
+
+두 저장소가 이웃 디렉터리에 있을 때:
+
+```bash
+cd ../ihaerostudio-be
+python3 -m venv .venv && .venv/bin/pip install -e '.[test]'
+AI_PROVIDER=demo .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8100
+```
+
+- 서버의 기본 CORS 허용 주소는 `http://localhost:3000`, `http://127.0.0.1:3000`이에요.
+- `AI_PROVIDER=demo`: 실제 분석이 아니에요. 원문을 그대로 옮기고 "원고:", "법원 결정:"처럼 표시된 줄만 분류해요. 더 쉽게 바꾸기·용어 후보·용어 설명은 서버가 503으로 거절하고, 그림 후보는 올린 그림만 돌려줘요. 새 자료 화면 위에 데모 모드 안내가 떠요.
+- 실제 분석: 서버에 `AI_PROVIDER=openai`, `OPENAI_API_KEY`, `OPENAI_MODEL`을 설정해요. 그림 생성은 `COMFY_CLOUD_API_KEY`도 필요해요.
+- `.claude/launch.json`에 두 서버 실행 설정(`ihaerostudio-fe`, `ihaerostudio-be`)이 있어요.
+
+### 샘플 판결문
+
+`lib/sample-judgment.ts`의 가상 판결문(가온지방법원 임대차보증금 반환)은 작업함의 [샘플로 체험하기]와 새 자료 화면의 [샘플 판결문으로 체험하기]로 채워져요. 붙여 넣은 텍스트와 똑같이 서버로 보내 분석하므로, 결과는 서버의 AI 모드에 따라 달라요.
+
+### 데모 데이터 초기화
+
+작업함 맨 아래 [데모 데이터 초기화]는 서버가 데모 모드일 때만 보이고, 서버에 저장된 내 자료를 모두 지워요.
 
 ## 개발
 
@@ -44,11 +72,11 @@ pnpm dev
 
 ## 구조
 
-| 위치           | 내용                                                                                                         |
-| -------------- | ------------------------------------------------------------------------------------------------------------ |
-| `lib/domain`   | zod 스키마와 순수 함수(단계 규칙, 구조·문서 편집, 어절 차이, 숫자 감지, 독자용 내용, 쪽 나누기). 테스트 seam |
-| `lib/api`      | `ApiClient` 인터페이스, 응답 검증, 쿼리 키와 훅                                                              |
-| `lib/mock`     | 목 서버(fixture, 단순 규칙, 저장소). 서버 연동 때 삭제                                                       |
-| `lib/stores`   | 편집 화면 공용 자동 저장                                                                                     |
-| `components/*` | 화면별 컴포넌트(`structure`, `editor`, `review`, `reader`, `print`, `preview`, `export` 등)와 공용 UI(`ui`)  |
-| `app`          | App Router 경로. 독자·인쇄 화면은 `(paper)` 그룹                                                             |
+| 위치                     | 내용                                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `lib/domain`             | zod 스키마와 순수 함수(단계 규칙, 구조·문서 편집, 어절 차이, 숫자 감지, 독자용 내용, 쪽 나누기). 테스트 seam |
+| `lib/api`                | `ApiClient` 인터페이스, HTTP 구현, 응답 검증, 쿼리 키와 훅                                                   |
+| `lib/sample-judgment.ts` | 체험용 가상 판결문 텍스트                                                                                    |
+| `lib/stores`             | 편집 화면 공용 자동 저장                                                                                     |
+| `components/*`           | 화면별 컴포넌트(`structure`, `editor`, `review`, `reader`, `print`, `preview`, `export` 등)와 공용 UI(`ui`)  |
+| `app`                    | App Router 경로. 독자·인쇄 화면은 `(paper)` 그룹                                                             |
