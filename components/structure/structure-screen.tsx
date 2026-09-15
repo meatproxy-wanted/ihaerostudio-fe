@@ -231,6 +231,7 @@ function StructureEditor({
           job={draft}
           title="초안을 만들고 있어요"
           steps={DRAFT_STEPS}
+          stepMs={5_000}
         />
       </SourceTextProvider>
     </StructureStoreContext>

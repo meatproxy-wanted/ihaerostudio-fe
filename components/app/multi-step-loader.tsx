@@ -144,9 +144,11 @@ export function MultiStepLoader({
 
 /**
  * Walks through `stepCount` steps on a timer and waits on the last one. Mount
- * it per run (e.g. with a `key`) so every run starts from the first step.
+ * it per run (e.g. with a `key`) so every run starts from the first step. The
+ * interval should roughly match how long the real job takes divided by the
+ * step count, so the loader does not sit on the last step for most of it.
  */
-export function useTimedStep(stepCount: number, intervalMs = 1500) {
+export function useTimedStep(stepCount: number, intervalMs = 5000) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {

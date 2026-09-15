@@ -129,6 +129,7 @@ export function OutdatedDraftBanner({
         job={regenerate}
         title="초안을 다시 만들고 있어요"
         steps={DRAFT_STEPS}
+        stepMs={5_000}
       />
     </>
   );

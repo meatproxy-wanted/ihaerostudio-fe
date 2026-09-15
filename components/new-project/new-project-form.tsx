@@ -171,6 +171,7 @@ export function NewProjectForm() {
         job={analysis}
         title="판결문을 분석하고 있어요"
         steps={ANALYSIS_STEPS}
+        stepMs={6_000}
       />
     </>
   );

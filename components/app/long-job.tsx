@@ -66,10 +66,13 @@ export function LongJobLoader({
   job,
   title,
   steps,
+  stepMs,
 }: {
   job: { phase: Phase; runId: number; cancel: () => void };
   title: string;
   steps: LoaderStep[];
+  /** How long each step stays before the next; the last waits for the job. */
+  stepMs?: number;
 }) {
   if (job.phase === "idle") {
     return (
@@ -81,6 +84,7 @@ export function LongJobLoader({
       key={job.runId}
       title={title}
       steps={steps}
+      stepMs={stepMs}
       completed={job.phase === "done"}
       onCancel={job.cancel}
     />
@@ -90,15 +94,17 @@ export function LongJobLoader({
 function TimedLoader({
   title,
   steps,
+  stepMs,
   completed,
   onCancel,
 }: {
   title: string;
   steps: LoaderStep[];
+  stepMs?: number;
   completed: boolean;
   onCancel: () => void;
 }) {
-  const step = useTimedStep(steps.length);
+  const step = useTimedStep(steps.length, stepMs);
   return (
     <MultiStepLoader
       open
