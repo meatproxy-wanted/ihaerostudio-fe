@@ -5,6 +5,8 @@ import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AiMagicIcon,
+  Alert02Icon,
+  CheckmarkCircle02Icon,
   Image01Icon,
   LinkBackwardIcon,
   MoreHorizontalIcon,
@@ -130,7 +132,7 @@ export function EditorCanvas({
           </ol>
         </nav>
       </div>
-      <div className="mx-auto flex max-w-176 flex-col gap-10 px-8 pt-8 pb-24 text-lg">
+      <div className="mx-auto flex max-w-192 flex-col gap-10 px-6 pt-8 pb-24 text-lg">
         <p className="flex items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-2sm text-muted-foreground">
           <span className="font-semibold text-foreground">
             자동으로 들어가는 안내
@@ -254,7 +256,12 @@ function CanvasCard({
       id={cardElementId(card.id)}
       data-selected={selected || undefined}
       imageSlot={imageSlot}
-      className={cn("group/card relative", selected && "ring-2 ring-primary")}
+      // Editing needs room beside the picture: a narrower picture, a wider gap.
+      pictureClassName="w-[30%]"
+      className={cn(
+        "group/card relative gap-7 p-6",
+        selected && "ring-2 ring-primary",
+      )}
       label={<CardLabel role={card.role} partyName={card.partyName} />}
     >
       <button
@@ -266,7 +273,7 @@ function CanvasCard({
       >
         <HugeiconsIcon icon={MoreHorizontalIcon} strokeWidth={2} size={18} />
       </button>
-      <ul className="flex flex-col gap-1">
+      <ul className="flex flex-col gap-1.5">
         {card.sentences.map((sentence) => (
           <CanvasSentence key={sentence.id} id={sentence.id} />
         ))}
@@ -295,7 +302,7 @@ function CanvasSentence({ id }: { id: string }) {
   if (!sentence) return null;
 
   const status = [
-    !sentence.verified && "원문과 대조 전",
+    sentence.verified ? "원문과 대조함" : "원문과 대조 전",
     sentence.anchors.length === 0 && "원문 근거 없음",
     sentence.origin === "ai-suggestion" && "AI 수정안 적용",
   ].filter(Boolean);
@@ -327,19 +334,30 @@ function CanvasSentence({ id }: { id: string }) {
         onClick={() => store.getState().select({ type: "sentence", id })}
         onDoubleClick={() => store.getState().startEditing(id)}
         className={cn(
-          "relative -mx-2 cursor-pointer rounded-lg px-2 py-1 leading-relaxed break-keep outline-none hover:bg-foreground/5 focus-visible:ring-3 focus-visible:ring-ring/40",
-          selected &&
-            "bg-primary/15 ring-2 ring-primary/70 hover:bg-primary/15",
+          // The tint says whether the sentence was compared with the source;
+          // the ring says it is selected. The two never share a channel.
+          "relative -mx-2 cursor-pointer rounded-lg py-1.5 pr-8 pl-2 leading-relaxed break-keep outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+          sentence.verified
+            ? "bg-success/8 hover:bg-success/14"
+            : "bg-warning/10 hover:bg-warning/16",
+          selected && "ring-2 ring-primary/70",
           suggesting &&
             "outline-2 outline-offset-2 outline-primary outline-dashed",
         )}
       >
-        {!sentence.verified && (
-          <span
-            aria-hidden="true"
-            className="absolute top-[0.85em] -left-2.5 size-1.5 rounded-full bg-warning"
+        <span
+          aria-hidden="true"
+          className={cn(
+            "absolute top-2 right-2 flex size-4 items-center justify-center",
+            sentence.verified ? "text-success" : "text-warning",
+          )}
+        >
+          <HugeiconsIcon
+            icon={sentence.verified ? CheckmarkCircle02Icon : Alert02Icon}
+            strokeWidth={2.2}
+            size={15}
           />
-        )}
+        </span>
         {sentence.text ? (
           <TermText
             text={sentence.text}

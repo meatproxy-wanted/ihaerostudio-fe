@@ -223,21 +223,21 @@ function EditorWorkspace({
               >
                 <ResizablePanel
                   id="source"
-                  defaultSize="30"
+                  defaultSize="28"
                   minSize="18"
                   {...sourceFold.panelProps}
                 >
                   <EditorSource source={source} />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
-                <ResizablePanel id="canvas" defaultSize="44" minSize="30">
+                <ResizablePanel id="canvas" defaultSize="48" minSize="30">
                   <EditorCanvas
                     context={context}
                     leading={<SourceFoldButton fold={sourceFold} />}
                   />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
-                <ResizablePanel id="tools" defaultSize="26" minSize={320}>
+                <ResizablePanel id="tools" defaultSize="24" minSize={320}>
                   <ToolPanel />
                 </ResizablePanel>
               </ResizablePanelGroup>

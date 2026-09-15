@@ -13,6 +13,7 @@ export function CardFrame({
   layout = "row",
   image,
   imageSlot,
+  pictureClassName,
   label,
   children,
   className,
@@ -22,6 +23,8 @@ export function CardFrame({
   image?: { src: string; alt: string } | null;
   /** Replaces the plain picture, e.g. with a selectable button in the editor. */
   imageSlot?: ReactNode;
+  /** Overrides the picture column, e.g. its width. */
+  pictureClassName?: string;
   label?: ReactNode;
   children: ReactNode;
 }) {
@@ -52,6 +55,7 @@ export function CardFrame({
           className={cn(
             "shrink-0",
             layout === "responsive" ? "w-full @min-[40rem]:w-[38%]" : "w-[36%]",
+            pictureClassName,
           )}
         >
           {picture}
