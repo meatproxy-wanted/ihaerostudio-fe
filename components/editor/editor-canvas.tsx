@@ -5,8 +5,8 @@ import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   AiMagicIcon,
-  Alert02Icon,
   CheckmarkCircle02Icon,
+  CircleIcon,
   Image01Icon,
   LinkBackwardIcon,
   MoreHorizontalIcon,
@@ -16,6 +16,11 @@ import { CardFrame, SectionHeading } from "@/components/document/card-frame";
 import { CardLabel } from "@/components/document/card-label";
 import { DISCLAIMER } from "@/components/document/disclaimer";
 import { TermText } from "@/components/document/term-text";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { ReaderCard } from "@/lib/domain/publication";
 import type { SectionKind } from "@/lib/domain/document";
 import {
@@ -323,89 +328,110 @@ function CanvasSentence({ id }: { id: string }) {
     );
   }
 
-  return (
-    <li>
-      <div
-        id={sentenceElementId(id)}
-        role="button"
-        tabIndex={selected ? 0 : -1}
-        aria-pressed={selected}
-        data-sentence-id={id}
-        onClick={() => store.getState().select({ type: "sentence", id })}
-        onDoubleClick={() => store.getState().startEditing(id)}
+  const sentenceProps = {
+    id: sentenceElementId(id),
+    role: "button",
+    tabIndex: selected ? 0 : -1,
+    "aria-pressed": selected,
+    "data-sentence-id": id,
+    onClick: () => store.getState().select({ type: "sentence", id }),
+    onDoubleClick: () => store.getState().startEditing(id),
+    className: cn(
+      // The tint says whether the sentence was compared with the source (quiet
+      // gray until then, green after); the ring says it is selected. The two
+      // never share a channel.
+      "relative -mx-2 cursor-pointer rounded-lg py-1.5 pr-8 pl-2 leading-relaxed break-keep outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+      sentence.verified
+        ? "bg-success/8 hover:bg-success/14"
+        : "bg-foreground/5 hover:bg-foreground/9",
+      selected && "ring-2 ring-primary/70",
+      suggesting && "outline-2 outline-offset-2 outline-primary outline-dashed",
+    ),
+  } as const;
+
+  const body = (
+    <>
+      <span
+        aria-hidden="true"
         className={cn(
-          // The tint says whether the sentence was compared with the source;
-          // the ring says it is selected. The two never share a channel.
-          "relative -mx-2 cursor-pointer rounded-lg py-1.5 pr-8 pl-2 leading-relaxed break-keep outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
-          sentence.verified
-            ? "bg-success/8 hover:bg-success/14"
-            : "bg-warning/10 hover:bg-warning/16",
-          selected && "ring-2 ring-primary/70",
-          suggesting &&
-            "outline-2 outline-offset-2 outline-primary outline-dashed",
+          "absolute top-2 right-2 flex size-4 items-center justify-center",
+          sentence.verified ? "text-success" : "text-muted-foreground",
         )}
       >
-        <span
-          aria-hidden="true"
-          className={cn(
-            "absolute top-2 right-2 flex size-4 items-center justify-center",
-            sentence.verified ? "text-success" : "text-warning",
+        <HugeiconsIcon
+          icon={sentence.verified ? CheckmarkCircle02Icon : CircleIcon}
+          strokeWidth={2.2}
+          size={15}
+        />
+      </span>
+      {sentence.text ? (
+        <TermText
+          text={sentence.text}
+          terms={glossary}
+          renderTerm={(term, surface, key) => (
+            // A mouse shortcut to the term tool; keyboard users reach the
+            // same tool from the panel, so this stays out of the tab order
+            // and is not a second control nested inside the sentence.
+            <span
+              key={key}
+              title={term.explanation}
+              onClick={(event) => {
+                event.stopPropagation();
+                const state = store.getState();
+                state.select({ type: "sentence", id });
+                state.openTool("term", term.term);
+              }}
+              className="cursor-help underline decoration-foreground/40 decoration-dotted decoration-2 underline-offset-[5px] hover:bg-info/10"
+            >
+              {surface}
+            </span>
           )}
-        >
-          <HugeiconsIcon
-            icon={sentence.verified ? CheckmarkCircle02Icon : Alert02Icon}
-            strokeWidth={2.2}
-            size={15}
-          />
-        </span>
-        {sentence.text ? (
-          <TermText
-            text={sentence.text}
-            terms={glossary}
-            renderTerm={(term, surface, key) => (
-              // A mouse shortcut to the term tool; keyboard users reach the
-              // same tool from the panel, so this stays out of the tab order
-              // and is not a second control nested inside the sentence.
-              <span
-                key={key}
-                title={term.explanation}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  const state = store.getState();
-                  state.select({ type: "sentence", id });
-                  state.openTool("term", term.term);
-                }}
-                className="cursor-help underline decoration-foreground/40 decoration-dotted decoration-2 underline-offset-[5px] hover:bg-info/10"
-              >
-                {surface}
-              </span>
-            )}
-          />
-        ) : (
-          <span className="text-muted-foreground">(빈 문장)</span>
-        )}
-        {sentence.anchors.length === 0 && (
-          <HugeiconsIcon
-            icon={LinkBackwardIcon}
-            strokeWidth={2}
-            size={16}
-            aria-hidden="true"
-            className="ml-1.5 inline-block align-[-2px] text-warning"
-          />
-        )}
-        {sentence.origin === "ai-suggestion" && (
-          <HugeiconsIcon
-            icon={AiMagicIcon}
-            strokeWidth={2}
-            size={16}
-            aria-hidden="true"
-            className="ml-1.5 inline-block align-[-2px] text-info"
-          />
-        )}
-        {status.length > 0 && (
-          <span className="sr-only">({status.join(", ")})</span>
-        )}
-      </div>
+        />
+      ) : (
+        <span className="text-muted-foreground">(빈 문장)</span>
+      )}
+      {sentence.anchors.length === 0 && (
+        <HugeiconsIcon
+          icon={LinkBackwardIcon}
+          strokeWidth={2}
+          size={16}
+          aria-hidden="true"
+          className="ml-1.5 inline-block align-[-2px] text-warning"
+        />
+      )}
+      {sentence.origin === "ai-suggestion" && (
+        <HugeiconsIcon
+          icon={AiMagicIcon}
+          strokeWidth={2}
+          size={16}
+          aria-hidden="true"
+          className="ml-1.5 inline-block align-[-2px] text-info"
+        />
+      )}
+      {status.length > 0 && (
+        <span className="sr-only">({status.join(", ")})</span>
+      )}
+    </>
+  );
+
+  if (sentence.verified) {
+    return (
+      <li>
+        <div {...sentenceProps}>{body}</div>
+      </li>
+    );
+  }
+  return (
+    <li>
+      <Tooltip>
+        <TooltipTrigger render={<div />} {...sentenceProps}>
+          {body}
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          아직 원문과 대조하지 않은 문장이에요. 문장을 고르고 [원문과
+          대조했어요]를 누르거나 ⌘Enter를 눌러요.
+        </TooltipContent>
+      </Tooltip>
     </li>
   );
 }
