@@ -126,6 +126,10 @@ export interface ApiClient {
       projectId: string,
       input: { key: string; memo: string },
     ): Promise<{ run: ReviewRun; project: Project }>;
+    dismissAll(
+      projectId: string,
+      input: { keys: string[]; memo: string },
+    ): Promise<{ run: ReviewRun; project: Project }>;
     restore(
       projectId: string,
       input: { key: string },

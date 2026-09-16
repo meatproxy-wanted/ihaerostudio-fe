@@ -59,12 +59,16 @@ import { getReviewStatus } from "@/lib/domain/steps";
 import { routes } from "@/lib/routes";
 import { shouldIgnoreShortcut } from "@/lib/shortcuts";
 
+import { DismissAllDialog } from "./dismiss-all-dialog";
 import { FinishReviewDialog } from "./finish-review-dialog";
 import { ReviewDetail } from "./review-detail";
 import { ReviewList } from "./review-list";
 import {
+  type Dismissal,
+  dismissItems,
   groupItems,
   isHandled,
+  openRequiredCount,
   parseReviewParams,
   visibleItems,
   type ReviewFilter,
@@ -125,17 +129,37 @@ function ReviewWorkspace({
   const [selectedKey, setSelectedKey] = useState<string | null>(
     searchParams.get("item"),
   );
+  const [confirmingAll, setConfirmingAll] = useState(false);
   const layout = useDefaultLayout({
     id: "review-panes",
     panelIds: ["list", "detail"],
   });
 
+  // Review mutations touch one server-side version, so they run one after another.
+  const scope = { id: `review-${project.id}` };
+  const dismissKey = ["review-dismiss", project.id];
+
+  /** Dismissals the server hasn't confirmed yet; a run it returns meanwhile must still show them. */
+  const pendingDismissals = () =>
+    queryClient
+      .getMutationCache()
+      .findAll({ mutationKey: dismissKey, status: "pending" })
+      .map((mutation) => mutation.state.variables as Dismissal);
+
   const storeRun = (result: { run: ReviewRun; project: Project }) => {
-    cacheProject(queryClient, result.project);
-    queryClient.setQueryData(queryKeys.review(project.id), result.run);
+    const run = pendingDismissals().reduce(dismissItems, result.run);
+    queryClient.setQueryData(queryKeys.review(project.id), run);
+    cacheProject(queryClient, {
+      ...result.project,
+      review: {
+        ...result.project.review,
+        openRequiredCount: openRequiredCount(run),
+      },
+    });
   };
 
   const check = useMutation({
+    scope,
     mutationFn: () => api.review.run(project.id),
     onSuccess: storeRun,
     onError: (error) => {
@@ -153,10 +177,42 @@ function ReviewWorkspace({
     },
   });
   const dismiss = useMutation({
-    mutationFn: (input: { key: string; memo: string }) =>
-      api.review.dismiss(project.id, input),
+    scope,
+    mutationKey: dismissKey,
+    mutationFn: ({ keys, memo }: Dismissal) =>
+      keys.length === 1
+        ? api.review.dismiss(project.id, { key: keys[0], memo })
+        : api.review.dismissAll(project.id, { keys, memo }),
+    // Show the item as handled right away; the server round trip is long enough to notice.
+    onMutate: (input) => {
+      const run = queryClient.getQueryData<ReviewRun | null>(
+        queryKeys.review(project.id),
+      );
+      if (!run) return;
+      const next = dismissItems(run, input);
+      queryClient.setQueryData(queryKeys.review(project.id), next);
+      const current = queryClient.getQueryData<Project>(
+        queryKeys.project(project.id),
+      );
+      if (current) {
+        cacheProject(queryClient, {
+          ...current,
+          review: {
+            ...current.review,
+            openRequiredCount: openRequiredCount(next),
+          },
+        });
+      }
+    },
     onSuccess: storeRun,
     onError: (error, input) => {
+      // Drop the optimistic state and show what the server has.
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.review(project.id),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.project(project.id),
+      });
       toast.add({
         title: "문제없음 확인을 저장하지 못했어요",
         description: errorMessage(error),
@@ -171,6 +227,7 @@ function ReviewWorkspace({
     },
   });
   const restore = useMutation({
+    scope,
     mutationFn: (key: string) => api.review.restore(project.id, { key }),
     onSuccess: storeRun,
     onError: (error, key) => {
@@ -188,6 +245,7 @@ function ReviewWorkspace({
     },
   });
   const applyFix = useMutation({
+    scope,
     mutationFn: async (item: ReviewItem) => {
       if (item.target.type !== "sentence" || !item.suggestion) return null;
       const next = applySuggestion(
@@ -274,14 +332,12 @@ function ReviewWorkspace({
     setSelectedKey(rest.find((item) => !isHandled(item))?.key ?? null);
   }
 
+  const openShown = shown.filter((item) => !isHandled(item));
   const counts = countByStatus(items);
   const progress = verificationProgress(document);
   const firstUnverified = allSentences(document).find((s) => !s.verified);
-  const busy =
-    check.isPending ||
-    dismiss.isPending ||
-    restore.isPending ||
-    applyFix.isPending;
+  // A pending dismissal is already on screen, so it doesn't hold the maker back.
+  const busy = check.isPending || restore.isPending || applyFix.isPending;
   const reviewStatus = getReviewStatus(project);
 
   return (
@@ -427,6 +483,7 @@ function ReviewWorkspace({
                 selectedKey={selected?.key ?? null}
                 onSelect={setSelectedKey}
                 checking={check.isPending}
+                onDismissAll={() => setConfirmingAll(true)}
               />
             </ResizablePanel>
             <ResizableHandle withHandle />
@@ -441,12 +498,14 @@ function ReviewWorkspace({
                     source={source}
                     busy={busy}
                     onApplySuggestion={(item) => applyFix.mutate(item)}
-                    onDismiss={(item, memo) =>
-                      dismiss.mutate(
-                        { key: item.key, memo },
-                        { onSuccess: () => selectNextOpen(item) },
-                      )
-                    }
+                    onDismiss={(item, memo) => {
+                      dismiss.mutate({
+                        keys: [item.key],
+                        memo,
+                        at: new Date().toISOString(),
+                      });
+                      selectNextOpen(item);
+                    }}
                     onRestore={(item) => restore.mutate(item.key)}
                   />
                 ) : (
@@ -468,6 +527,20 @@ function ReviewWorkspace({
           </ResizablePanelGroup>
         )}
       </div>
+
+      <DismissAllDialog
+        open={confirmingAll}
+        onOpenChange={setConfirmingAll}
+        items={openShown}
+        onConfirm={(memo) => {
+          dismiss.mutate({
+            keys: openShown.map((item) => item.key),
+            memo,
+            at: new Date().toISOString(),
+          });
+          setSelectedKey(null);
+        }}
+      />
     </div>
   );
 }

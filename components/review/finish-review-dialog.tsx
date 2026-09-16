@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 import { api } from "@/lib/api/client";
 import { errorMessage } from "@/lib/api/errors";
@@ -84,11 +85,15 @@ export function FinishReviewDialog({
   const { verified, total } = verificationProgress(document);
   const allChecked = checklist.every((key) => checked.includes(key));
   const canComplete = !stale && requiredOpen.length === 0 && allChecked;
+  // Once the request is out, keep the dialog put so the result lands where the maker is looking.
+  const saving = complete.isPending;
 
   return (
     <Dialog
       open={open}
+      disablePointerDismissal={saving}
       onOpenChange={(next) => {
+        if (!next && saving) return;
         if (next) setChecked([]);
         setOpen(next);
       }}
@@ -124,7 +129,7 @@ export function FinishReviewDialog({
             <Button
               size="xs"
               variant="secondary"
-              disabled={checking}
+              disabled={checking || saving}
               onClick={onRecheck}
             >
               다시 점검
@@ -177,6 +182,7 @@ export function FinishReviewDialog({
             >
               <Checkbox
                 checked={checked.includes(key)}
+                disabled={saving}
                 onCheckedChange={(value) =>
                   setChecked((current) =>
                     value
@@ -194,13 +200,16 @@ export function FinishReviewDialog({
         </fieldset>
 
         <DialogFooter>
-          <DialogClose render={<Button variant="secondary" />}>
+          <DialogClose
+            render={<Button variant="secondary" disabled={saving} />}
+          >
             더 볼게요
           </DialogClose>
           <Button
-            disabled={!canComplete || complete.isPending}
+            disabled={!canComplete || saving}
             onClick={() => complete.mutate()}
           >
+            {saving && <Spinner data-icon="inline-start" />}
             검토 완료로 표시
           </Button>
         </DialogFooter>

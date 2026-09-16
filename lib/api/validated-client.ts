@@ -140,6 +140,10 @@ export function createValidatedClient(raw: ApiClient): ApiClient {
         parsed(withProject({ run: reviewRunSchema }), () =>
           raw.review.dismiss(projectId, input),
         ),
+      dismissAll: (projectId, input) =>
+        parsed(withProject({ run: reviewRunSchema }), () =>
+          raw.review.dismissAll(projectId, input),
+        ),
       restore: (projectId, input) =>
         parsed(withProject({ run: reviewRunSchema }), () =>
           raw.review.restore(projectId, input),

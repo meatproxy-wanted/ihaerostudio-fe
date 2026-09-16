@@ -1,5 +1,9 @@
 "use client";
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
+
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
@@ -41,6 +45,7 @@ export function ReviewList({
   selectedKey,
   onSelect,
   checking,
+  onDismissAll,
 }: {
   items: ReviewItem[];
   allItems: ReviewItem[];
@@ -51,6 +56,8 @@ export function ReviewList({
   selectedKey: string | null;
   onSelect: (key: string) => void;
   checking: boolean;
+  /** Marks every item currently in view as fine; offered only on the open list. */
+  onDismissAll: () => void;
 }) {
   const categories = categoryCounts(visibleItems(allItems, filter));
   // Keep the chosen chip visible even when the other filter has none of it.
@@ -87,6 +94,22 @@ export function ReviewList({
             ))}
           </ToggleGroup>
         ) : null}
+        {filter === "open" && items.length > 0 && (
+          <Button
+            size="xs"
+            variant="ghost"
+            className="self-start"
+            disabled={checking}
+            onClick={onDismissAll}
+          >
+            <HugeiconsIcon
+              icon={CheckmarkCircle02Icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+            />
+            보이는 {items.length}개 모두 문제없음
+          </Button>
+        )}
       </div>
 
       <div

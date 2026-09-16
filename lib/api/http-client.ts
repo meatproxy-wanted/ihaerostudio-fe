@@ -210,6 +210,8 @@ export function createHttpApi({ baseUrl, token }: HttpApiOptions): ApiClient {
         ),
       dismiss: (projectId, input) =>
         send(`${project(projectId)}/review/dismiss`, "POST", input),
+      dismissAll: (projectId, input) =>
+        send(`${project(projectId)}/review/dismiss-all`, "POST", input),
       restore: (projectId, input) =>
         send(`${project(projectId)}/review/restore`, "POST", input),
       complete: (projectId, input) =>

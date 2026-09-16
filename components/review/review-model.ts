@@ -6,6 +6,7 @@ import {
   type ReviewCategory,
   type ReviewGroup,
   type ReviewItem,
+  type ReviewRun,
 } from "@/lib/domain/review";
 
 export type ReviewFilter = "open" | "done" | "all";
@@ -29,6 +30,27 @@ export function parseReviewParams(params: URLSearchParams): {
 
 export function isHandled(item: ReviewItem) {
   return reviewItemStatus(item) === "handled";
+}
+
+/** What the maker asked the server to record: one memo for one or more items. */
+export type Dismissal = { keys: string[]; memo: string; at: string };
+
+/** The run as it will look once the server records the dismissal. */
+export function dismissItems(run: ReviewRun, dismissal: Dismissal): ReviewRun {
+  const keys = new Set(dismissal.keys);
+  return {
+    ...run,
+    items: run.items.map((item) =>
+      keys.has(item.key)
+        ? { ...item, dismissal: { memo: dismissal.memo, at: dismissal.at } }
+        : item,
+    ),
+  };
+}
+
+export function openRequiredCount(run: ReviewRun) {
+  return run.items.filter((item) => reviewItemStatus(item) === "required")
+    .length;
 }
 
 export function visibleItems(
