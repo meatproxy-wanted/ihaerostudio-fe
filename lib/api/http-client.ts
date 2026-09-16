@@ -4,8 +4,11 @@ import type { ApiClient } from "./types";
 export interface HttpApiOptions {
   /** The server's origin, e.g. `http://127.0.0.1:8100`. Paths are added here. */
   baseUrl: string;
-  /** The producer's bearer token; the server tells producers apart by it. */
-  token: string;
+  /**
+   * The bearer token the server tells workspaces apart by, read per request
+   * so a browser-generated one can appear after hydration. Null sends none.
+   */
+  token: () => string | null;
 }
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -81,7 +84,8 @@ export function createHttpApi({ baseUrl, token }: HttpApiOptions): ApiClient {
   ): Promise<T> {
     const multipart = body instanceof FormData;
     const headers: Record<string, string> = {};
-    if (auth) headers.Authorization = `Bearer ${token}`;
+    const bearer = auth ? token() : null;
+    if (bearer) headers.Authorization = `Bearer ${bearer}`;
     if (body !== undefined && !multipart) {
       headers["Content-Type"] = "application/json";
     }
