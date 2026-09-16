@@ -30,6 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Spinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -109,6 +110,7 @@ export function ExportScreen() {
   async function savePdf() {
     // Open the tab during the click so popup blockers allow it.
     const tab = window.open("about:blank", "_blank");
+    if (tab) showPreparing(tab);
     try {
       const { publication } = await publish.mutateAsync();
       const url = routes.print(project.id, publication.id, { autoPrint: true });
@@ -188,11 +190,15 @@ export function ExportScreen() {
               reviewed ? void savePdf() : setConfirmDraftPdf(true)
             }
           >
-            <HugeiconsIcon
-              icon={Pdf01Icon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
+            {publish.isPending ? (
+              <Spinner data-icon="inline-start" />
+            ) : (
+              <HugeiconsIcon
+                icon={Pdf01Icon}
+                strokeWidth={2}
+                data-icon="inline-start"
+              />
+            )}
             PDF 저장
           </Button>
         </Panel>
@@ -428,4 +434,36 @@ function PublicationRow({
       </Button>
     </li>
   );
+}
+
+/** What the new tab shows until the publication exists; otherwise it looks broken. */
+const PREPARING_HTML = `<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<title>PDF 준비 중 · 이해로 스튜디오</title>
+<style>
+  html { color-scheme: light dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: system-ui, sans-serif; background: Canvas; color: CanvasText; }
+  main { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px; text-align: center; }
+  p { margin: 0; } small { opacity: 0.7; }
+  /* The same loader as components/ui/spinner.tsx, inlined because this page has no stylesheet. */
+  .spinner { width: 32px; height: 32px; animation: loader-rotate 1.8s linear infinite; }
+  .spinner circle { transform-origin: center; animation: loader-dash 1.8s ease-in-out infinite; }
+  @keyframes loader-rotate { to { transform: rotate(360deg); } }
+  @keyframes loader-dash {
+    0% { stroke-dashoffset: 180; }
+    50% { stroke-dashoffset: 45; transform: rotate(108deg); }
+    100% { stroke-dashoffset: 180; transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .spinner, .spinner circle { animation: none; } }
+</style></head><body><main>
+<svg class="spinner" role="status" aria-label="Loading" viewBox="0 0 66 66" fill="none">
+  <circle cx="33" cy="33" r="30" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-dasharray="180"></circle>
+</svg>
+<p><strong>PDF를 준비하고 있어요</strong></p>
+<p><small>게시본을 만든 뒤 인쇄 창이 열려요. 이 탭을 닫지 마세요.</small></p>
+</main></body></html>`;
+
+function showPreparing(tab: Window) {
+  tab.document.open();
+  tab.document.write(PREPARING_HTML);
+  tab.document.close();
 }
