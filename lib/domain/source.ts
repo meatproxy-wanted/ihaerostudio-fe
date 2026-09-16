@@ -32,7 +32,8 @@ export type SourceDocument = z.infer<typeof sourceDocumentSchema>;
 
 /** What a judgment upload may be; the input screen checks before sending. */
 export const SOURCE_LIMITS = {
-  pdfMaxBytes: 20 * 1024 * 1024,
+  /** Matches the server, which keeps the whole upload under a 4.5 MB request body. */
+  pdfMaxBytes: 4_500_000,
   textMinLength: 100,
   textMaxLength: 100_000,
 } as const;

@@ -27,7 +27,7 @@ export function sourceProblem(source: SourceDraft): string | null {
     if (!source.file) return "판결문 PDF를 올려 주세요.";
     if (!isPdfFile(source.file)) return "PDF 파일만 올릴 수 있어요.";
     if (source.file.size > SOURCE_LIMITS.pdfMaxBytes) {
-      return "20MB 이하의 PDF만 올릴 수 있어요.";
+      return "4.5MB 이하의 PDF만 올릴 수 있어요.";
     }
     return null;
   }
@@ -175,7 +175,7 @@ function PdfDropzone({
         </span>
         <span className="text-2sm text-muted-foreground">
           글자를 선택할 수 있는 PDF가 좋아요. 스캔본은 분석이 어려울 수 있어요.
-          (20MB까지)
+          (4.5MB까지)
         </span>
       </span>
       <input
