@@ -32,7 +32,7 @@ function newId(prefix: string) {
 export function AddCardMenu({ section }: { section: SectionKind }) {
   const store = useEditorStore();
   const parties = useEditor((state) => state.value.partyNames);
-  const roles = SECTION_CARD_ROLES[section];
+  const roles = SECTION_CARD_ROLES[section].filter((role) => role !== "person");
   if (roles.length === 0) return null;
 
   interface Option {
@@ -42,13 +42,10 @@ export function AddCardMenu({ section }: { section: SectionKind }) {
     partyId?: string;
   }
   const options = roles.flatMap((role): Option[] =>
-    role === "person" || role === "claim"
+    role === "claim"
       ? parties.map((party) => ({
           key: `${role}:${party.partyId}`,
-          label:
-            role === "person"
-              ? `${party.displayName} 소개`
-              : `${withParticle(party.displayName, "이/가")} 한 말`,
+          label: `${withParticle(party.displayName, "이/가")} 한 말`,
           role,
           partyId: party.partyId,
         }))

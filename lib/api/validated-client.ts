@@ -14,6 +14,7 @@ import { caseStructureSchema } from "@/lib/domain/structure";
 import { ApiError } from "./errors";
 import {
   imageCandidateSchema,
+  imagePreparationProgressSchema,
   serverHealthSchema,
   type ApiClient,
 } from "./types";
@@ -92,6 +93,14 @@ export function createValidatedClient(raw: ApiClient): ApiClient {
         ),
     },
     document: {
+      prepareImages: (projectId, options) =>
+        parsed(
+          withProject({
+            document: easyDocumentSchema,
+            generation: imagePreparationProgressSchema,
+          }),
+          () => raw.document.prepareImages(projectId, options),
+        ),
       generate: (projectId, options) =>
         parsed(withProject({ document: easyDocumentSchema }), () =>
           raw.document.generate(projectId, options),

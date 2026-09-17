@@ -167,6 +167,13 @@ export function createHttpApi({ baseUrl, token }: HttpApiOptions): ApiClient {
     },
 
     document: {
+      prepareImages: (projectId, options) =>
+        send(
+          `${project(projectId)}/document/prepare-images`,
+          "POST",
+          undefined,
+          options?.signal,
+        ),
       generate: (projectId, options) =>
         send(
           `${project(projectId)}/document/generate`,

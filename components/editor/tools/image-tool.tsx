@@ -113,7 +113,7 @@ export function ImageTool({
     queryKey: queryKeys.assist.images(project.id, cardId),
     queryFn: ({ signal }) =>
       api.assist.imageCandidates(project.id, { cardId }, { signal }),
-    enabled: browsing,
+    enabled: browsing && card?.role !== "person",
     staleTime: Infinity,
     retry: 0,
   });
@@ -134,6 +134,30 @@ export function ImageTool({
   });
 
   if (!card) return null;
+  if (card.role === "person")
+    return (
+      <ToolFrame title="고정된 등장인물" closable={closable}>
+        {image && <Thumb src={image.src} alt={image.alt} />}
+        <p className="text-2sm text-muted-foreground">
+          등장인물의 기준 그림은 자동 생성 후 고정돼요. 글과 다른 장면 그림은
+          편집할 수 있어요.
+        </p>
+        {image && (
+          <CommitInput
+            label="대체텍스트"
+            value={image.alt}
+            placeholder="등장인물 그림을 설명해 주세요"
+            onCommit={(alt) => {
+              store
+                .getState()
+                .apply((document) =>
+                  updateImageText(document, image.id, { alt }),
+                );
+            }}
+          />
+        )}
+      </ToolFrame>
+    );
 
   function clearUpload() {
     if (upload) URL.revokeObjectURL(upload.preview);

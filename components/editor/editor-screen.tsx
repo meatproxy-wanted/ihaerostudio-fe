@@ -45,6 +45,7 @@ import { parseEditorTool, routes, type EditorTool } from "@/lib/routes";
 import { useAutosave } from "@/lib/stores/autosave";
 
 import { EditorCanvas } from "./editor-canvas";
+import { ImagePreparation } from "./image-preparation";
 import { EditorReaderContext } from "./editor-context";
 import { EditorSource } from "./editor-source";
 import {
@@ -97,17 +98,23 @@ export function EditorScreen() {
   }
 
   return (
-    <EditorWorkspace
+    <ImagePreparation
       key={`${project.id}:${generation}`}
-      project={project}
-      fromReview={fromReview}
-      onRegenerated={() => setGeneration((value) => value + 1)}
-      source={source.data}
-      structure={structure.data}
-      initialDocument={document.data}
-      initialSelection={generation === 0 ? initialSelection : null}
-      initialTool={generation === 0 ? initialTool : null}
-    />
+      projectId={project.id}
+    >
+      {(preparedDocument) => (
+        <EditorWorkspace
+          project={project}
+          fromReview={fromReview}
+          onRegenerated={() => setGeneration((value) => value + 1)}
+          source={source.data}
+          structure={structure.data}
+          initialDocument={preparedDocument}
+          initialSelection={generation === 0 ? initialSelection : null}
+          initialTool={generation === 0 ? initialTool : null}
+        />
+      )}
+    </ImagePreparation>
   );
 }
 

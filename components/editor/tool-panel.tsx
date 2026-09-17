@@ -340,6 +340,12 @@ function CardPanel({ id }: { id: string }) {
             variant="destructive"
             size="sm"
             className="ml-auto"
+            disabled={card.role === "person"}
+            title={
+              card.role === "person"
+                ? "고정된 등장인물 카드는 삭제할 수 없어요."
+                : undefined
+            }
             onClick={() => setConfirming(true)}
           >
             <HugeiconsIcon
@@ -395,32 +401,36 @@ function SentenceTools({
     <>
       <PanelSection title="문장 도구">
         <div className="grid grid-cols-2 gap-1.5">
-          {TOOLS.filter((item) => item.key !== "image" || withPictures).map(
-            (item) => {
-              const active = item.key === tool;
-              return (
-                <Button
-                  key={item.key}
-                  variant={active ? "weak" : "secondary"}
-                  size="sm"
-                  aria-pressed={item.key === "edit" ? undefined : active}
-                  className="justify-start"
-                  onClick={() => {
-                    const state = store.getState();
-                    if (item.key === "edit") state.startEditing(id);
-                    else state.openTool(active ? null : item.key);
-                  }}
-                >
-                  <HugeiconsIcon
-                    icon={item.icon}
-                    strokeWidth={2}
-                    data-icon="inline-start"
-                  />
-                  {item.label}
-                </Button>
-              );
-            },
-          )}
+          {TOOLS.filter(
+            (item) =>
+              item.key !== "image" ||
+              (withPictures &&
+                findSentence(store.getState().value, id)?.card.role !==
+                  "person"),
+          ).map((item) => {
+            const active = item.key === tool;
+            return (
+              <Button
+                key={item.key}
+                variant={active ? "weak" : "secondary"}
+                size="sm"
+                aria-pressed={item.key === "edit" ? undefined : active}
+                className="justify-start"
+                onClick={() => {
+                  const state = store.getState();
+                  if (item.key === "edit") state.startEditing(id);
+                  else state.openTool(active ? null : item.key);
+                }}
+              >
+                <HugeiconsIcon
+                  icon={item.icon}
+                  strokeWidth={2}
+                  data-icon="inline-start"
+                />
+                {item.label}
+              </Button>
+            );
+          })}
         </div>
         <div className="flex flex-wrap gap-1">
           <Button

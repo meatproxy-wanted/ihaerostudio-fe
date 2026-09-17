@@ -20,6 +20,22 @@ export interface RequestOptions {
   signal?: AbortSignal;
 }
 
+export const imagePreparationProgressSchema = z.object({
+  status: z.enum(["running", "ready", "skipped"]),
+  phase: z.enum(["portraits", "scenes", "complete"]),
+  completed: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+  currentCardId: z.string().nullable(),
+});
+export type ImagePreparationProgress = z.infer<
+  typeof imagePreparationProgressSchema
+>;
+export interface ImagePreparationResult {
+  document: EasyDocument;
+  project: Project;
+  generation: ImagePreparationProgress;
+}
+
 export type SourceInput =
   { kind: "pdf"; file: File } | { kind: "text"; text: string };
 
@@ -73,6 +89,11 @@ export interface ApiClient {
     ): Promise<{ structure: CaseStructure; project: Project }>;
   };
   document: {
+    /** Advances durable automatic image preparation, applying completed pictures. */
+    prepareImages(
+      projectId: string,
+      options?: RequestOptions,
+    ): Promise<ImagePreparationResult>;
     /** Creates the draft, replacing an existing document. */
     generate(
       projectId: string,

@@ -5,6 +5,7 @@ import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import type { EasyDocument } from "@/lib/domain/document";
+import { preservesCharacterImages } from "@/lib/domain/character-locks";
 import {
   emptyHistory,
   record,
@@ -60,6 +61,7 @@ export function createEditorStore(
       set((state) => {
         const next = recipe(state.value);
         if (next === state.value) return state;
+        if (!preservesCharacterImages(state.value, next)) return state;
         return {
           value: next,
           history: record(state.history, state.value),
