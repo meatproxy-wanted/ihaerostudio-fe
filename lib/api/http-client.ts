@@ -132,6 +132,24 @@ export function createHttpApi({ baseUrl, token }: HttpApiOptions): ApiClient {
   ) => send<T>(`${project(projectId)}/assist/${action}`, "POST", body, signal);
 
   return {
+    imageJobs: {
+      list: (projectId, input, options) => {
+        const params = new URLSearchParams({
+          limit: String(input?.limit ?? 20),
+          offset: String(input?.offset ?? 0),
+        });
+        return request(`${project(projectId)}/image-jobs?${params}`, {
+          signal: options?.signal,
+        });
+      },
+      get: (projectId, jobId, options) =>
+        request(
+          `${project(projectId)}/image-jobs/${encodeURIComponent(jobId)}`,
+          {
+            signal: options?.signal,
+          },
+        ),
+    },
     projects: {
       list: () => request(`${STUDIO}/projects`),
       get: (projectId) => request(project(projectId)),

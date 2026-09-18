@@ -12,6 +12,7 @@ import { sourceDocumentSchema } from "@/lib/domain/source";
 import { caseStructureSchema } from "@/lib/domain/structure";
 
 import { ApiError } from "./errors";
+import { imageJobListSchema, imageJobDetailSchema } from "./image-jobs";
 import {
   imageCandidateSchema,
   imagePreparationProgressSchema,
@@ -65,6 +66,16 @@ const withProject = <T extends z.ZodRawShape>(shape: T) =>
 
 export function createValidatedClient(raw: ApiClient): ApiClient {
   return {
+    imageJobs: {
+      list: (projectId, input, options) =>
+        parsed(imageJobListSchema, () =>
+          raw.imageJobs.list(projectId, input, options),
+        ),
+      get: (projectId, jobId, options) =>
+        parsed(imageJobDetailSchema, () =>
+          raw.imageJobs.get(projectId, jobId, options),
+        ),
+    },
     projects: {
       list: () => parsed(z.array(projectSchema), () => raw.projects.list()),
       get: (projectId) =>

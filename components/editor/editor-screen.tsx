@@ -55,6 +55,7 @@ import {
   type EditorStore,
 } from "./editor-store";
 import { EditorToolbar } from "./editor-toolbar";
+import { PromptViewer } from "./prompt-viewer";
 import { OutdatedDraftBanner } from "./outdated-banner";
 import { ToolPanel } from "./tool-panel";
 import { useEditorKeyboard } from "./use-editor-keyboard";
@@ -98,23 +99,28 @@ export function EditorScreen() {
   }
 
   return (
-    <ImagePreparation
-      key={`${project.id}:${generation}`}
-      projectId={project.id}
-    >
-      {(preparedDocument) => (
-        <EditorWorkspace
-          project={project}
-          fromReview={fromReview}
-          onRegenerated={() => setGeneration((value) => value + 1)}
-          source={source.data}
-          structure={structure.data}
-          initialDocument={preparedDocument}
-          initialSelection={generation === 0 ? initialSelection : null}
-          initialTool={generation === 0 ? initialTool : null}
-        />
-      )}
-    </ImagePreparation>
+    <>
+      <ShellActions>
+        <PromptViewer key={project.id} projectId={project.id} />
+      </ShellActions>
+      <ImagePreparation
+        key={`${project.id}:${generation}`}
+        projectId={project.id}
+      >
+        {(preparedDocument) => (
+          <EditorWorkspace
+            project={project}
+            fromReview={fromReview}
+            onRegenerated={() => setGeneration((value) => value + 1)}
+            source={source.data}
+            structure={structure.data}
+            initialDocument={preparedDocument}
+            initialSelection={generation === 0 ? initialSelection : null}
+            initialTool={generation === 0 ? initialTool : null}
+          />
+        )}
+      </ImagePreparation>
+    </>
   );
 }
 

@@ -15,6 +15,7 @@ import type {
 } from "@/lib/domain/review";
 import type { SourceDocument } from "@/lib/domain/source";
 import type { CaseStructure } from "@/lib/domain/structure";
+import type { ImageJobList, ImageJobDetail } from "./image-jobs";
 
 export interface RequestOptions {
   signal?: AbortSignal;
@@ -66,6 +67,18 @@ export type ServerHealth = z.infer<typeof serverHealthSchema>;
  * depend on this interface only.
  */
 export interface ApiClient {
+  imageJobs: {
+    list(
+      projectId: string,
+      input?: { limit?: number; offset?: number },
+      options?: RequestOptions,
+    ): Promise<ImageJobList>;
+    get(
+      projectId: string,
+      jobId: string,
+      options?: RequestOptions,
+    ): Promise<ImageJobDetail>;
+  };
   projects: {
     list(): Promise<Project[]>;
     get(projectId: string): Promise<Project>;
