@@ -1,10 +1,15 @@
-import { Badge } from "@/components/ui/badge";
+import type { VariantProps } from "class-variance-authority";
+
+import { Badge, badgeVariants } from "@/components/ui/badge";
 import type { Project } from "@/lib/domain/project";
 import {
   getPublicationStatus,
   getReviewStatus,
   type ReviewStatus,
 } from "@/lib/domain/steps";
+
+/** Callers pick the size; the badge keeps its own colour either way. */
+type BadgeSize = VariantProps<typeof badgeVariants>["size"];
 
 const REVIEW_BADGES: Record<
   Exclude<ReviewStatus, "unavailable">,
@@ -16,24 +21,48 @@ const REVIEW_BADGES: Record<
   stale: { label: "검토 후 수정됨", variant: "warning" },
 };
 
-export function ReviewStatusBadge({ project }: { project: Project }) {
+export function ReviewStatusBadge({
+  project,
+  size,
+}: {
+  project: Project;
+  size?: BadgeSize;
+}) {
   const status = getReviewStatus(project);
   if (status === "unavailable") {
-    return <Badge variant="secondary">초안 전</Badge>;
+    return (
+      <Badge variant="secondary" size={size}>
+        초안 전
+      </Badge>
+    );
   }
   const { label, variant } = REVIEW_BADGES[status];
-  return <Badge variant={variant}>{label}</Badge>;
+  return (
+    <Badge variant={variant} size={size}>
+      {label}
+    </Badge>
+  );
 }
 
-export function PublicationBadge({ project }: { project: Project }) {
+export function PublicationBadge({
+  project,
+  size,
+}: {
+  project: Project;
+  size?: BadgeSize;
+}) {
   const { publicVersion, latestVersion } = project.publication;
   if (publicVersion !== null) {
-    return <Badge variant="negative">공개 중 · v{publicVersion}</Badge>;
+    return (
+      <Badge variant="negative" size={size}>
+        공개 중 · v{publicVersion}
+      </Badge>
+    );
   }
   if (latestVersion !== null) {
     const stale = getPublicationStatus(project) === "stale";
     return (
-      <Badge variant="secondary">
+      <Badge variant="secondary" size={size}>
         내보냄 · v{latestVersion}
         {stale && " 이후 수정"}
       </Badge>

@@ -137,10 +137,14 @@ function ProjectRow({ project }: { project: Project }) {
             {project.caseNumber ?? "사건번호 없음"} · {updated} 수정
           </span>
         </span>
+        {/* The card is a 72px row, so the badges take the tall size — at the
+            default 20px they read as footnotes against it. */}
         <span className="hidden shrink-0 items-center gap-1.5 sm:flex">
-          <Badge variant="outline">지금 · {STEP_LABELS[resumeStep]}</Badge>
-          <ReviewStatusBadge project={project} />
-          <PublicationBadge project={project} />
+          <Badge variant="outline" size="lg">
+            지금 · {STEP_LABELS[resumeStep]}
+          </Badge>
+          <ReviewStatusBadge project={project} size="lg" />
+          <PublicationBadge project={project} size="lg" />
         </span>
       </Link>
 
@@ -150,7 +154,12 @@ function ProjectRow({ project }: { project: Project }) {
             <Button
               variant="ghost"
               size="icon-sm"
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
+              /*
+                No fill on hover or while open: the card already lights up
+                under the pointer, and a second panel inside it split the row
+                into two hovering things. The glyph darkening is the feedback.
+              */
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:bg-transparent hover:text-foreground aria-expanded:bg-transparent aria-expanded:text-foreground"
               aria-label={`${project.title} 메뉴`}
             />
           }
