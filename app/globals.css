@@ -33,7 +33,7 @@
 :root {
   --background: #f4f5f8;
   --foreground: #333840;
-  --card: #fbfcfd;
+  --card: rgba(255, 255, 255, 0.66);
   --card-foreground: #333840;
   --popover: #ffffff;
   --popover-foreground: #333840;
@@ -314,7 +314,7 @@
 .dark {
   --background: #0f172a;
   --foreground: #dadfe9;
-  --card: #16203a;
+  --card: rgba(28, 39, 69, 0.55);
   --card-foreground: #dadfe9;
   --popover: #1c2745;
   --popover-foreground: #dadfe9;
@@ -497,5 +497,99 @@
       scrollbar-color: color-mix(in oklab, var(--foreground) 18%, transparent)
         transparent;
     }
+  }
+}
+
+/*
+ * Liquid glass surfaces.
+ *
+ * Panels and overlays go translucent and blur what is behind them, lit by a
+ * soft ambient gradient on the app background. The look is chrome only —
+ * .paper opts out everywhere below, because the finished material has to
+ * print and read exactly as the producer sees it.
+ */
+:root {
+  /* Button gradient, taken from the generate button's own ramp. Diagonal. */
+  --gradient-from: #00c6ff;
+  --gradient-to: #0072ff;
+  --gradient-angle: 135deg;
+  /* Where the deep end lands. Below 100% it holds, widening the dark half. */
+  --gradient-to-stop: 78%;
+  --glass-blur: 20px;
+  --glass-tint: rgba(255, 255, 255, 0.62);
+  --glass-edge: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 8px 32px -8px rgba(2, 32, 71, 0.14);
+}
+
+.dark {
+  --glass-tint: rgba(28, 39, 69, 0.58);
+  --glass-edge: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+}
+
+/*
+ * Ambient light for the blur to pick up. Painted on the page shell itself
+ * rather than a body::before, because every screen wraps its content in an
+ * opaque `bg-background` element that would cover a layer behind it.
+ * `[class~=]` matches the bare utility only, so the translucent
+ * `bg-background/90` sticky headers keep their own treatment.
+ */
+[class~="bg-background"]:not(.paper, .paper *) {
+  background-image:
+    radial-gradient(
+      42rem 30rem at 12% -6%,
+      color-mix(in oklab, var(--primary) 22%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      34rem 26rem at 88% 4%,
+      color-mix(in oklab, var(--chart-1) 20%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      40rem 34rem at 62% 108%,
+      color-mix(in oklab, var(--chart-2) 16%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+/*
+ * Panels. Targeted by utility class because the surfaces are painted with
+ * `bg-card` across 19 files rather than through one component.
+ */
+[class*="bg-card"]:not(.paper, .paper *),
+[class*="bg-background/"]:not(.paper, .paper *) {
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+/* Overlays: every floating surface shadcn gives a data-slot. */
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"],
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="sheet-content"],
+[data-slot="tooltip-content"],
+[data-slot="toast"] {
+  background-color: var(--glass-tint);
+  backdrop-filter: blur(var(--glass-blur)) saturate(170%);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 0 var(--glass-edge);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  [class*="bg-card"]:not(.paper, .paper *),
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"],
+  [data-slot="popover-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="sheet-content"],
+  [data-slot="tooltip-content"],
+  [data-slot="toast"] {
+    backdrop-filter: none;
+    background-color: var(--popover);
+  }
+  [class~="bg-background"]:not(.paper, .paper *) {
+    background-image: none;
   }
 }

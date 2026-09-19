@@ -8,13 +8,13 @@ import { cn } from "@/lib/utils";
 import { springs, usePressScale } from "@/hooks/use-press-scale";
 
 const buttonVariants = cva(
-  "group/button relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap transition-[color,background-color,border-color,box-shadow] will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-40 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md border border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap transition-[color,background-color,border-color,box-shadow,filter] will-change-transform outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25 disabled:pointer-events-none disabled:opacity-40 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-[color-mix(in_oklab,var(--primary),black_5%)] aria-expanded:bg-[color-mix(in_oklab,var(--primary),black_5%)]",
-        weak: "bg-primary/25 text-primary-text hover:bg-primary/35 aria-expanded:bg-primary/35",
+          "bg-[linear-gradient(var(--gradient-angle),var(--gradient-from)_0%,var(--gradient-to)_var(--gradient-to-stop))] text-primary-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.26),0_1px_2px_-1px_rgba(2,32,71,0.28)] hover:brightness-[1.07] aria-expanded:brightness-[0.95]",
+        weak: "bg-[linear-gradient(var(--gradient-angle),color-mix(in_oklab,var(--gradient-from),transparent_72%)_0%,color-mix(in_oklab,var(--gradient-to),transparent_72%)_var(--gradient-to-stop))] text-primary-text hover:brightness-[1.04] aria-expanded:brightness-[0.97]",
         secondary:
           "bg-secondary text-secondary-foreground shadow-[inset_0_0_0_0.5px_var(--hairline)] hover:bg-[color-mix(in_oklab,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-[color-mix(in_oklab,var(--secondary),var(--foreground)_5%)]",
         outline:
@@ -24,9 +24,9 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/16 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 aria-expanded:bg-destructive/16",
         danger:
-          "bg-destructive text-destructive-foreground hover:bg-[color-mix(in_oklab,var(--destructive),black_6%)] focus-visible:border-destructive/40 focus-visible:ring-destructive/25",
+          "bg-[linear-gradient(var(--gradient-angle),color-mix(in_oklab,var(--destructive),white_16%)_0%,color-mix(in_oklab,var(--destructive),black_14%)_var(--gradient-to-stop))] text-destructive-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.28),0_1px_2px_-1px_rgba(2,32,71,0.28)] hover:brightness-[1.07] focus-visible:border-destructive/40 focus-visible:ring-destructive/25",
         neutral:
-          "bg-foreground text-background hover:bg-foreground/92 aria-expanded:bg-foreground/92",
+          "bg-[linear-gradient(var(--gradient-angle),color-mix(in_oklab,var(--foreground),white_16%)_0%,var(--foreground)_var(--gradient-to-stop))] text-background shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14)] hover:brightness-[1.12] aria-expanded:brightness-[0.94]",
         link: "h-auto rounded-none px-0 text-primary-text underline-offset-4 hover:underline",
       },
       size: {
