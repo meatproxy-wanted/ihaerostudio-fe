@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { AiMagicIcon, Alert02Icon } from "@hugeicons/core-free-icons";
+import { Alert02Icon } from "@hugeicons/core-free-icons";
 
 import {
   AlertDialog,
@@ -14,8 +14,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import GenerateButton from "@/components/ui/GenerateButton";
 import { getDraftReadiness } from "@/lib/domain/structure-ops";
 
 import { itemElementId } from "./item-shell";
@@ -119,14 +119,9 @@ export function DraftFooter({
             ? `아직 확인 필요 표시가 ${flagCount}개 있어요.`
             : "AI 확인 필요 표시를 모두 확인했어요."}
         </p>
-        <Button size="lg" disabled={!ready || busy} onClick={request}>
-          <HugeiconsIcon
-            icon={AiMagicIcon}
-            strokeWidth={2}
-            data-icon="inline-start"
-          />
+        <GenerateButton hug disabled={!ready} loading={busy} onClick={request}>
           {hasDraft ? "초안 다시 만들기" : "초안 만들기"}
-        </Button>
+        </GenerateButton>
       </div>
 
       <AlertDialog

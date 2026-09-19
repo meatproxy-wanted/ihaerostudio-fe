@@ -1,0 +1,253 @@
+/* GenerateButton — AI 생성 전용 메인 버튼
+   Figma 스펙: W280 H56 / radius 32 / padding 16·64 / gap 8 / font 16 / icon 20
+   색: #00C6FF → #0072FF → #0050C4
+   이 효과는 AI 생성 액션 하나에만 사용한다. 다른 버튼에 복제하지 말 것. */
+
+.gb-frame {
+  position: relative;
+  display: inline-flex;
+  padding: 6px;
+  border-radius: 38px;
+  background: rgba(0, 114, 255, 0.08);
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+/* 흰 래디얼 스트로크 + 회전하는 빛 */
+.gb-ring {
+  position: relative;
+  z-index: 1;
+  border-radius: 33.5px;
+  padding: 2px;
+  overflow: hidden;
+  background: radial-gradient(
+    120% 160% at 50% 118%,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.14) 45%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.gb-ring::before {
+  content: "";
+  position: absolute;
+  inset: -200%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0) 0deg,
+    rgba(255, 255, 255, 0) 262deg,
+    rgba(255, 255, 255, 0.85) 284deg,
+    rgba(255, 255, 255, 1) 300deg,
+    rgba(255, 255, 255, 0.85) 316deg,
+    rgba(255, 255, 255, 0) 338deg,
+    rgba(255, 255, 255, 0) 360deg
+  );
+  animation: gb-spin 3.2s linear infinite;
+}
+
+@keyframes gb-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.gb {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 280px;
+  height: 56px;
+  padding: 16px 64px;
+  border: none;
+  border-radius: 32px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: #fff;
+  background: radial-gradient(
+    52% 138% at 50% 48%,
+    #00c6ff 0%,
+    #0072ff 56%,
+    #0050c4 100%
+  );
+  box-shadow:
+    inset 0 8px 24px -16px rgba(255, 255, 255, 0.24),
+    inset 0 -24px 32px 0 rgba(255, 255, 255, 0.22),
+    inset 0 0 12px 0 rgba(255, 255, 255, 0.55),
+    0 36px 32px -16px rgba(0, 68, 191, 0.21),
+    0 8px 16px -8px rgba(0, 114, 255, 0.12),
+    0 2px 4px -8px rgba(0, 114, 255, 0.08);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.3, 1),
+    box-shadow 260ms ease;
+}
+
+/* 라벨 길이가 제각각이면 이쪽을 쓴다 */
+.gb--hug {
+  width: auto;
+  min-width: 200px;
+  padding: 16px 32px;
+}
+
+/* 하단 상시 글로우 */
+.gb::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: -46%;
+  width: 62%;
+  height: 92%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #cbe9ff;
+  opacity: 0.32;
+  filter: blur(48px);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+}
+
+/* 노이즈 */
+.gb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* 호버 시에만 얹히는 하단 광원 */
+.gb-lift {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  bottom: -34%;
+  width: 78%;
+  height: 68%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #ffffff;
+  opacity: 0;
+  filter: blur(26px);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+}
+
+.gb__label {
+  position: relative;
+  z-index: 3;
+}
+
+.gb__icon {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 340ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.gb-frame:hover {
+  transform: translateY(-2px);
+}
+.gb-frame:hover .gb-lift {
+  opacity: 0.22;
+}
+.gb-frame:hover .gb::before {
+  opacity: 0.38;
+  transform: translateX(-50%) scale(1.06);
+}
+.gb-frame:hover .gb__icon {
+  transform: rotate(18deg) scale(1.14);
+}
+
+.gb:active {
+  transform: scale(0.985);
+}
+
+.gb:focus-visible {
+  outline: 3px solid #0b1420;
+  outline-offset: 8px;
+}
+
+.dark .gb:focus-visible {
+  outline-color: #eff6ff;
+}
+
+/* 생성 중 */
+.gb[data-loading="true"] {
+  cursor: progress;
+}
+.gb[data-loading="true"] .gb__icon {
+  animation: gb-pulse 1.4s ease-in-out infinite;
+}
+@keyframes gb-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.7;
+  }
+}
+
+.gb:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+  opacity: 0.55;
+}
+
+/* 생성 중에는 클릭을 막으려 disabled를 걸지만, 못 누르는 상태와 달리
+   진행 중임이 보여야 하므로 회색조를 걷어낸다. */
+.gb[data-loading="true"]:disabled {
+  cursor: progress;
+  filter: none;
+  opacity: 1;
+}
+.gb-frame:has(.gb:disabled) .gb-ring::before {
+  animation-play-state: paused;
+}
+/* 생성 중에는 빛이 계속 돌아야 진행 중으로 읽힌다. */
+.gb-frame:has(.gb[data-loading="true"]) .gb-ring::before {
+  animation-play-state: running;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gb,
+  .gb-frame,
+  .gb::before,
+  .gb-lift,
+  .gb__icon {
+    transition: none;
+  }
+  .gb-ring::before {
+    animation: none;
+    opacity: 0.45;
+  }
+  .gb[data-loading="true"] .gb__icon {
+    animation: none;
+  }
+  .gb-frame:hover {
+    transform: none;
+  }
+  .gb-frame:hover .gb__icon {
+    transform: none;
+  }
+}

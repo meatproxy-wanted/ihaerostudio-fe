@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { AiMagicIcon, SparklesIcon } from "@hugeicons/core-free-icons";
+import { SparklesIcon } from "@hugeicons/core-free-icons";
 
 import { LongJobLoader, useLongJob } from "@/components/app/long-job";
 import { ServerModeNotice } from "@/components/app/server-mode-notice";
 import { Button } from "@/components/ui/button";
+import GenerateButton from "@/components/ui/GenerateButton";
 import { api } from "@/lib/api/client";
 import { errorMessage } from "@/lib/api/errors";
 import { cacheProject } from "@/lib/api/hooks";
@@ -156,14 +157,13 @@ export function NewProjectForm() {
               {problem ?? "준비됐어요. 분석에는 1분 정도 걸릴 수 있어요."}
             </p>
           )}
-          <Button size="lg" onClick={start} className="sm:min-w-44">
-            <HugeiconsIcon
-              icon={AiMagicIcon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
+          <GenerateButton
+            hug
+            loading={analysis.phase === "running"}
+            onClick={start}
+          >
             {analysis.error ? "다시 분석하기" : "AI 분석 시작하기"}
-          </Button>
+          </GenerateButton>
         </div>
       </div>
 
