@@ -11,21 +11,25 @@ import { BrandLink } from "@/components/app/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
+/** Supplied only by screens that have something to filter. */
+export type ShellSearch = {
+  query: string;
+  onQueryChange: (value: string) => void;
+};
+
 /**
- * The workspace bar: the sidebar toggle, the brand, and a search that filters
- * the material list. It spans the full width above both columns so the toggle
- * keeps its place whether the sidebar is open or shut.
+ * The workspace bar: the sidebar toggle, the brand, and — where the screen
+ * has something to filter — a search. It spans the full width above both
+ * columns so the toggle keeps its place whether the sidebar is open or shut.
  */
 export function WorkspaceHeader({
   collapsed,
   onToggle,
-  query,
-  onQueryChange,
+  search,
 }: {
   collapsed: boolean;
   onToggle: () => void;
-  query: string;
-  onQueryChange: (value: string) => void;
+  search?: ShellSearch;
 }) {
   return (
     <header
@@ -52,36 +56,38 @@ export function WorkspaceHeader({
         </div>
 
         {/* Equal flex on both sides puts the field on the viewport centre. */}
-        <div className="relative w-full max-w-md shrink">
-          <HugeiconsIcon
-            icon={Search01Icon}
-            strokeWidth={2}
-            size={17}
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground"
-          />
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="자료 검색"
-            aria-label="자료 검색"
-            autoComplete="off"
-            spellCheck={false}
-            className="h-10 w-full rounded-full bg-secondary pr-10 pl-11 text-2sm font-medium transition-[background-color,box-shadow] outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:ring-3 focus-visible:ring-ring/25 [&::-webkit-search-cancel-button]:appearance-none"
-          />
-          {query && (
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label="검색어 지우기"
-              className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-full text-muted-foreground"
-              onClick={() => onQueryChange("")}
-            >
-              <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
-            </Button>
-          )}
-        </div>
+        {search && (
+          <div className="relative w-full max-w-md shrink">
+            <HugeiconsIcon
+              icon={Search01Icon}
+              strokeWidth={2}
+              size={17}
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              type="search"
+              value={search.query}
+              onChange={(event) => search.onQueryChange(event.target.value)}
+              placeholder="자료 검색"
+              aria-label="자료 검색"
+              autoComplete="off"
+              spellCheck={false}
+              className="h-10 w-full rounded-full bg-secondary pr-10 pl-11 text-2sm font-medium transition-[background-color,box-shadow] outline-none placeholder:font-normal placeholder:text-muted-foreground focus-visible:ring-3 focus-visible:ring-ring/25 [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            {search.query && (
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label="검색어 지우기"
+                className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded-full text-muted-foreground"
+                onClick={() => search.onQueryChange("")}
+              >
+                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Balances the left group so the search sits on the viewport centre,
             and gives the theme toggle a home now that the panel is two items. */}
