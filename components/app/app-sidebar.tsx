@@ -8,7 +8,7 @@ import {
   Add01Icon,
   ArrowDown01Icon,
   Folder01Icon,
-  LegalDocument01Icon,
+  Idea01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
@@ -58,19 +58,15 @@ function MaterialList() {
               href={routes.step(project.id, getResumeStep(project))}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex h-8 items-center gap-2 rounded-lg pr-2 pl-9 text-2sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/25",
+                "flex h-8 items-center rounded-lg px-2.5 text-2sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/25",
                 active
                   ? "bg-white/55 font-semibold text-foreground dark:bg-white/10"
                   : "text-muted-foreground hover:bg-white/45 hover:text-foreground dark:hover:bg-white/8",
               )}
             >
-              <HugeiconsIcon
-                icon={LegalDocument01Icon}
-                strokeWidth={2}
-                size={14}
-                aria-hidden="true"
-                className="shrink-0"
-              />
+              {/* Titles only, flush with the row above: eight identical
+                  document glyphs and a hanging indent both said "these are
+                  materials", which the heading has already said. */}
               <span className="min-w-0 truncate">{project.title}</span>
             </Link>
           </li>
@@ -144,6 +140,35 @@ export function AppSidebar({
     </Link>
   );
 
+  /*
+    Sits at the foot of the panel, in the register of a hint rather than a
+    menu item. It stays there whatever the producer already has — decided,
+    not overlooked: the sample is also how you check what a setting does
+    without spending a real judgment on it. It leads to the same filled-in
+    form as every other sample entry point; nothing starts analysing on its
+    own.
+  */
+  const sampleLink = (
+    <Link
+      href={routes.newProject({ sample: true })}
+      className={cn(
+        "flex h-10 items-center gap-2.5 text-2sm font-medium text-muted-foreground transition-colors outline-none hover:bg-white/45 hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/25 dark:hover:bg-white/8",
+        collapsed ? "w-10 justify-center rounded-full" : "rounded-lg px-2.5",
+      )}
+    >
+      <HugeiconsIcon
+        icon={Idea01Icon}
+        strokeWidth={2}
+        size={19}
+        aria-hidden="true"
+        className="shrink-0"
+      />
+      <span className={cn("min-w-0 truncate", collapsed && "sr-only")}>
+        샘플로 체험하기
+      </span>
+    </Link>
+  );
+
   if (collapsed) {
     return (
       <aside
@@ -166,6 +191,12 @@ export function AppSidebar({
             </span>
           </TooltipTrigger>
           <TooltipContent side="right">내 작업함</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger render={<span className="contents" />}>
+            <span className="mt-auto">{sampleLink}</span>
+          </TooltipTrigger>
+          <TooltipContent side="right">샘플로 체험하기</TooltipContent>
         </Tooltip>
       </aside>
     );
@@ -215,6 +246,8 @@ export function AppSidebar({
           <MaterialList />
         </div>
       </nav>
+
+      <div className="mt-auto border-t border-hairline pt-3">{sampleLink}</div>
     </aside>
   );
 }
