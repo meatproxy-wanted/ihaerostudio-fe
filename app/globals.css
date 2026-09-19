@@ -17,8 +17,17 @@
  * (#0072ff, darkened to #006cf5 so white label text clears WCAG AA);
  * --primary-text is its legible dark shade for text and icons on light
  * surfaces.
- * positive = red (상승), negative = blue (하락), info = blue.
- * NOTE: primary and negative now sit on the same hue. See the design-system
+ * success (#51cc56) and destructive (#ff5555) are picked for saturation
+ * and shared by both themes. warning carries the same red as destructive
+ * by choice, so the two read as one severity — "확인 필요" and "지우기"
+ * are not separated by colour, only by placement and wording.
+ * Both clear WCAG AA on the dark surface (5.1:1 and 7.8:1 on --card) but
+ * not on the light one (3.1:1 and 2.0:1), so light-mode `text-warning`
+ * and `text-success` on 13px copy are hard to read. Fills and badges
+ * carry them fine; the text uses need a darker shade to fix that.
+ * negative stays blue: it marks live states ("공개 중") and a party dot in
+ * the structure panel, not a failure.
+ * NOTE: primary and negative sit on the same hue. See the design-system
  * note in the branch — negative/info need to move if the collision matters.
  */
 :root {
@@ -37,13 +46,13 @@
   --muted-foreground: #727780;
   --accent: rgba(2, 32, 71, 0.05);
   --accent-foreground: #333840;
-  --destructive: #de2b39;
+  --destructive: #ff5555;
   --destructive-foreground: #ffffff;
-  --positive: #de2b39;
+  --positive: #51cc56;
   --negative: #2272eb;
   --info: #2272eb;
-  --warning: #c2410c;
-  --success: #009467;
+  --warning: #ff5555;
+  --success: #51cc56;
   --border: rgba(3, 31, 63, 0.08);
   --input: rgba(2, 32, 59, 0.17);
   --ring: oklch(0.567 0.222 259.186);
@@ -318,13 +327,13 @@
   --muted-foreground: #8c95a8;
   --accent: rgba(214, 224, 239, 0.09);
   --accent-foreground: #dadfe9;
-  --destructive: #f5445a;
+  --destructive: #ff5555;
   --destructive-foreground: #ffffff;
-  --positive: #f5445a;
+  --positive: #51cc56;
   --negative: #4391ff;
   --info: #4391ff;
-  --warning: #fb923c;
-  --success: #07a978;
+  --warning: #ff5555;
+  --success: #51cc56;
   --border: rgba(213, 223, 244, 0.13);
   --input: rgba(212, 223, 248, 0.19);
   --ring: oklch(0.705 0.159 252.351);
@@ -372,13 +381,13 @@
   --muted-foreground: #5c6370;
   --accent: rgba(2, 32, 71, 0.05);
   --accent-foreground: #25282d;
-  --destructive: #de2b39;
+  --destructive: #ff5555;
   --destructive-foreground: #ffffff;
-  --positive: #de2b39;
+  --positive: #51cc56;
   --negative: #2272eb;
   --info: #2272eb;
-  --warning: #c2410c;
-  --success: #009467;
+  --warning: #ff5555;
+  --success: #51cc56;
   --border: rgba(3, 31, 63, 0.1);
   --input: rgba(2, 32, 59, 0.17);
   --ring: oklch(0.567 0.222 259.186);
