@@ -4,8 +4,13 @@ import * as React from "react";
 import "./logo.css";
 
 type LogoProps = {
-  /** 기준 크기(px). 텍스트 폰트 크기이자 전체 비율의 기준. 기본 64. */
-  size?: number;
+  /**
+   * 기준 크기. 텍스트 폰트 크기이자 전체 비율의 기준. 기본 64.
+   * 숫자는 px, 문자열은 CSS 길이 — 히어로처럼 화면 폭을 타야 하면
+   * `var(--hero-size)`나 `clamp(...)`를 넘긴다. logo.css가 전부 calc()로
+   * 파생하므로 그대로 먹는다.
+   */
+  size?: number | string;
   /** 조합 형태 */
   layout?: "full" | "symbol-only" | "text-only" | "stacked";
   /** 글자 색. brand = 먹색, white = 컬러 면 위 */
@@ -156,7 +161,10 @@ export default function Logo({
   return (
     <span
       className={classes}
-      style={{ ["--logo-size" as string]: `${size}px` }}
+      style={{
+        ["--logo-size" as string]:
+          typeof size === "number" ? `${size}px` : size,
+      }}
       role="img"
       aria-label="이해로 스튜디오"
     >

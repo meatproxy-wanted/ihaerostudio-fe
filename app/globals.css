@@ -379,6 +379,28 @@
   --hairline: rgba(2, 32, 71, 0.07);
   background-color: var(--background);
   color: var(--foreground);
+
+  /*
+   * Hero type scale. Every size in the hero is a ratio of --hero-size
+   * (headline and wordmark 90, tagline 38, body 22, its leading 34 — the
+   * proportions the design was drawn at), so the whole block is retuned by
+   * editing the one cap below rather than four arbitrary values in JSX.
+   *
+   * The headline sets the size because it is one unbroken line. Measured
+   * against Pretendard ExtraBold at this tracking it runs 11.11em, so at
+   * 7vw it holds a steady ~78% of the viewport and never needs a second
+   * line. The cap takes over at about 915px, and past there the block
+   * stops growing so a wide display gets margin rather than more type.
+   */
+  --hero-size: min(7vw, 64px);
+  /*
+   * The small copy keeps the drawn ratio until it would stop being
+   * readable — on a phone the headline may shrink to 20px, the sentence
+   * under it must not follow it down there.
+   */
+  --hero-tagline: max(20px, calc(var(--hero-size) * 38 / 90));
+  --hero-body: max(15px, calc(var(--hero-size) * 22 / 90));
+  --hero-body-leading: calc(var(--hero-body) * 34 / 22);
 }
 
 /*
@@ -695,9 +717,10 @@
  * travels across it. The ink stays dark — only the narrow band in the middle
  * of the gradient is blue, and it is what moves.
  *
- * `display: inline-block` is load-bearing. As an inline box the gradient
- * would restart on the second line and the two halves would glint out of
- * step; as one block they share a single ramp.
+ * `display: inline-block` is load-bearing: it sizes the background box to
+ * the line itself. As a block the ramp would stretch across the whole
+ * column and the glint would spend most of its travel in the empty margin
+ * beside the centred text.
  */
 .hero-headline {
   display: inline-block;

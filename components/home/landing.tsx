@@ -58,26 +58,43 @@ export function Landing() {
         </Button>
       </header>
 
-      <main className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-5 px-4 pb-28 text-center sm:px-6">
-        {/* Tagline, wordmark, then the promise — the rhythm a product hero
-            reads best in: one short line, one large one, two calm ones. */}
-        <p className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
+      <main className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center gap-5 px-4 pb-40 text-center sm:px-6">
+        {/* Tagline, headline, wordmark, then the promise. The name sits
+            under the claim it belongs to rather than above it. */}
+        <p className="text-[length:var(--hero-tagline)] leading-[1.3] font-bold tracking-tight text-foreground">
           어려운 판결문에 쉬운 말을 더하다
         </p>
 
-        <h1 className="hero-headline text-5xl leading-[1.12] font-bold tracking-tight sm:text-6xl md:text-7xl">
-          판결문을 누구나
-          <br />
-          읽을 수 있게
+        <h1 className="hero-headline text-[length:var(--hero-size)] leading-[1.12] font-extrabold tracking-[-0.01em] whitespace-nowrap">
+          판결문을 누구나 읽을 수 있게
         </h1>
 
-        <p className="text-md leading-[2] text-muted-foreground sm:text-lg">
+        {/*
+          The wordmark at hero scale, under the line it belongs to. Text only
+          — the symbol is already on the bar above. Not a link either; the
+          header carries the one that navigates.
+
+          Pulled up against the headline: the logo's own box is 1.25x its
+          font size, so it arrives with about an eighth of that as padding
+          above the letters before the column's gap is even counted.
+        */}
+        <Logo layout="text-only" size="var(--hero-size)" className="-mt-4" />
+
+        <p className="text-[length:var(--hero-body)] leading-[var(--hero-body-leading)] font-bold text-muted-foreground">
           AI가 사건 구조를 정리하면
           <br />
           제작자가 원문과 대조하며 쉬운 설명자료로 다듬습니다
         </p>
 
-        <div className="mt-6">
+        {/*
+          The column is centred, so moving one thing without moving the other
+          takes a pair of equal moves. `mt` and `pb` have been tuned together
+          that way: the text sits 32px above where centring would put it, and
+          the button 16px above that again. Change one of the two and the
+          whole group slides — change both by the same amount, in opposite
+          directions, to move only the button.
+        */}
+        <div className="mt-10">
           {/*
             GenerateButton renders a <button>, so this navigates through the
             router rather than an <a>. Cmd-click does not open a new tab here.
