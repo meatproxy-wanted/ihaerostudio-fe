@@ -29,6 +29,8 @@ function withQuery(path: string, query: Record<string, string | undefined>) {
 
 export const routes = {
   home: () => "/",
+  /** 작업함: the material list, the workspace entry behind the landing. */
+  materials: () => "/projects",
   newProject: (options?: { sample?: boolean }) =>
     options?.sample ? "/new?sample=1" : "/new",
   project: (projectId: string) => `/projects/${projectId}`,

@@ -13,7 +13,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[linear-gradient(var(--gradient-angle),var(--gradient-from)_0%,var(--gradient-to)_var(--gradient-to-stop))] text-primary-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.26),0_1px_2px_-1px_rgba(2,32,71,0.28)] hover:brightness-[1.07] aria-expanded:brightness-[0.95]",
+          "bg-[linear-gradient(var(--gradient-angle),var(--gradient-from)_0%,var(--gradient-to)_var(--gradient-to-stop))] bg-clip-border bg-origin-border text-primary-foreground shadow-[0_1px_2px_-1px_rgba(2,32,71,0.28)] hover:brightness-[1.07] aria-expanded:brightness-[0.95]",
         weak: "bg-[linear-gradient(var(--gradient-angle),color-mix(in_oklab,var(--gradient-from),transparent_72%)_0%,color-mix(in_oklab,var(--gradient-to),transparent_72%)_var(--gradient-to-stop))] text-primary-text hover:brightness-[1.04] aria-expanded:brightness-[0.97]",
         secondary:
           "bg-secondary text-secondary-foreground shadow-[inset_0_0_0_0.5px_var(--hairline)] hover:bg-[color-mix(in_oklab,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-[color-mix(in_oklab,var(--secondary),var(--foreground)_5%)]",

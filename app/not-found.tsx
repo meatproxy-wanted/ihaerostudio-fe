@@ -26,7 +26,10 @@ export default function NotFound() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button nativeButton={false} render={<Link href={routes.home()} />}>
+          <Button
+            nativeButton={false}
+            render={<Link href={routes.materials()} />}
+          >
             작업함으로
           </Button>
         </EmptyContent>

@@ -11,6 +11,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { routes } from "@/lib/routes";
 
 export default function Error({
   error,
@@ -37,7 +38,7 @@ export default function Error({
         <Button
           variant="secondary"
           nativeButton={false}
-          render={<Link href="/" />}
+          render={<Link href={routes.materials()} />}
         >
           작업함으로
         </Button>

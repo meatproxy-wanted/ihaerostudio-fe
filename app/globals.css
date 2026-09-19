@@ -360,6 +360,28 @@
 }
 
 /*
+ * Landing surface: the brand page at /. It stays light in both themes the
+ * way .paper does, so the wordmark and the gradient wash always read as
+ * intended rather than flipping with the producer's editor preference.
+ */
+.landing {
+  color-scheme: light;
+  --background: #f7f9fc;
+  --foreground: #14181f;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-foreground: #14181f;
+  --muted-foreground: #5b616b;
+  --secondary: rgba(2, 32, 71, 0.06);
+  --secondary-foreground: #14181f;
+  --accent: rgba(2, 32, 71, 0.05);
+  --accent-foreground: #14181f;
+  --border: rgba(3, 31, 63, 0.1);
+  --hairline: rgba(2, 32, 71, 0.07);
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/*
  * Paper surface: wherever the finished material is shown (editor canvas,
  * preview, reader view, print). It stays light in both themes so producers see
  * exactly what readers and printers get.
@@ -517,12 +539,15 @@
   --gradient-to-stop: 78%;
   --glass-blur: 20px;
   --glass-tint: rgba(255, 255, 255, 0.62);
+  /* A bar sits over moving content, so it stays thinner than a panel. */
+  --glass-tint-bar: rgba(255, 255, 255, 0.38);
   --glass-edge: rgba(255, 255, 255, 0.7);
   --glass-shadow: 0 8px 32px -8px rgba(2, 32, 71, 0.14);
 }
 
 .dark {
   --glass-tint: rgba(28, 39, 69, 0.58);
+  --glass-tint-bar: rgba(22, 32, 58, 0.34);
   --glass-edge: rgba(255, 255, 255, 0.1);
   --glass-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
 }
@@ -557,7 +582,11 @@
  * Panels. Targeted by utility class because the surfaces are painted with
  * `bg-card` across 19 files rather than through one component.
  */
-[class*="bg-card"]:not(.paper, .paper *),
+/*
+ * `[class~=]`, not `[class*=]`: a substring match also catches `hover:bg-card`
+ * and would blur the surface before the pointer ever arrives.
+ */
+[class~="bg-card"]:not(.paper, .paper *),
 [class*="bg-background/"]:not(.paper, .paper *) {
   backdrop-filter: blur(var(--glass-blur)) saturate(150%);
 }
@@ -577,19 +606,144 @@
     inset 0 1px 0 0 var(--glass-edge);
 }
 
+/* The header is a bar, not a floating panel: thinner tint, a lit top edge,
+   and no drop shadow hanging over the content below it. */
+[data-slot="workspace-header"] {
+  background-color: var(--glass-tint-bar);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  box-shadow: inset 0 1px 0 0 var(--glass-edge);
+}
+
 @media (prefers-reduced-transparency: reduce) {
-  [class*="bg-card"]:not(.paper, .paper *),
+  [class~="bg-card"]:not(.paper, .paper *),
   [data-slot="dialog-content"],
   [data-slot="alert-dialog-content"],
   [data-slot="popover-content"],
   [data-slot="dropdown-menu-content"],
   [data-slot="sheet-content"],
   [data-slot="tooltip-content"],
-  [data-slot="toast"] {
+  [data-slot="toast"],
+  [data-slot="workspace-header"] {
     backdrop-filter: none;
     background-color: var(--popover);
   }
   [class~="bg-background"]:not(.paper, .paper *) {
     background-image: none;
+  }
+}
+
+/*
+ * Glass card. A pale, slightly see-through sheet with a white rim and a
+ * bloom of light along its top and bottom edges, so it reads as a lit pane
+ * rather than a flat fill.
+ *
+ * The rim is an inset ring, not a border: it costs no layout, so a card can
+ * take this class without its size shifting.
+ *
+ * Add `glass-card-interactive` where the card is a target — a panel that
+ * merely holds text should not light up under a passing pointer.
+ */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.75),
+    0 10px 28px -14px rgba(2, 32, 71, 0.14);
+  transition:
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+}
+
+.glass-card-interactive:hover {
+  background-color: rgba(255, 255, 255, 0.58);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.85),
+    0 14px 32px -14px rgba(2, 32, 71, 0.18);
+}
+
+.dark .glass-card {
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.1),
+    0 10px 28px -14px rgba(0, 0, 0, 0.45);
+}
+
+.dark .glass-card-interactive:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.26),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.14),
+    0 14px 32px -14px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-card {
+    background-color: var(--popover);
+    backdrop-filter: none;
+  }
+}
+
+/*
+ * Landing headline: resolves out of a blur on arrival, then a blue glint
+ * travels across it. The ink stays dark — only the narrow band in the middle
+ * of the gradient is blue, and it is what moves.
+ *
+ * `display: inline-block` is load-bearing. As an inline box the gradient
+ * would restart on the second line and the two halves would glint out of
+ * step; as one block they share a single ramp.
+ */
+.hero-headline {
+  display: inline-block;
+  background-image: linear-gradient(
+    100deg,
+    #0b1420 0%,
+    #0b1420 38%,
+    #2f7fe8 46%,
+    #5fd6ff 50%,
+    #2f7fe8 54%,
+    #0b1420 62%,
+    #0b1420 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: blur(16px);
+  opacity: 0;
+  animation:
+    hero-focus 1.05s cubic-bezier(0.2, 0.8, 0.25, 1) both,
+    hero-sweep 6.4s ease-in-out 1.15s infinite;
+}
+
+@keyframes hero-focus {
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes hero-sweep {
+  0% {
+    background-position: 130% 0;
+  }
+  55%,
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-headline {
+    filter: none;
+    opacity: 1;
+    animation: none;
+    background-position: 0 0;
   }
 }

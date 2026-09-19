@@ -6,11 +6,9 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { ko } from "date-fns/locale";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Add01Icon,
   Delete02Icon,
   LegalDocument01Icon,
   MoreVerticalIcon,
-  SparklesIcon,
 } from "@hugeicons/core-free-icons";
 
 import { ErrorState } from "@/components/app/error-state";
@@ -40,6 +38,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import EmptyIllustration from "@/components/ui/EmptyIllustration";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { errorMessage } from "@/lib/api/errors";
@@ -55,29 +54,27 @@ import { routes } from "@/lib/routes";
 
 import { PublicationBadge, ReviewStatusBadge } from "./status-badges";
 
-export function ProjectList() {
+/** Title and case number are the two things a producer would search by. */
+function matches(project: Project, query: string) {
+  if (!query) return true;
+  const needle = query.toLowerCase();
+  return (
+    project.title.toLowerCase().includes(needle) ||
+    (project.caseNumber?.toLowerCase().includes(needle) ?? false)
+  );
+}
+
+export function ProjectList({ query = "" }: { query?: string }) {
   const projects = useProjects();
+  const shown = projects.data?.filter((project) => matches(project, query));
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight">작업함</h1>
-          <p className="text-md text-muted-foreground">
-            판결문을 원문과 대조하며 쉬운 설명자료로 다듬어요.
-          </p>
-        </div>
-        <Button
-          nativeButton={false}
-          render={<Link href={routes.newProject()} />}
-        >
-          <HugeiconsIcon
-            icon={Add01Icon}
-            strokeWidth={2}
-            data-icon="inline-start"
-          />
-          새 자료 만들기
-        </Button>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight">작업함</h1>
+        <p className="text-md text-muted-foreground">
+          판결문을 원문과 대조하며 쉬운 설명자료로 다듬어요.
+        </p>
       </div>
 
       <section aria-label="자료 목록" className="mt-8 flex flex-col">
@@ -91,9 +88,11 @@ export function ProjectList() {
           />
         ) : projects.data.length === 0 ? (
           <EmptyProjects />
+        ) : shown?.length === 0 ? (
+          <NoMatches query={query} />
         ) : (
           <ul className="flex flex-col gap-2.5">
-            {projects.data.map((project) => (
+            {shown?.map((project) => (
               <ProjectRow key={project.id} project={project} />
             ))}
           </ul>
@@ -115,7 +114,7 @@ function ProjectRow({ project }: { project: Project }) {
   });
 
   return (
-    <li className="group/row relative rounded-xl bg-card ring-1 ring-hairline transition-shadow hover:ring-border">
+    <li className="group/row glass-card glass-card-interactive relative rounded-2xl">
       <Link
         href={routes.step(project.id, resumeStep)}
         className="flex items-center gap-4 rounded-xl p-4 pr-14 outline-none focus-visible:ring-3 focus-visible:ring-ring/25"
@@ -212,7 +211,7 @@ function ProjectListSkeleton() {
       {[0, 1, 2].map((index) => (
         <li
           key={index}
-          className="flex items-center gap-4 rounded-xl bg-card p-4 ring-1 ring-hairline"
+          className="glass-card flex items-center gap-4 rounded-2xl p-4"
         >
           <Skeleton className="size-10 rounded-lg" />
           <div className="flex flex-1 flex-col gap-2">
@@ -225,36 +224,51 @@ function ProjectListSkeleton() {
   );
 }
 
+function NoMatches({ query }: { query: string }) {
+  return (
+    <Empty className="glass-card flex-none rounded-2xl py-16">
+      <EmptyHeader>
+        <EmptyMedia className="mb-1">
+          <EmptyIllustration variant="empty" width={140} />
+        </EmptyMedia>
+        <EmptyTitle>{`"${query}"에 맞는 자료가 없어요`}</EmptyTitle>
+        <EmptyDescription>
+          자료 이름이나 사건번호로 찾을 수 있어요.
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}
+
 function EmptyProjects() {
   return (
-    <Empty className="flex-none rounded-2xl bg-card py-16 ring-1 ring-hairline">
+    <Empty className="glass-card flex-none rounded-2xl pt-14 pb-28">
       <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <HugeiconsIcon icon={LegalDocument01Icon} strokeWidth={2} />
+        <EmptyMedia className="mb-6">
+          <EmptyIllustration variant="empty" width={180} />
         </EmptyMedia>
-        <EmptyTitle>아직 만든 자료가 없어요</EmptyTitle>
-        <EmptyDescription>
-          판결문을 올리면 AI가 사건 구조를 정리해요. 원문과 비교하며 쉬운
-          설명자료로 완성해 보세요.
+        <EmptyTitle className="text-lg">아직 만든 자료가 없어요</EmptyTitle>
+        <EmptyDescription className="text-center">
+          판결문을 올리면 AI가 사건 구조를 정리해요.
+          <br />
+          원문과 비교하며 쉬운 설명자료로 완성해 보세요.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row justify-center">
         <Button
+          size="lg"
+          variant="neutral"
           nativeButton={false}
           render={<Link href={routes.newProject()} />}
         >
           새 자료 만들기
         </Button>
         <Button
+          size="lg"
           variant="secondary"
           nativeButton={false}
           render={<Link href={routes.newProject({ sample: true })} />}
         >
-          <HugeiconsIcon
-            icon={SparklesIcon}
-            strokeWidth={2}
-            data-icon="inline-start"
-          />
           샘플로 체험하기
         </Button>
       </EmptyContent>
