@@ -13,9 +13,13 @@
  * Design tokens adapted from Toss Invest (tossinvest.com).
  * Surfaces: grey screen (--background) with near-white panels (--card).
  * Text: grey800 / grey700 / grey600 / grey500 steps.
- * Primary keeps the project's original yellow; --primary-text is its legible
- * dark shade for text and icons on light surfaces.
+ * Primary is the blue taken from the AI generate button's gradient core
+ * (#0072ff, darkened to #006cf5 so white label text clears WCAG AA);
+ * --primary-text is its legible dark shade for text and icons on light
+ * surfaces.
  * positive = red (상승), negative = blue (하락), info = blue.
+ * NOTE: primary and negative now sit on the same hue. See the design-system
+ * note in the branch — negative/info need to move if the collision matters.
  */
 :root {
   --background: #f4f5f8;
@@ -24,9 +28,9 @@
   --card-foreground: #333840;
   --popover: #ffffff;
   --popover-foreground: #333840;
-  --primary: oklch(0.852 0.199 91.936);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --primary-text: oklch(0.554 0.122 75.6);
+  --primary: oklch(0.567 0.222 259.186);
+  --primary-foreground: oklch(1 0 0);
+  --primary-text: oklch(0.517 0.197 258.641);
   --secondary: rgba(2, 32, 71, 0.06);
   --secondary-foreground: #333840;
   --muted: rgba(2, 32, 71, 0.05);
@@ -42,7 +46,7 @@
   --success: #009467;
   --border: rgba(3, 31, 63, 0.08);
   --input: rgba(2, 32, 59, 0.17);
-  --ring: oklch(0.708 0 0);
+  --ring: oklch(0.567 0.222 259.186);
   --hairline: rgba(2, 32, 71, 0.05);
   --overlay: rgba(0, 0, 0, 0.2);
   --segment: #ffffff;
@@ -50,20 +54,20 @@
     0 16px 24px -2px rgba(0, 0, 0, 0.06), 0 8px 56px 0 rgba(0, 0, 0, 0.1);
   --elevation-dialog:
     0 10px 40px 0 rgba(2, 32, 71, 0.05), 0 20px 50px 0 rgba(0, 23, 51, 0.02);
-  --chart-1: oklch(0.837 0.128 66.29);
-  --chart-2: oklch(0.705 0.213 47.604);
-  --chart-3: oklch(0.646 0.222 41.116);
-  --chart-4: oklch(0.553 0.195 38.402);
-  --chart-5: oklch(0.47 0.157 37.304);
+  --chart-1: oklch(0.772 0.15 227.74);
+  --chart-2: oklch(0.679 0.176 250.899);
+  --chart-3: oklch(0.567 0.222 259.186);
+  --chart-4: oklch(0.469 0.193 260.195);
+  --chart-5: oklch(0.375 0.151 259.739);
   --radius: 0.75rem;
   --sidebar: #f4f5f8;
   --sidebar-foreground: #333840;
-  --sidebar-primary: oklch(0.681 0.162 75.834);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
+  --sidebar-primary: oklch(0.567 0.222 259.186);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: rgba(2, 32, 71, 0.06);
   --sidebar-accent-foreground: #333840;
   --sidebar-border: rgba(3, 31, 63, 0.08);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: oklch(0.567 0.222 259.186);
   --duration-spring-quick: 334ms;
   --duration-spring-rapid: 318ms;
   --duration-spring-medium: 552ms;
@@ -305,9 +309,9 @@
   --card-foreground: #dadfe9;
   --popover: #1c2745;
   --popover-foreground: #dadfe9;
-  --primary: oklch(0.795 0.184 86.047);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --primary-text: oklch(0.83 0.17 90);
+  --primary: oklch(0.705 0.159 252.351);
+  --primary-foreground: oklch(0.241 0.063 257.726);
+  --primary-text: oklch(0.806 0.101 251.732);
   --secondary: rgba(214, 224, 239, 0.09);
   --secondary-foreground: #dadfe9;
   --muted: rgba(214, 224, 239, 0.09);
@@ -323,7 +327,7 @@
   --success: #07a978;
   --border: rgba(213, 223, 244, 0.13);
   --input: rgba(212, 223, 248, 0.19);
-  --ring: oklch(0.556 0.02 265);
+  --ring: oklch(0.705 0.159 252.351);
   --hairline: rgba(214, 224, 239, 0.09);
   --overlay: rgba(0, 0, 0, 0.56);
   --segment: rgba(214, 224, 239, 0.12);
@@ -331,19 +335,19 @@
     0 16px 24px -2px rgba(0, 0, 0, 0.3), 0 8px 56px 0 rgba(0, 0, 0, 0.4);
   --elevation-dialog:
     0 10px 40px 0 rgba(0, 0, 0, 0.35), 0 20px 50px 0 rgba(0, 0, 0, 0.3);
-  --chart-1: oklch(0.837 0.128 66.29);
-  --chart-2: oklch(0.705 0.213 47.604);
-  --chart-3: oklch(0.646 0.222 41.116);
-  --chart-4: oklch(0.553 0.195 38.402);
-  --chart-5: oklch(0.47 0.157 37.304);
+  --chart-1: oklch(0.772 0.15 227.74);
+  --chart-2: oklch(0.679 0.176 250.899);
+  --chart-3: oklch(0.567 0.222 259.186);
+  --chart-4: oklch(0.469 0.193 260.195);
+  --chart-5: oklch(0.375 0.151 259.739);
   --sidebar: #0f172a;
   --sidebar-foreground: #dadfe9;
-  --sidebar-primary: oklch(0.795 0.184 86.047);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
+  --sidebar-primary: oklch(0.705 0.159 252.351);
+  --sidebar-primary-foreground: oklch(0.241 0.063 257.726);
   --sidebar-accent: rgba(214, 224, 239, 0.09);
   --sidebar-accent-foreground: #dadfe9;
   --sidebar-border: rgba(213, 223, 244, 0.13);
-  --sidebar-ring: oklch(0.556 0.02 265);
+  --sidebar-ring: oklch(0.705 0.159 252.351);
 }
 
 /*
@@ -359,9 +363,9 @@
   --card-foreground: #25282d;
   --popover: #ffffff;
   --popover-foreground: #25282d;
-  --primary: oklch(0.852 0.199 91.936);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --primary-text: oklch(0.554 0.122 75.6);
+  --primary: oklch(0.567 0.222 259.186);
+  --primary-foreground: oklch(1 0 0);
+  --primary-text: oklch(0.517 0.197 258.641);
   --secondary: rgba(2, 32, 71, 0.06);
   --secondary-foreground: #25282d;
   --muted: rgba(2, 32, 71, 0.05);
@@ -377,7 +381,7 @@
   --success: #009467;
   --border: rgba(3, 31, 63, 0.1);
   --input: rgba(2, 32, 59, 0.17);
-  --ring: oklch(0.708 0 0);
+  --ring: oklch(0.567 0.222 259.186);
   --hairline: rgba(2, 32, 71, 0.06);
   --overlay: rgba(0, 0, 0, 0.2);
   --segment: #ffffff;
