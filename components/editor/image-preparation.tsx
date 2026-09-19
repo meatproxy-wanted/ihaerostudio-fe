@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ErrorState } from "@/components/app/error-state";
+import EmptyIllustration from "@/components/ui/EmptyIllustration";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api/client";
@@ -102,6 +103,7 @@ export function ImagePreparation({
       aria-live="polite"
       className="mx-auto flex max-w-lg flex-col gap-4 px-6 py-16"
     >
+      <EmptyIllustration variant="generating" width={170} className="mx-auto" />
       <h2 className="text-xl font-bold">편집할 글과 그림을 준비하고 있어요</h2>
       <p className="text-sm text-muted-foreground">
         {progress?.phase === "scenes"

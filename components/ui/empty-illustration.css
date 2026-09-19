@@ -1,0 +1,138 @@
+/* 빈 화면 일러스트 — 움직임
+   구조: .ei__slot(호버) > .ei__float(상시 부유) > <g transform>(고정 회전)
+   세 겹으로 나눈 이유는 transform이 서로 덮어쓰지 않게 하기 위함이다. */
+
+.ei {
+  display: inline-block;
+  line-height: 0;
+}
+.ei svg {
+  overflow: visible;
+  width: 100%;
+  height: auto;
+}
+
+/* The idle float is off: the illustration sits still. The wrapper stays so
+   the transform layering below keeps working. */
+.ei__float {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* 호버 — 두 장이 살짝 벌어진다 */
+.ei__slot {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+/* Only where the illustration is a target; a decorative one should not
+   react to a pointer that is merely passing over the card. */
+.ei--interactive:hover .ei__slot--a {
+  transform: translate(-6px, 2px) rotate(-1.5deg);
+}
+.ei--interactive:hover .ei__slot--b {
+  transform: translate(6px, -2px) rotate(1.5deg);
+}
+
+/* 생성 중 — 스파크가 반짝이고 이미지 블록이 차오른다 */
+.ei__spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ei-spark 2.6s ease-in-out infinite;
+}
+.ei__spark--2 {
+  animation-delay: -1.3s;
+}
+
+@keyframes ei-spark {
+  0%,
+  100% {
+    transform: scale(0.82);
+    opacity: 0.5;
+  }
+  45% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+
+.ei__shimmer {
+  animation: ei-shimmer 2.2s ease-in-out infinite;
+}
+@keyframes ei-shimmer {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* 연결 실패 — 움직이지 않는다. 정지가 곧 상태 표현이다.
+   배지만 한 번 들어온다. */
+.ei--error .ei__float--a,
+.ei--error .ei__float--b {
+  animation: none;
+}
+
+.ei__badge {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ei-badge 460ms cubic-bezier(0.2, 1.3, 0.4, 1) 260ms both;
+}
+@keyframes ei-badge {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 완료 — 체크가 그려진다 */
+.ei__check {
+  stroke-dasharray: 44;
+  stroke-dashoffset: 44;
+  animation: ei-draw 620ms cubic-bezier(0.4, 0, 0.2, 1) 320ms forwards;
+}
+@keyframes ei-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 클릭 가능한 일러스트일 때 */
+.ei--interactive {
+  cursor: pointer;
+}
+.ei--interactive:active .ei__slot--a {
+  transform: translate(-3px, 1px) rotate(-0.8deg);
+}
+.ei--interactive:active .ei__slot--b {
+  transform: translate(3px, -1px) rotate(0.8deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ei,
+  .ei__float--a,
+  .ei__float--b,
+  .ei__spark,
+  .ei__shimmer,
+  .ei__badge {
+    animation: none;
+  }
+  .ei__check {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .ei__slot {
+    transition: none;
+  }
+  .ei--interactive:hover .ei__slot--a,
+  .ei--interactive:hover .ei__slot--b {
+    transform: none;
+  }
+}

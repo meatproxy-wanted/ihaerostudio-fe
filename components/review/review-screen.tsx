@@ -17,11 +17,13 @@ import {
   useCurrentProject,
 } from "@/components/project-shell/project-context";
 import { Badge } from "@/components/ui/badge";
+import EmptyIllustration from "@/components/ui/EmptyIllustration";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
   EmptyHeader,
+  EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
 import {
@@ -511,6 +513,9 @@ function ReviewWorkspace({
                 ) : (
                   <Empty className="h-full">
                     <EmptyHeader>
+                      <EmptyMedia className="mb-1">
+                        <EmptyIllustration variant="done" width={140} />
+                      </EmptyMedia>
                       <EmptyTitle>
                         {items.length === 0
                           ? "찾은 문제가 없어요"

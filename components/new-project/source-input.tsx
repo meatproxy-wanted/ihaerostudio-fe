@@ -2,16 +2,13 @@
 
 import { useId, useRef, useState, type DragEvent } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Cancel01Icon,
-  FileUploadIcon,
-  Pdf01Icon,
-} from "@hugeicons/core-free-icons";
+import { Cancel01Icon, Pdf01Icon } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { isPdfFile, SOURCE_LIMITS } from "@/lib/domain/source";
+import EmptyIllustration from "@/components/ui/EmptyIllustration";
 import { cn } from "@/lib/utils";
 
 export type SourceTab = "pdf" | "text";
@@ -166,9 +163,7 @@ function PdfDropzone({
         invalid && "border-destructive",
       )}
     >
-      <span className="flex size-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-        <HugeiconsIcon icon={FileUploadIcon} strokeWidth={1.8} size={24} />
-      </span>
+      <EmptyIllustration variant="upload" width={150} />
       <span className="flex flex-col gap-1">
         <span className="text-md font-semibold">
           PDF를 끌어다 놓거나 눌러서 고르세요

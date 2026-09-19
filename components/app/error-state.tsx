@@ -1,8 +1,6 @@
 "use client";
 
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Alert02Icon } from "@hugeicons/core-free-icons";
-
+import EmptyIllustration from "@/components/ui/EmptyIllustration";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -28,11 +26,8 @@ export function ErrorState({
   return (
     <Empty className={className}>
       <EmptyHeader>
-        <EmptyMedia
-          variant="icon"
-          className="bg-destructive/10 text-destructive"
-        >
-          <HugeiconsIcon icon={Alert02Icon} strokeWidth={2} />
+        <EmptyMedia className="mb-1">
+          <EmptyIllustration variant="error" width={150} />
         </EmptyMedia>
         <EmptyTitle>{title}</EmptyTitle>
         <EmptyDescription>{errorMessage(error)}</EmptyDescription>
