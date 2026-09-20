@@ -10,6 +10,8 @@ type GenerateButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
   /** 기본 아이콘을 교체할 때. */
   icon?: React.ReactNode;
+  /** 크기. 기본은 Figma 스펙(56px), sm은 좁은 자리용(44px). */
+  size?: "default" | "sm";
   /** 프레임(바깥 여백 레이어)에 붙일 클래스. */
   frameClassName?: string;
 };
@@ -20,6 +22,7 @@ const GenerateButton = React.forwardRef<HTMLButtonElement, GenerateButtonProps>(
       children,
       hug = false,
       loading = false,
+      size = "default",
       icon = "✦",
       disabled,
       className = "",
@@ -29,7 +32,9 @@ const GenerateButton = React.forwardRef<HTMLButtonElement, GenerateButtonProps>(
     ref,
   ) {
     return (
-      <span className={`gb-frame ${frameClassName}`}>
+      <span
+        className={`gb-frame ${size === "sm" ? "gb-frame--sm" : ""} ${frameClassName}`}
+      >
         <span className="gb-ring">
           <button
             ref={ref}
