@@ -64,7 +64,9 @@ export function ReviewList({
   if (category && !categories.has(category)) categories.set(category, 0);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    /* White, like the panes on the step before: a bare `bg-background`
+       carries the page's ambient wash, and these are working surfaces. */
+    <div className="flex h-full min-h-0 flex-col bg-popover">
       <div className="flex shrink-0 flex-col gap-2.5 border-b border-hairline px-4 py-2.5">
         <Tabs
           value={filter}

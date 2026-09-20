@@ -40,7 +40,7 @@ export function DismissAllDialog({
         onOpenChange(next);
       }}
     >
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent data-surface="opaque" className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
             보이는 항목 {items.length}개를 모두 문제없음으로 확인할까요?

@@ -343,7 +343,10 @@ function ReviewWorkspace({
   const reviewStatus = getReviewStatus(project);
 
   return (
-    <div className="flex h-full flex-col">
+    /* The whole step is white: the toolbar, the empty state and the gap
+       behind the panes all sat on the page's ambient wash, so the white
+       panes read as patches on a tinted screen rather than the screen. */
+    <div className="flex h-full flex-col bg-popover">
       <ShellActions>
         <Button
           size="sm"
@@ -490,7 +493,7 @@ function ReviewWorkspace({
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel id="detail" defaultSize="62" minSize="40">
-              <div className="h-full overflow-y-auto">
+              <div className="h-full overflow-y-auto bg-popover">
                 {selected ? (
                   <ReviewDetail
                     key={selected.key}
