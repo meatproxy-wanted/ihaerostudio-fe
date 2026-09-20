@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 
-import { AppHeader } from "@/components/app/app-header";
+import { AppShell } from "@/components/app/app-shell";
 import { NewProjectForm } from "@/components/new-project/new-project-form";
 
 export const metadata: Metadata = {
@@ -10,11 +10,10 @@ export const metadata: Metadata = {
 
 export default function NewProjectPage() {
   return (
-    <div className="flex min-h-svh flex-col bg-background">
-      <AppHeader />
+    <AppShell>
       <Suspense>
         <NewProjectForm />
       </Suspense>
-    </div>
+    </AppShell>
   );
 }

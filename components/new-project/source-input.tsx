@@ -2,16 +2,14 @@
 
 import { useId, useRef, useState, type DragEvent } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Cancel01Icon,
-  FileUploadIcon,
-  Pdf01Icon,
-} from "@hugeicons/core-free-icons";
+import { Cancel01Icon, Pdf01Icon } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { isPdfFile, SOURCE_LIMITS } from "@/lib/domain/source";
+import { SAMPLE_JUDGMENT_TEXT } from "@/lib/sample-judgment";
+import EmptyIllustration from "@/components/ui/EmptyIllustration";
 import { cn } from "@/lib/utils";
 
 export type SourceTab = "pdf" | "text";
@@ -20,6 +18,17 @@ export interface SourceDraft {
   tab: SourceTab;
   file: File | null;
   text: string;
+}
+
+/** The judgment we hand people who want to see the product before they commit. */
+export const SAMPLE_SOURCE: SourceDraft = {
+  tab: "text",
+  file: null,
+  text: SAMPLE_JUDGMENT_TEXT,
+};
+
+export function isSampleSource(source: SourceDraft) {
+  return source.tab === "text" && source.text === SAMPLE_JUDGMENT_TEXT;
 }
 
 export function sourceProblem(source: SourceDraft): string | null {
@@ -68,10 +77,22 @@ export function SourceInput({
       value={value.tab}
       onValueChange={(tab) => onChange({ ...value, tab: tab as SourceTab })}
     >
-      <TabsList size="lg" className="w-full sm:w-fit">
-        <TabsTrigger value="pdf">PDF 올리기</TabsTrigger>
-        <TabsTrigger value="text">텍스트 붙여넣기</TabsTrigger>
-      </TabsList>
+      {/*
+        No sample offer here: the panel carries one at all times, and this
+        screen is inside it. What the screen does owe the reader is which of
+        the two they are looking at, so a filled-in sample says so.
+      */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <TabsList size="lg" className="w-full sm:w-fit">
+          <TabsTrigger value="pdf">PDF 올리기</TabsTrigger>
+          <TabsTrigger value="text">텍스트 붙여넣기</TabsTrigger>
+        </TabsList>
+        {isSampleSource(value) && (
+          <p className="text-2sm text-muted-foreground">
+            샘플 판결문이 들어가 있어요
+          </p>
+        )}
+      </div>
       <TabsContent value="pdf">
         <PdfDropzone
           file={value.file}
@@ -166,9 +187,7 @@ function PdfDropzone({
         invalid && "border-destructive",
       )}
     >
-      <span className="flex size-12 items-center justify-center rounded-full bg-secondary text-muted-foreground">
-        <HugeiconsIcon icon={FileUploadIcon} strokeWidth={1.8} size={24} />
-      </span>
+      <EmptyIllustration variant="upload" width={150} />
       <span className="flex flex-col gap-1">
         <span className="text-md font-semibold">
           PDF를 끌어다 놓거나 눌러서 고르세요

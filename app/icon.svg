@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><defs>
+    <linearGradient id="ihaero-up" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7FF0E8" stop-opacity="1"/>
+      <stop offset="34%" stop-color="#3ED8F5" stop-opacity=".92"/>
+      <stop offset="68%" stop-color="#18B4FF" stop-opacity=".62"/>
+      <stop offset="100%" stop-color="#7FE9FF" stop-opacity=".12"/>
+    </linearGradient>
+    <linearGradient id="ihaero-dn" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#37D0FF" stop-opacity="1"/>
+      <stop offset="38%" stop-color="#2E8BFF" stop-opacity=".92"/>
+      <stop offset="72%" stop-color="#8C86FF" stop-opacity=".58"/>
+      <stop offset="100%" stop-color="#C9B8FF" stop-opacity=".10"/>
+    </linearGradient>
+    <linearGradient id="ihaero-ov" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0090FF" stop-opacity=".95"/>
+      <stop offset="42%" stop-color="#2050EE" stop-opacity=".92"/>
+      <stop offset="78%" stop-color="#4A3FE8" stop-opacity=".68"/>
+      <stop offset="100%" stop-color="#7C6BF5" stop-opacity=".22"/>
+    </linearGradient>
+    <clipPath id="ihaero-clip">
+      <ellipse cx="62" cy="46" rx="42" ry="27" transform="rotate(-20 62 46)"/>
+    </clipPath>
+  </defs>
+
+  <ellipse cx="62" cy="46" rx="42" ry="27" transform="rotate(-20 62 46)" fill="url(#ihaero-up)"/>
+  <ellipse cx="58" cy="74" rx="42" ry="27" transform="rotate(-20 58 74)" fill="url(#ihaero-dn)"/>
+  <g clip-path="url(#ihaero-clip)">
+    <ellipse cx="58" cy="74" rx="42" ry="27" transform="rotate(-20 58 74)" fill="url(#ihaero-ov)"/>
+  </g>
+</svg>

@@ -13,36 +13,49 @@
  * Design tokens adapted from Toss Invest (tossinvest.com).
  * Surfaces: grey screen (--background) with near-white panels (--card).
  * Text: grey800 / grey700 / grey600 / grey500 steps.
- * Primary keeps the project's original yellow; --primary-text is its legible
- * dark shade for text and icons on light surfaces.
- * positive = red (상승), negative = blue (하락), info = blue.
+ * Primary is the blue taken from the AI generate button's gradient core
+ * (#0072ff, darkened to #006cf5 so white label text clears WCAG AA);
+ * --primary-text is its legible dark shade for text and icons on light
+ * surfaces.
+ * success (#51cc56) and destructive (#ff5555) are picked for saturation
+ * and shared by both themes. warning carries the same red as destructive
+ * by choice, so the two read as one severity — "확인 필요" and "지우기"
+ * are not separated by colour, only by placement and wording.
+ * Both clear WCAG AA on the dark surface (5.1:1 and 7.8:1 on --card) but
+ * not on the light one (3.1:1 and 2.0:1), so light-mode `text-warning`
+ * and `text-success` on 13px copy are hard to read. Fills and badges
+ * carry them fine; the text uses need a darker shade to fix that.
+ * negative stays blue: it marks live states ("공개 중") and a party dot in
+ * the structure panel, not a failure.
+ * NOTE: primary and negative sit on the same hue. See the design-system
+ * note in the branch — negative/info need to move if the collision matters.
  */
 :root {
   --background: #f4f5f8;
   --foreground: #333840;
-  --card: #fbfcfd;
+  --card: rgba(255, 255, 255, 0.66);
   --card-foreground: #333840;
   --popover: #ffffff;
   --popover-foreground: #333840;
-  --primary: oklch(0.852 0.199 91.936);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --primary-text: oklch(0.554 0.122 75.6);
+  --primary: oklch(0.567 0.222 259.186);
+  --primary-foreground: oklch(1 0 0);
+  --primary-text: oklch(0.517 0.197 258.641);
   --secondary: rgba(2, 32, 71, 0.06);
   --secondary-foreground: #333840;
   --muted: rgba(2, 32, 71, 0.05);
   --muted-foreground: #727780;
   --accent: rgba(2, 32, 71, 0.05);
   --accent-foreground: #333840;
-  --destructive: #de2b39;
+  --destructive: #ff5555;
   --destructive-foreground: #ffffff;
-  --positive: #de2b39;
+  --positive: #51cc56;
   --negative: #2272eb;
   --info: #2272eb;
-  --warning: #c2410c;
-  --success: #009467;
+  --warning: #ff5555;
+  --success: #51cc56;
   --border: rgba(3, 31, 63, 0.08);
   --input: rgba(2, 32, 59, 0.17);
-  --ring: oklch(0.708 0 0);
+  --ring: oklch(0.567 0.222 259.186);
   --hairline: rgba(2, 32, 71, 0.05);
   --overlay: rgba(0, 0, 0, 0.2);
   --segment: #ffffff;
@@ -50,20 +63,20 @@
     0 16px 24px -2px rgba(0, 0, 0, 0.06), 0 8px 56px 0 rgba(0, 0, 0, 0.1);
   --elevation-dialog:
     0 10px 40px 0 rgba(2, 32, 71, 0.05), 0 20px 50px 0 rgba(0, 23, 51, 0.02);
-  --chart-1: oklch(0.837 0.128 66.29);
-  --chart-2: oklch(0.705 0.213 47.604);
-  --chart-3: oklch(0.646 0.222 41.116);
-  --chart-4: oklch(0.553 0.195 38.402);
-  --chart-5: oklch(0.47 0.157 37.304);
+  --chart-1: oklch(0.772 0.15 227.74);
+  --chart-2: oklch(0.679 0.176 250.899);
+  --chart-3: oklch(0.567 0.222 259.186);
+  --chart-4: oklch(0.469 0.193 260.195);
+  --chart-5: oklch(0.375 0.151 259.739);
   --radius: 0.75rem;
   --sidebar: #f4f5f8;
   --sidebar-foreground: #333840;
-  --sidebar-primary: oklch(0.681 0.162 75.834);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
+  --sidebar-primary: oklch(0.567 0.222 259.186);
+  --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: rgba(2, 32, 71, 0.06);
   --sidebar-accent-foreground: #333840;
   --sidebar-border: rgba(3, 31, 63, 0.08);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: oklch(0.567 0.222 259.186);
   --duration-spring-quick: 334ms;
   --duration-spring-rapid: 318ms;
   --duration-spring-medium: 552ms;
@@ -301,29 +314,29 @@
 .dark {
   --background: #0f172a;
   --foreground: #dadfe9;
-  --card: #16203a;
+  --card: rgba(28, 39, 69, 0.55);
   --card-foreground: #dadfe9;
   --popover: #1c2745;
   --popover-foreground: #dadfe9;
-  --primary: oklch(0.795 0.184 86.047);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --primary-text: oklch(0.83 0.17 90);
+  --primary: oklch(0.705 0.159 252.351);
+  --primary-foreground: oklch(0.241 0.063 257.726);
+  --primary-text: oklch(0.806 0.101 251.732);
   --secondary: rgba(214, 224, 239, 0.09);
   --secondary-foreground: #dadfe9;
   --muted: rgba(214, 224, 239, 0.09);
   --muted-foreground: #8c95a8;
   --accent: rgba(214, 224, 239, 0.09);
   --accent-foreground: #dadfe9;
-  --destructive: #f5445a;
+  --destructive: #ff5555;
   --destructive-foreground: #ffffff;
-  --positive: #f5445a;
+  --positive: #51cc56;
   --negative: #4391ff;
   --info: #4391ff;
-  --warning: #fb923c;
-  --success: #07a978;
+  --warning: #ff5555;
+  --success: #51cc56;
   --border: rgba(213, 223, 244, 0.13);
   --input: rgba(212, 223, 248, 0.19);
-  --ring: oklch(0.556 0.02 265);
+  --ring: oklch(0.705 0.159 252.351);
   --hairline: rgba(214, 224, 239, 0.09);
   --overlay: rgba(0, 0, 0, 0.56);
   --segment: rgba(214, 224, 239, 0.12);
@@ -331,19 +344,63 @@
     0 16px 24px -2px rgba(0, 0, 0, 0.3), 0 8px 56px 0 rgba(0, 0, 0, 0.4);
   --elevation-dialog:
     0 10px 40px 0 rgba(0, 0, 0, 0.35), 0 20px 50px 0 rgba(0, 0, 0, 0.3);
-  --chart-1: oklch(0.837 0.128 66.29);
-  --chart-2: oklch(0.705 0.213 47.604);
-  --chart-3: oklch(0.646 0.222 41.116);
-  --chart-4: oklch(0.553 0.195 38.402);
-  --chart-5: oklch(0.47 0.157 37.304);
+  --chart-1: oklch(0.772 0.15 227.74);
+  --chart-2: oklch(0.679 0.176 250.899);
+  --chart-3: oklch(0.567 0.222 259.186);
+  --chart-4: oklch(0.469 0.193 260.195);
+  --chart-5: oklch(0.375 0.151 259.739);
   --sidebar: #0f172a;
   --sidebar-foreground: #dadfe9;
-  --sidebar-primary: oklch(0.795 0.184 86.047);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
+  --sidebar-primary: oklch(0.705 0.159 252.351);
+  --sidebar-primary-foreground: oklch(0.241 0.063 257.726);
   --sidebar-accent: rgba(214, 224, 239, 0.09);
   --sidebar-accent-foreground: #dadfe9;
   --sidebar-border: rgba(213, 223, 244, 0.13);
-  --sidebar-ring: oklch(0.556 0.02 265);
+  --sidebar-ring: oklch(0.705 0.159 252.351);
+}
+
+/*
+ * Landing surface: the brand page at /. It stays light in both themes the
+ * way .paper does, so the wordmark and the gradient wash always read as
+ * intended rather than flipping with the producer's editor preference.
+ */
+.landing {
+  color-scheme: light;
+  --background: #f7f9fc;
+  --foreground: #14181f;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-foreground: #14181f;
+  --muted-foreground: #5b616b;
+  --secondary: rgba(2, 32, 71, 0.06);
+  --secondary-foreground: #14181f;
+  --accent: rgba(2, 32, 71, 0.05);
+  --accent-foreground: #14181f;
+  --border: rgba(3, 31, 63, 0.1);
+  --hairline: rgba(2, 32, 71, 0.07);
+  background-color: var(--background);
+  color: var(--foreground);
+
+  /*
+   * Hero type scale. Every size in the hero is a ratio of --hero-size
+   * (headline and wordmark 90, tagline 38, body 22, its leading 34 — the
+   * proportions the design was drawn at), so the whole block is retuned by
+   * editing the one cap below rather than four arbitrary values in JSX.
+   *
+   * The headline sets the size because it is one unbroken line. Measured
+   * against Pretendard ExtraBold at this tracking it runs 11.11em, so at
+   * 7vw it holds a steady ~78% of the viewport and never needs a second
+   * line. The cap takes over at about 915px, and past there the block
+   * stops growing so a wide display gets margin rather than more type.
+   */
+  --hero-size: min(7vw, 64px);
+  /*
+   * The small copy keeps the drawn ratio until it would stop being
+   * readable — on a phone the headline may shrink to 20px, the sentence
+   * under it must not follow it down there.
+   */
+  --hero-tagline: max(20px, calc(var(--hero-size) * 38 / 90));
+  --hero-body: max(15px, calc(var(--hero-size) * 22 / 90));
+  --hero-body-leading: calc(var(--hero-body) * 34 / 22);
 }
 
 /*
@@ -359,25 +416,25 @@
   --card-foreground: #25282d;
   --popover: #ffffff;
   --popover-foreground: #25282d;
-  --primary: oklch(0.852 0.199 91.936);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --primary-text: oklch(0.554 0.122 75.6);
+  --primary: oklch(0.567 0.222 259.186);
+  --primary-foreground: oklch(1 0 0);
+  --primary-text: oklch(0.517 0.197 258.641);
   --secondary: rgba(2, 32, 71, 0.06);
   --secondary-foreground: #25282d;
   --muted: rgba(2, 32, 71, 0.05);
   --muted-foreground: #5c6370;
   --accent: rgba(2, 32, 71, 0.05);
   --accent-foreground: #25282d;
-  --destructive: #de2b39;
+  --destructive: #ff5555;
   --destructive-foreground: #ffffff;
-  --positive: #de2b39;
+  --positive: #51cc56;
   --negative: #2272eb;
   --info: #2272eb;
-  --warning: #c2410c;
-  --success: #009467;
+  --warning: #ff5555;
+  --success: #51cc56;
   --border: rgba(3, 31, 63, 0.1);
   --input: rgba(2, 32, 59, 0.17);
-  --ring: oklch(0.708 0 0);
+  --ring: oklch(0.567 0.222 259.186);
   --hairline: rgba(2, 32, 71, 0.06);
   --overlay: rgba(0, 0, 0, 0.2);
   --segment: #ffffff;
@@ -484,5 +541,232 @@
       scrollbar-color: color-mix(in oklab, var(--foreground) 18%, transparent)
         transparent;
     }
+  }
+}
+
+/*
+ * Liquid glass surfaces.
+ *
+ * Panels and overlays go translucent and blur what is behind them, lit by a
+ * soft ambient gradient on the app background. The look is chrome only —
+ * .paper opts out everywhere below, because the finished material has to
+ * print and read exactly as the producer sees it.
+ */
+:root {
+  /* Button gradient, taken from the generate button's own ramp. Diagonal. */
+  --gradient-from: #00c6ff;
+  --gradient-to: #0072ff;
+  --gradient-angle: 135deg;
+  /* Where the deep end lands. Below 100% it holds, widening the dark half. */
+  --gradient-to-stop: 78%;
+  --glass-blur: 20px;
+  --glass-tint: rgba(255, 255, 255, 0.62);
+  /* A bar sits over moving content, so it stays thinner than a panel. */
+  --glass-tint-bar: rgba(255, 255, 255, 0.38);
+  --glass-edge: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 8px 32px -8px rgba(2, 32, 71, 0.14);
+}
+
+.dark {
+  --glass-tint: rgba(28, 39, 69, 0.58);
+  --glass-tint-bar: rgba(22, 32, 58, 0.34);
+  --glass-edge: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5);
+}
+
+/*
+ * Ambient light for the blur to pick up. Painted on the page shell itself
+ * rather than a body::before, because every screen wraps its content in an
+ * opaque `bg-background` element that would cover a layer behind it.
+ * `[class~=]` matches the bare utility only, so the translucent
+ * `bg-background/90` sticky headers keep their own treatment.
+ */
+[class~="bg-background"]:not(.paper, .paper *) {
+  background-image:
+    radial-gradient(
+      42rem 30rem at 12% -6%,
+      color-mix(in oklab, var(--primary) 22%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      34rem 26rem at 88% 4%,
+      color-mix(in oklab, var(--chart-1) 20%, transparent) 0%,
+      transparent 72%
+    ),
+    radial-gradient(
+      40rem 34rem at 62% 108%,
+      color-mix(in oklab, var(--chart-2) 16%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+/*
+ * Panels. Targeted by utility class because the surfaces are painted with
+ * `bg-card` across 19 files rather than through one component.
+ */
+/*
+ * `[class~=]`, not `[class*=]`: a substring match also catches `hover:bg-card`
+ * and would blur the surface before the pointer ever arrives.
+ */
+[class~="bg-card"]:not(.paper, .paper *),
+[class*="bg-background/"]:not(.paper, .paper *) {
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+
+/* Overlays: every floating surface shadcn gives a data-slot. */
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"],
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="sheet-content"],
+[data-slot="tooltip-content"],
+[data-slot="toast"] {
+  background-color: var(--glass-tint);
+  backdrop-filter: blur(var(--glass-blur)) saturate(170%);
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 1px 0 0 var(--glass-edge);
+}
+
+/* The header is a bar, not a floating panel: thinner tint, a lit top edge,
+   and no drop shadow hanging over the content below it. */
+[data-slot="workspace-header"] {
+  background-color: var(--glass-tint-bar);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  box-shadow: inset 0 1px 0 0 var(--glass-edge);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  [class~="bg-card"]:not(.paper, .paper *),
+  [data-slot="dialog-content"],
+  [data-slot="alert-dialog-content"],
+  [data-slot="popover-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="sheet-content"],
+  [data-slot="tooltip-content"],
+  [data-slot="toast"],
+  [data-slot="workspace-header"] {
+    backdrop-filter: none;
+    background-color: var(--popover);
+  }
+  [class~="bg-background"]:not(.paper, .paper *) {
+    background-image: none;
+  }
+}
+
+/*
+ * Glass card. A pale, slightly see-through sheet with a white rim and a
+ * bloom of light along its top and bottom edges, so it reads as a lit pane
+ * rather than a flat fill.
+ *
+ * The rim is an inset ring, not a border: it costs no layout, so a card can
+ * take this class without its size shifting.
+ *
+ * Add `glass-card-interactive` where the card is a target — a panel that
+ * merely holds text should not light up under a passing pointer.
+ */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.75),
+    0 10px 28px -14px rgba(2, 32, 71, 0.14);
+  transition:
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+}
+
+.glass-card-interactive:hover {
+  background-color: rgba(255, 255, 255, 0.58);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.85),
+    0 14px 32px -14px rgba(2, 32, 71, 0.18);
+}
+
+.dark .glass-card {
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.1),
+    0 10px 28px -14px rgba(0, 0, 0, 0.45);
+}
+
+.dark .glass-card-interactive:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.26),
+    inset 0 -26px 34px -26px rgba(255, 255, 255, 0.14),
+    0 14px 32px -14px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-card {
+    background-color: var(--popover);
+    backdrop-filter: none;
+  }
+}
+
+/*
+ * Landing headline: resolves out of a blur on arrival, then a blue glint
+ * travels across it. The ink stays dark — only the narrow band in the middle
+ * of the gradient is blue, and it is what moves.
+ *
+ * `display: inline-block` is load-bearing: it sizes the background box to
+ * the line itself. As a block the ramp would stretch across the whole
+ * column and the glint would spend most of its travel in the empty margin
+ * beside the centred text.
+ */
+.hero-headline {
+  display: inline-block;
+  background-image: linear-gradient(
+    100deg,
+    #0b1420 0%,
+    #0b1420 38%,
+    #2f7fe8 46%,
+    #5fd6ff 50%,
+    #2f7fe8 54%,
+    #0b1420 62%,
+    #0b1420 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: blur(16px);
+  opacity: 0;
+  animation:
+    hero-focus 1.05s cubic-bezier(0.2, 0.8, 0.25, 1) both,
+    hero-sweep 6.4s ease-in-out 1.15s infinite;
+}
+
+@keyframes hero-focus {
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes hero-sweep {
+  0% {
+    background-position: 130% 0;
+  }
+  55%,
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-headline {
+    filter: none;
+    opacity: 1;
+    animation: none;
+    background-position: 0 0;
   }
 }

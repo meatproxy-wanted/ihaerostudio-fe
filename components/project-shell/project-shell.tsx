@@ -133,7 +133,7 @@ function NarrowScreenNotice() {
           <Button
             variant="secondary"
             nativeButton={false}
-            render={<Link href={routes.home()} />}
+            render={<Link href={routes.materials()} />}
           >
             작업함으로
           </Button>

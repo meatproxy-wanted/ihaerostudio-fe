@@ -3,12 +3,19 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { AiMagicIcon, SparklesIcon } from "@hugeicons/core-free-icons";
 
 import { LongJobLoader, useLongJob } from "@/components/app/long-job";
-import { ServerModeNotice } from "@/components/app/server-mode-notice";
-import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import GenerateButton from "@/components/ui/GenerateButton";
 import { api } from "@/lib/api/client";
 import { errorMessage } from "@/lib/api/errors";
 import { cacheProject } from "@/lib/api/hooks";
@@ -16,17 +23,18 @@ import { queryKeys } from "@/lib/api/query-keys";
 import type { CreateProjectInput } from "@/lib/api/types";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/domain/common";
 import { routes } from "@/lib/routes";
-import { SAMPLE_JUDGMENT_TEXT } from "@/lib/sample-judgment";
 
 import { ANALYSIS_STEPS } from "./analysis-steps";
 import { SettingsPicker } from "./settings-picker";
-import { SourceInput, sourceProblem, type SourceDraft } from "./source-input";
+import {
+  isSampleSource,
+  SAMPLE_SOURCE,
+  SourceInput,
+  sourceProblem,
+  type SourceDraft,
+} from "./source-input";
 
-const SAMPLE_SOURCE: SourceDraft = {
-  tab: "text",
-  file: null,
-  text: SAMPLE_JUDGMENT_TEXT,
-};
+const EMPTY_SOURCE: SourceDraft = { tab: "pdf", file: null, text: "" };
 
 function toSourceInput(source: SourceDraft): CreateProjectInput["source"] {
   return source.tab === "pdf" && source.file
@@ -64,9 +72,38 @@ export function NewProjectForm() {
   const queryClient = useQueryClient();
   const wantsSample = useSearchParams().get("sample") === "1";
 
-  const [source, setSource] = useState<SourceDraft>(() =>
-    wantsSample ? SAMPLE_SOURCE : { tab: "pdf", file: null, text: "" },
-  );
+  /*
+    `?sample=1` is a request, not a seed. The panel's sample link points at
+    this same screen, and pressing it from here only changes the query —
+    React keeps the form mounted, so a value read once at mount would never
+    be read again. The request is answered on every render instead: while
+    the box is empty it holds the sample, and a draft with anything in it
+    wins. Once the producer takes the box over, `clearSampleRequest` drops
+    the query, so emptying the sample out does not snap it back.
+  */
+  const [draft, setDraft] = useState<SourceDraft | null>(null);
+  const hasContent =
+    draft !== null && (draft.file !== null || draft.text.trim() !== "");
+  const source =
+    wantsSample && !hasContent ? SAMPLE_SOURCE : (draft ?? EMPTY_SOURCE);
+
+  /*
+    Asked, with work already in the box — the one case worth interrupting.
+    Answering closes the dialog by making this false, rather than by waiting
+    for the replaced URL to come back around.
+  */
+  const askOverwrite =
+    wantsSample && hasContent && draft !== null && !isSampleSource(draft);
+
+  function clearSampleRequest() {
+    if (wantsSample) router.replace(routes.newProject(), { scroll: false });
+  }
+
+  function editDraft(next: SourceDraft) {
+    setDraft(next);
+    clearSampleRequest();
+  }
+
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [attempted, setAttempted] = useState(false);
 
@@ -88,39 +125,19 @@ export function NewProjectForm() {
     void analysis.start({ source: toSourceInput(source), settings });
   }
 
-  /** Fills in the sample judgment and sends it to the server like any text. */
-  function startWithSample() {
-    setSource(SAMPLE_SOURCE);
-    void analysis.start({ source: toSourceInput(SAMPLE_SOURCE), settings });
-  }
-
   return (
     <>
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-10 pb-12 sm:px-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <p className="text-2sm font-semibold text-primary-text">
-              1단계 · 판결문 올리기
-            </p>
-            <h1 className="text-2xl font-bold tracking-tight">
-              새 자료 만들기
-            </h1>
-            <p className="text-md text-muted-foreground">
-              판결문을 넣고 결과물의 말투와 모양을 고르면, AI가 사건 구조를
-              정리해요.
-            </p>
-          </div>
-          <Button variant="secondary" onClick={startWithSample}>
-            <HugeiconsIcon
-              icon={SparklesIcon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
-            샘플 판결문으로 체험하기
-          </Button>
+        <div className="flex flex-col gap-1">
+          <p className="text-2sm font-semibold text-primary-text">
+            1단계 · 판결문 올리기
+          </p>
+          <h1 className="text-2xl font-bold tracking-tight">새 자료 만들기</h1>
+          <p className="text-md text-muted-foreground">
+            판결문을 넣고 결과물의 말투와 모양을 고르면, AI가 사건 구조를
+            정리해요.
+          </p>
         </div>
-
-        <ServerModeNotice className="mt-6" />
 
         <section className="mt-10">
           <SectionHeading
@@ -130,7 +147,7 @@ export function NewProjectForm() {
           />
           <SourceInput
             value={source}
-            onChange={setSource}
+            onChange={editDraft}
             showErrors={attempted}
           />
         </section>
@@ -156,16 +173,37 @@ export function NewProjectForm() {
               {problem ?? "준비됐어요. 분석에는 1분 정도 걸릴 수 있어요."}
             </p>
           )}
-          <Button size="lg" onClick={start} className="sm:min-w-44">
-            <HugeiconsIcon
-              icon={AiMagicIcon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
+          <GenerateButton
+            hug
+            loading={analysis.phase === "running"}
+            onClick={start}
+          >
             {analysis.error ? "다시 분석하기" : "AI 분석 시작하기"}
-          </Button>
+          </GenerateButton>
         </div>
       </div>
+
+      <AlertDialog
+        open={askOverwrite}
+        onOpenChange={(open) => {
+          if (!open) clearSampleRequest();
+        }}
+      >
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{"샘플 판결문으로\n바꿀까요?"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              지금 넣어 둔 판결문은 사라져요. 결과물 설정은 그대로예요.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>그대로 두기</AlertDialogCancel>
+            <AlertDialogAction onClick={() => setDraft(SAMPLE_SOURCE)}>
+              샘플로 바꾸기
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <LongJobLoader
         job={analysis}

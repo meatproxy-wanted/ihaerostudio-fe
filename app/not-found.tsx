@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AppHeader } from "@/components/app/app-header";
+import { AppShell } from "@/components/app/app-shell";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -13,8 +13,7 @@ import { routes } from "@/lib/routes";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-svh flex-col bg-background">
-      <AppHeader />
+    <AppShell>
       <Empty className="flex-1">
         <EmptyHeader>
           <p className="text-4xl font-bold tracking-tight text-muted-foreground">
@@ -26,11 +25,14 @@ export default function NotFound() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button nativeButton={false} render={<Link href={routes.home()} />}>
+          <Button
+            nativeButton={false}
+            render={<Link href={routes.materials()} />}
+          >
             작업함으로
           </Button>
         </EmptyContent>
       </Empty>
-    </div>
+    </AppShell>
   );
 }

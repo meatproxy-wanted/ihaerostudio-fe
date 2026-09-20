@@ -21,6 +21,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className="h-full" suppressHydrationWarning>
       <head>
+        {/*
+          SUIT carries the wordmark (Heavy 900 + Regular 400). Pretendard is
+          already bundled for body copy; only the logo needs this face, so it
+          comes from the CDN rather than the dependency tree.
+        */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="" />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css"
+        />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="flex min-h-full flex-col">

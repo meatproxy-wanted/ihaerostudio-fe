@@ -1,0 +1,80 @@
+/* 이해로 스튜디오 로고
+   심볼: 겹친 두 타원 — 위는 원문, 아래는 쉬운 자료, 겹친 자리가 이해
+   워드마크 Figma 스펙
+   - Frame: 가로 auto layout, gap 3, padding 0, H 80, 세로 가운데 정렬
+   - IHAERO: SUIT Heavy(900), 64px, letter-spacing -4%
+   - Studio : SUIT Regular(400), 64px, letter-spacing -5%
+   --logo-size 하나만 바꾸면 심볼·간격·높이가 함께 비례한다. */
+
+.logo {
+  --logo-size: 64px;
+  --logo-gap: calc(var(--logo-size) * 0.047); /* 64px 기준 3px */
+  --logo-symbol: calc(var(--logo-size) * 1.25);
+  --logo-symbol-gap: calc(var(--logo-size) * 0.3);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--logo-symbol-gap);
+  height: calc(var(--logo-size) * 1.25); /* 64px 기준 80px */
+  line-height: 1;
+  user-select: none;
+}
+
+.logo__symbol {
+  flex: none;
+  width: var(--logo-symbol);
+  height: var(--logo-symbol);
+  overflow: visible;
+}
+
+.logo__text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--logo-gap);
+  font-family:
+    SUIT,
+    "SUIT Variable",
+    Pretendard,
+    -apple-system,
+    "Apple SD Gothic Neo",
+    system-ui,
+    sans-serif;
+  font-size: var(--logo-size);
+  white-space: nowrap;
+}
+
+.logo__mark {
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.logo__suffix {
+  font-weight: 400;
+  letter-spacing: -0.05em;
+}
+
+/* 글자 색 — 심볼은 그라디언트라 영향 없음.
+   monochrome일 때는 심볼도 이 색(currentColor)을 따른다. */
+.logo--brand {
+  color: #0a1a2b;
+}
+.logo--white {
+  color: #ffffff;
+}
+
+/* 조합 변형 */
+.logo--symbol-only,
+.logo--text-only {
+  gap: 0;
+}
+
+.logo--stacked {
+  flex-direction: column;
+  gap: calc(var(--logo-size) * 0.22);
+  height: auto;
+}
+
+/* 다크 모드에서 글자만 반전 */
+.dark .logo--brand {
+  color: #e6eef8;
+}
