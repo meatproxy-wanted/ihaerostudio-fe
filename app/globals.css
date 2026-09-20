@@ -583,10 +583,13 @@
  * Ambient light for the blur to pick up. Painted on the page shell itself
  * rather than a body::before, because every screen wraps its content in an
  * opaque `bg-background` element that would cover a layer behind it.
- * `[class~=]` matches the bare utility only, so the translucent
- * `bg-background/90` sticky headers keep their own treatment.
+ *
+ * Asked for by class, not inferred from `bg-background`: that utility is
+ * also how a small box says "plain surface", and matching it painted the
+ * wash onto toggles, URL rows and the editor's inline input — a page's
+ * worth of gradient inside a 40px box.
  */
-[class~="bg-background"]:not(.paper, .paper *) {
+.app-wash:not(.paper, .paper *) {
   background-image:
     radial-gradient(
       42rem 30rem at 12% -6%,
@@ -729,7 +732,7 @@
     backdrop-filter: none;
     background-color: var(--segment);
   }
-  [class~="bg-background"]:not(.paper, .paper *) {
+  .app-wash {
     background-image: none;
   }
 }

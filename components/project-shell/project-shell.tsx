@@ -113,7 +113,7 @@ export function ProjectShell({
     const missing =
       project.error instanceof ApiError && project.error.code === "not-found";
     return (
-      <div className="flex min-h-svh flex-col bg-background">
+      <div className="app-wash flex min-h-svh flex-col bg-background">
         <header
           data-slot="app-bar"
           className="flex h-14 items-center border-b border-hairline px-4"
@@ -134,7 +134,7 @@ export function ProjectShell({
 
   return (
     <ProjectProvider project={project.data} actionsTarget={actionsTarget}>
-      <div className="flex h-svh flex-col overflow-hidden bg-background">
+      <div className="app-wash flex h-svh flex-col overflow-hidden bg-background">
         {/*
           The same bar and the same panel as every screen outside a project,
           so stepping into one does not change the furniture. The panel
@@ -183,7 +183,13 @@ export function ProjectShell({
             collapsed={collapsed}
             className="h-full"
           />
-          <div className="relative min-h-0 flex-1">
+          {/*
+            `min-w-0` matters here: as a flex item beside the panel, this
+            column's floor is its min-content width by default, so a wide
+            screen inside it pushes the whole shell sideways instead of
+            scrolling within itself — the bar above ends up cut too.
+          */}
+          <div className="relative min-h-0 min-w-0 flex-1">
             {locked ? <LockedStep project={project.data} /> : children}
             <NarrowScreenNotice />
           </div>
@@ -249,7 +255,10 @@ function NarrowScreenNotice() {
 
 function ShellSkeleton() {
   return (
-    <div className="flex h-svh flex-col bg-background" aria-busy="true">
+    <div
+      className="app-wash flex h-svh flex-col bg-background"
+      aria-busy="true"
+    >
       <div
         data-slot="app-bar"
         className="flex h-14 items-center gap-3 border-b border-hairline px-3"
