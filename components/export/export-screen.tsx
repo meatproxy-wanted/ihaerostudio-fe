@@ -323,7 +323,10 @@ export function ExportScreen() {
               아직 내보낸 게시본이 없어요.
             </p>
           ) : (
-            <ul className="flex flex-col divide-y divide-hairline">
+            /* One card per version rather than hairline-divided rows: an
+               entry carries a name, a date and two badges, which is more
+               than a rule between lines can hold together. */
+            <ul className="flex flex-col gap-2">
               {publications.data.map((item) => (
                 <PublicationRow
                   key={item.id}
@@ -401,17 +404,24 @@ function PublicationRow({
   isPublic: boolean;
 }) {
   return (
-    <li className="flex items-center gap-3 py-3">
-      <span className="w-10 text-md font-bold tabular-nums">
-        v{publication.version}
-      </span>
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="text-sm">
-          {format(new Date(publication.createdAt), "yyyy년 M월 d일 a h:mm", {
-            locale: ko,
-          })}
+    <li className="flex items-center gap-3 rounded-xl bg-popover px-4 py-3 ring-1 ring-hairline">
+      {/*
+        The version names the entry, so it sits with the date on the first
+        line instead of floating in a fixed column beside two stacked
+        lines, where it lined up with neither of them.
+      */}
+      <span className="flex min-w-0 flex-1 flex-col gap-2">
+        <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className="text-md font-bold tabular-nums">
+            v{publication.version}
+          </span>
+          <span className="text-2sm text-muted-foreground">
+            {format(new Date(publication.createdAt), "yyyy년 M월 d일 a h:mm", {
+              locale: ko,
+            })}
+          </span>
         </span>
-        <span className="flex gap-1.5">
+        <span className="flex flex-wrap gap-1.5">
           <Badge variant={publication.reviewed ? "success" : "warning"}>
             {publication.reviewed ? "검토 완료" : "검토 전 초안"}
           </Badge>

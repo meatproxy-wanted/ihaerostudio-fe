@@ -36,11 +36,18 @@ function Block({
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
       <p className="text-[11px] font-semibold text-muted-foreground">{title}</p>
+      {/*
+        Inset, not raised. The pane is white now, and `bg-card` is a
+        translucent white — on white it disappears and the block reads as
+        a gap in the page rather than a quoted passage. `paper` keeps its
+        own surface, because that block is promising the exact colours the
+        reader will see.
+      */}
       <div
         className={
           paper
             ? "paper rounded-xl p-3 ring-1 ring-hairline"
-            : "rounded-xl bg-card p-3 ring-1 ring-hairline"
+            : "rounded-xl bg-secondary p-3 ring-1 ring-hairline"
         }
       >
         {children}
@@ -101,7 +108,7 @@ export function ReviewDetail({
 
   return (
     <article
-      className="flex flex-col gap-5 px-6 py-6"
+      className="flex min-w-0 flex-col gap-5 px-6 py-6"
       aria-labelledby="review-item-title"
     >
       <div className="flex flex-col gap-2">
@@ -130,7 +137,13 @@ export function ReviewDetail({
         </p>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      {/*
+        `minmax(0, 1fr)`, not `1fr`. A grid track's floor is its content's
+        min-content width, so one long unbroken run of text pushes the
+        track — and the whole pane — wider than it is, and the pane only
+        scrolls vertically, so the overflow is simply cut off on the right.
+      */}
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 xl:grid-cols-[repeat(2,minmax(0,1fr))]">
         {(located || card || term || gone) && (
           <Block title="쉬운 자료" paper>
             {gone ? (

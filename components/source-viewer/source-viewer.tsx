@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type MouseEvent as ReactMouseEvent,
+  type ReactNode,
 } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -80,6 +81,7 @@ export function SourceViewer({
   onMarkClick,
   selectionLabel,
   onSelectionAction,
+  headerAction,
   className,
 }: {
   source: SourceDocument;
@@ -89,6 +91,8 @@ export function SourceViewer({
   /** When set, selecting text offers a button that hands back its anchor. */
   selectionLabel?: string;
   onSelectionAction?: (anchor: Anchor) => void;
+  /** Sits at the end of the pane's own header — the fold control lives here. */
+  headerAction?: ReactNode;
   className?: string;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -119,14 +123,6 @@ export function SourceViewer({
     }
     return grouped;
   }, [marks]);
-
-  const sections = useMemo(
-    () =>
-      source.paragraphs.filter(
-        (p) => p.kind === "heading" && p.level !== null && p.level <= 2,
-      ),
-    [source.paragraphs],
-  );
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -166,20 +162,21 @@ export function SourceViewer({
     });
   }
 
-  function jumpTo(paragraph: SourceParagraph) {
-    scrollRef.current
-      ?.querySelector(`[data-paragraph="${paragraph.id}"]`)
-      ?.scrollIntoView({ block: "start" });
-  }
-
   return (
+    /*
+      Plain white, on `--popover`: `bg-card` is translucent and picks up the
+      ambient wash behind it, which is the wrong texture for a wall of
+      judgment text. The heading matches the one on the structure side —
+      two panes read as one screen when their titles are the same size.
+    */
     <section
       aria-label="원문 판결문"
-      className={cn("flex h-full min-h-0 flex-col bg-card", className)}
+      className={cn("flex h-full min-h-0 flex-col bg-popover", className)}
     >
-      <div className="flex shrink-0 flex-col gap-2 border-b border-hairline px-4 pt-3 pb-2">
-        <div className="flex h-7 items-center justify-between gap-2">
-          <h2 className="text-sm font-bold">원문 판결문</h2>
+      <div className="flex shrink-0 items-center gap-2 px-4 pt-4 pb-3">
+        <h2 className="text-lg font-bold tracking-tight">원문 판결문</h2>
+        {/* The evidence stepper and the fold control share the right end. */}
+        <div className="ml-auto flex items-center gap-1">
           {activeAnchors.length > 1 && (
             <div className="flex items-center gap-1 text-2sm text-muted-foreground">
               <Button
@@ -215,25 +212,8 @@ export function SourceViewer({
               </Button>
             </div>
           )}
+          {headerAction}
         </div>
-        <nav aria-label="원문 구획" className="-mx-1 overflow-x-auto">
-          <ul className="flex w-max gap-1 px-1 pb-1">
-            {sections.map((section) => (
-              <li key={section.id}>
-                <button
-                  type="button"
-                  onClick={() => jumpTo(section)}
-                  className={cn(
-                    "h-7 rounded-full px-2.5 text-2sm whitespace-nowrap text-muted-foreground ring-1 ring-hairline hover:bg-accent hover:text-foreground",
-                    section.level === 1 && "font-semibold text-foreground",
-                  )}
-                >
-                  {section.text}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
       </div>
 
       <div

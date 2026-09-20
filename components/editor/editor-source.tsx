@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 
 import {
   SourceViewer,
@@ -15,7 +15,13 @@ import type { SourceDocument } from "@/lib/domain/source";
 
 import { useEditor, useEditorStore } from "./editor-store";
 
-export function EditorSource({ source }: { source: SourceDocument }) {
+export function EditorSource({
+  source,
+  headerAction,
+}: {
+  source: SourceDocument;
+  headerAction?: ReactNode;
+}) {
   const store = useEditorStore();
   const document = useEditor((state) => state.value);
   const selection = useEditor((state) => state.selection);
@@ -37,6 +43,7 @@ export function EditorSource({ source }: { source: SourceDocument }) {
 
   return (
     <SourceViewer
+      headerAction={headerAction}
       source={source}
       marks={marks}
       activeKeys={activeKeys}

@@ -65,6 +65,8 @@ export function SettingsDialog({
       }}
     >
       <DialogTrigger
+        /* sm, matching the source-fold button beside it: these two are the
+           header's targets and 24px is a mean thing to ask a pointer for. */
         render={<Button variant="secondary" size="sm" disabled={disabled} />}
       >
         <HugeiconsIcon
@@ -74,7 +76,12 @@ export function SettingsDialog({
         />
         자료 설정
       </DialogTrigger>
-      <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-3xl">
+      {/* Opaque: the previews inside are `.paper`, and a translucent sheet
+          over them would misreport the surface they are promising. */}
+      <DialogContent
+        data-surface="opaque"
+        className="max-h-[90svh] overflow-y-auto sm:max-w-3xl"
+      >
         <DialogHeader>
           <DialogTitle>자료 설정</DialogTitle>
           <DialogDescription>

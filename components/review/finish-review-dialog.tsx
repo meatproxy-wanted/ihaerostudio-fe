@@ -106,7 +106,7 @@ export function FinishReviewDialog({
         />
         검토 마치기
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent data-surface="opaque" className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>검토를 마칠까요?</DialogTitle>
           <DialogDescription>
@@ -177,7 +177,10 @@ export function FinishReviewDialog({
               key={key}
               className={cn(
                 "flex items-start gap-3 rounded-xl p-3 ring-1 ring-hairline",
-                checked.includes(key) && "bg-success/5 ring-success/30",
+                /* Blue, like the checkbox that ticks it: green reads as
+                   "passed", and these are answers being given, not results
+                   coming back. */
+                checked.includes(key) && "bg-primary/6 ring-primary/30",
               )}
             >
               <Checkbox

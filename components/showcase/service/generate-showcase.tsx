@@ -55,6 +55,15 @@ export function GenerateShowcase() {
         <DemoGenerateButton />
       </ShowcaseCase>
 
+      <ShowcaseCase
+        label="Small"
+        description="H44 · 하단 액션 바처럼 버튼이 화면의 주인공이 아닐 때"
+      >
+        <GenerateButton hug size="sm">
+          AI 분석 시작하기
+        </GenerateButton>
+      </ShowcaseCase>
+
       <ShowcaseCase label="Disabled" description="조건을 아직 못 갖췄을 때">
         <GenerateButton hug disabled>
           초안 만들기

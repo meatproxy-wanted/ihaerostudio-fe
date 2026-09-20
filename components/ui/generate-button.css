@@ -96,6 +96,31 @@
   padding: 16px 32px;
 }
 
+/* 작은 크기 — 하단 액션 바처럼 버튼이 주인공이 아닌 자리.
+   기본 56px은 Figma 스펙이라 건드리지 않고, 겹쳐진 세 겹의 지름만 함께
+   줄인다. 후광 6 + 링 2 + 본체 56 = 72px이던 전체 높이가 55px이 된다. */
+.gb-frame--sm {
+  padding: 4px;
+  border-radius: 28px;
+}
+.gb-frame--sm .gb-ring {
+  padding: 1.5px;
+  border-radius: 24px;
+}
+.gb-frame--sm .gb {
+  height: 44px;
+  min-width: 0;
+  padding: 0 24px;
+  border-radius: 22px;
+  font-size: 15px;
+}
+.gb-frame--sm .gb__icon {
+  font-size: 18px;
+}
+.gb-frame--sm .gb:focus-visible {
+  outline-offset: 6px;
+}
+
 /* 하단 상시 글로우 */
 .gb::before {
   content: "";
@@ -185,7 +210,8 @@
   outline-offset: 8px;
 }
 
-.dark .gb:focus-visible {
+/* 밝게 고정된 면에서는 어두운 기본 외곽선을 유지한다. */
+.dark .gb:not(:is(.paper *, .landing *)):focus-visible {
   outline-color: #eff6ff;
 }
 

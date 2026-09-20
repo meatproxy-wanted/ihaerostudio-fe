@@ -15,7 +15,11 @@ import {
   SaveIndicator,
   useSaveFailureToast,
 } from "@/components/app/save-indicator";
-import { SourceFoldButton, useSourceFold } from "@/components/app/source-fold";
+import {
+  SourceFoldButton,
+  SourceFoldIcon,
+  useSourceFold,
+} from "@/components/app/source-fold";
 import {
   ShellActions,
   useCurrentProject,
@@ -240,13 +244,20 @@ function EditorWorkspace({
                   minSize="18"
                   {...sourceFold.panelProps}
                 >
-                  <EditorSource source={source} />
+                  <EditorSource
+                    source={source}
+                    headerAction={<SourceFoldIcon fold={sourceFold} />}
+                  />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel id="canvas" defaultSize="48" minSize="30">
                   <EditorCanvas
                     context={context}
-                    leading={<SourceFoldButton fold={sourceFold} />}
+                    trailing={
+                      sourceFold.collapsed ? (
+                        <SourceFoldButton fold={sourceFold} size="sm" />
+                      ) : null
+                    }
                   />
                 </ResizablePanel>
                 <ResizableHandle withHandle />

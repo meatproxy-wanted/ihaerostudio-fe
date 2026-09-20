@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { ANALYSIS_STAGES } from "@/components/app/generation-stage";
 import { LongJobLoader, useLongJob } from "@/components/app/long-job";
 import {
   AlertDialog,
@@ -24,7 +25,6 @@ import type { CreateProjectInput } from "@/lib/api/types";
 import { DEFAULT_SETTINGS, type Settings } from "@/lib/domain/common";
 import { routes } from "@/lib/routes";
 
-import { ANALYSIS_STEPS } from "./analysis-steps";
 import { SettingsPicker } from "./settings-picker";
 import {
   isSampleSource,
@@ -163,7 +163,17 @@ export function NewProjectForm() {
       </main>
 
       <div className="sticky bottom-0 z-10 border-t border-hairline bg-background/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        {/*
+          Two behaviours, because the bar answers to two things. Up to xl it
+          keeps the form's measure, so the state and the button line up with
+          the edges of the cards above them. Past xl the form is a column
+          adrift in a wide window, and the pair belongs at the ends of the
+          bar instead — that is where the eye goes on a full screen.
+
+          xl, not lg: with the panel open, a 1024px window leaves about 784px
+          of column, and the bar would have jumped inside the card line.
+        */}
+        <div className="mx-auto flex max-w-3xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 xl:max-w-none xl:px-14">
           {analysis.error ? (
             <p role="alert" className="text-2sm font-medium text-destructive">
               {errorMessage(analysis.error)}
@@ -173,8 +183,15 @@ export function NewProjectForm() {
               {problem ?? "준비됐어요. 분석에는 1분 정도 걸릴 수 있어요."}
             </p>
           )}
+          {/*
+            Disabled until the source is good enough to send. The line to
+            the left of it is already saying what is missing, so the button
+            does not have to be pressable to explain itself.
+          */}
           <GenerateButton
             hug
+            size="sm"
+            disabled={problem !== null}
             loading={analysis.phase === "running"}
             onClick={start}
           >
@@ -205,12 +222,7 @@ export function NewProjectForm() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <LongJobLoader
-        job={analysis}
-        title="판결문을 분석하고 있어요"
-        steps={ANALYSIS_STEPS}
-        stepMs={6_000}
-      />
+      <LongJobLoader job={analysis} stages={ANALYSIS_STAGES} stageMs={14_000} />
     </>
   );
 }

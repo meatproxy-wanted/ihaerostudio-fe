@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  MultiStepLoader,
-  useTimedStep,
-  type LoaderStep,
-} from "@/components/app/multi-step-loader";
+import GenerationLoading, {
+  type GenerationStage,
+} from "@/components/ui/GenerationLoading";
+import { Button } from "@/components/ui/button";
 import { isAbortError } from "@/lib/api/errors";
 
 type Phase = "idle" | "running" | "done";
@@ -62,57 +61,86 @@ export function useLongJob<Input, Result>(options: {
   return { phase, runId, error, start, cancel };
 }
 
+/**
+ * The generation screen, over everything, for as long as the job runs.
+ *
+ * The stages are walked on a timer because these two calls are a single
+ * await with no progress channel — see `generation-stage.ts`. No percentage
+ * is passed: the screen reads the stage and fills its own bar to that
+ * stage's mark. It always lists the whole pipeline, so a call covering only
+ * the first two stages leaves the later ones pending and the bar short of
+ * full. That is the truth — the material is not finished until the
+ * pictures are.
+ */
 export function LongJobLoader({
   job,
-  title,
-  steps,
-  stepMs,
+  stages,
+  stageMs = 6_000,
+  documentLabel,
 }: {
   job: { phase: Phase; runId: number; cancel: () => void };
-  title: string;
-  steps: LoaderStep[];
-  /** How long each step stays before the next; the last waits for the job. */
-  stepMs?: number;
+  stages: GenerationStage[];
+  /** How long each stage holds before the next; the last waits for the job. */
+  stageMs?: number;
+  documentLabel?: string;
 }) {
-  if (job.phase === "idle") {
-    return (
-      <MultiStepLoader open={false} title={title} steps={steps} value={0} />
-    );
-  }
+  if (job.phase === "idle") return null;
   return (
-    <TimedLoader
+    <GenerationOverlay
       key={job.runId}
-      title={title}
-      steps={steps}
-      stepMs={stepMs}
+      stages={stages}
+      stageMs={stageMs}
       completed={job.phase === "done"}
+      documentLabel={documentLabel}
       onCancel={job.cancel}
     />
   );
 }
 
-function TimedLoader({
-  title,
-  steps,
-  stepMs,
+function GenerationOverlay({
+  stages,
+  stageMs,
   completed,
+  documentLabel,
   onCancel,
 }: {
-  title: string;
-  steps: LoaderStep[];
-  stepMs?: number;
+  stages: GenerationStage[];
+  stageMs: number;
   completed: boolean;
+  documentLabel?: string;
   onCancel: () => void;
 }) {
-  const step = useTimedStep(steps.length, stepMs);
+  const index = useTimedStep(stages.length, stageMs);
+  const stage = completed ? "done" : (stages[index] ?? stages[0]);
+
   return (
-    <MultiStepLoader
-      open
-      title={title}
-      steps={steps}
-      value={step}
-      completed={completed}
-      onCancel={onCancel}
-    />
+    <div className="fixed inset-0 z-50">
+      <GenerationLoading
+        stage={stage}
+        documentLabel={documentLabel}
+        className="h-full"
+      />
+      <Button
+        variant="secondary"
+        onClick={onCancel}
+        className="absolute top-4 right-4"
+      >
+        그만두기
+      </Button>
+    </div>
   );
+}
+
+/** Advances one step every `intervalMs`, stopping on the last. */
+function useTimedStep(stepCount: number, intervalMs: number) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setStep((previous) => Math.min(previous + 1, stepCount - 1));
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [stepCount, intervalMs]);
+
+  return step;
 }

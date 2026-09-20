@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -68,11 +68,12 @@ function scrollToSection(kind: string) {
 
 export function EditorCanvas({
   context,
-  leading,
+  trailing,
 }: {
   context: ReaderContext;
   /** Controls placed before the section contents bar (e.g. folding the source). */
-  leading?: ReactNode;
+  /** Sits at the right end of the bar, where step 2 keeps the same control. */
+  trailing?: ReactNode;
 }) {
   const store = useEditorStore();
   const document = useEditor((state) => state.value);
@@ -83,6 +84,43 @@ export function EditorCanvas({
   );
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const [hereSection, setHereSection] = useState<string | null>(null);
+
+  /*
+    Which section the canvas is showing, so the tab bar can mark it — the
+    same reading as the structure screen's. The bar sits over the scroll,
+    so the line is drawn below it rather than at the very top.
+  */
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const top = container.getBoundingClientRect().top + 56;
+      let current = content.sections[0]?.kind ?? null;
+      for (const section of content.sections) {
+        const element = window.document.getElementById(
+          sectionElementId(section.kind),
+        );
+        if (!element) continue;
+        if (element.getBoundingClientRect().top > top) break;
+        current = section.kind;
+      }
+      setHereSection(current);
+    };
+    const onScroll = () => {
+      frame ||= requestAnimationFrame(update);
+    };
+
+    frame = requestAnimationFrame(update);
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [content.sections]);
 
   useEffect(() => {
     if (!selection) return;
@@ -113,29 +151,61 @@ export function EditorCanvas({
         if (event.target === event.currentTarget) store.getState().select(null);
       }}
     >
-      <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-hairline bg-background/95 px-3 py-2 backdrop-blur-sm">
-        {leading}
+      {/* A bar over content that scrolls under it, so it takes the same
+          surface as the one under the new-material form. */}
+      <div className="sticky top-0 z-10 flex items-end gap-2 bg-background/90 px-3 pt-2 backdrop-blur-md">
+        {/*
+          Tabs, like the structure screen's: a fixed handful of sections
+          dividing the width between them, the current one underlined in
+          the brand colour. Pressing one scrolls the document rather than
+          swapping panels, so these stay buttons in a `nav`.
+        */}
+        {/*
+          Capped at the document's own measure and centred on the pane, so
+          the tabs sit over the column they point into: same 192 cap and
+          same 6 of side padding as the document below, so the rail starts
+          and ends on the cards' edges. With the source folded away there
+          is a lot of pane, and left-aligned tabs drifted off the text. The two spacers do the centring: an absolutely
+          placed control could overlap the tabs on a narrow pane, and the
+          flexible ones give way instead.
+        */}
+        <div className="flex-1" />
         <nav
           aria-label="구획 목차"
-          className="min-w-0 flex-1 scrollbar-none overflow-x-auto"
+          className="no-scrollbar w-192 max-w-full min-w-0 shrink px-6"
         >
-          <ol className="flex items-center gap-0.5">
-            {content.sections.map((section, index) => (
-              <li key={section.kind}>
-                <button
-                  type="button"
-                  onClick={() => scrollToSection(section.kind)}
-                  className="inline-flex h-7 items-center gap-1.5 rounded-full px-2.5 text-2sm font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-3 focus-visible:ring-ring/40"
-                >
-                  <span className="text-xs font-bold tabular-nums">
-                    {index + 1}
-                  </span>
-                  {section.title || "제목 없는 구획"}
-                </button>
-              </li>
-            ))}
+          <ol className="flex w-full items-stretch border-b-2 border-hairline">
+            {content.sections.map((section) => {
+              const here = section.kind === hereSection;
+              return (
+                <li key={section.kind} className="min-w-0 flex-auto">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHereSection(section.kind);
+                      scrollToSection(section.kind);
+                    }}
+                    aria-current={here ? "location" : undefined}
+                    className={cn(
+                      "-mb-0.5 flex h-11 w-full items-center justify-center border-b-2 px-3 text-2sm transition-colors outline-none focus-visible:ring-3 focus-visible:ring-ring/40",
+                      here
+                        ? "border-primary font-semibold text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    <span className="truncate">
+                      {section.title || "제목 없는 구획"}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ol>
         </nav>
+        {/* Off the rail but not floating: pb-3 read too high, pb-2 sat on
+            it. Past pb-3 the 32px control starts making the 44px bar
+            taller, so this is the middle of the usable range. */}
+        <div className="flex flex-1 justify-end pb-2.5">{trailing}</div>
       </div>
       <div className="mx-auto flex max-w-192 flex-col gap-10 px-6 pt-8 pb-24 text-lg">
         <p className="flex items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-2sm text-muted-foreground">

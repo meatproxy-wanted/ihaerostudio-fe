@@ -28,7 +28,7 @@ export function AppShell({
   const [collapsed, setCollapsed] = useState(true);
 
   return (
-    <div className="flex min-h-svh flex-col bg-background">
+    <div className="app-wash flex min-h-svh flex-col bg-background">
       <WorkspaceHeader
         collapsed={collapsed}
         onToggle={() => setCollapsed((value) => !value)}

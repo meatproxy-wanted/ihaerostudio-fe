@@ -5,8 +5,8 @@ import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Alert02Icon } from "@hugeicons/core-free-icons";
 
+import { DRAFT_STAGES } from "@/components/app/generation-stage";
 import { LongJobLoader } from "@/components/app/long-job";
-import { DRAFT_STEPS } from "@/components/structure/draft-steps";
 import {
   regenerateWarning,
   useGenerateDraft,
@@ -125,12 +125,7 @@ export function OutdatedDraftBanner({
         </AlertDialogContent>
       </AlertDialog>
 
-      <LongJobLoader
-        job={regenerate}
-        title="초안을 다시 만들고 있어요"
-        steps={DRAFT_STEPS}
-        stepMs={5_000}
-      />
+      <LongJobLoader job={regenerate} stages={DRAFT_STAGES} />
     </>
   );
 }
