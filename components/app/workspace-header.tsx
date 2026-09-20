@@ -33,7 +33,7 @@ export function WorkspaceHeader({
 }) {
   return (
     <header
-      data-slot="workspace-header"
+      data-slot="app-bar"
       className="sticky top-0 z-20 border-b border-hairline"
     >
       <div className="flex h-14 items-center gap-2 px-3 sm:gap-3 sm:px-4">

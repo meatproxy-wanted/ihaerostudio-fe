@@ -633,9 +633,36 @@
     inset 0 1px 0 0 var(--glass-edge);
 }
 
-/* The header is a bar, not a floating panel: thinner tint, a lit top edge,
-   and no drop shadow hanging over the content below it. */
-[data-slot="workspace-header"] {
+/*
+ * A row that scrolls sideways without saying so. For bars of tabs or chips
+ * where the overflow is discovered by dragging, and a scrollbar under them
+ * would be a second horizontal line across the header.
+ *
+ * It was already being asked for in the showcase header and nothing had
+ * ever defined it.
+ */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+ * A dialog that frames the material's own colours opts out of the tint:
+ * `.paper` previews behind a translucent sheet read as a smudge, and the
+ * point of those previews is the exact surface the reader will get.
+ */
+[data-slot="dialog-content"][data-surface="opaque"],
+[data-slot="alert-dialog-content"][data-surface="opaque"] {
+  background-color: var(--popover);
+  backdrop-filter: none;
+}
+
+/* The top bar — the workspace's and a project's alike — is a bar, not a
+   floating panel: thinner tint, a lit top edge, and no drop shadow hanging
+   over the content below it. */
+[data-slot="app-bar"] {
   background-color: var(--glass-tint-bar);
   backdrop-filter: blur(var(--glass-blur)) saturate(180%);
   box-shadow: inset 0 1px 0 0 var(--glass-edge);
@@ -689,7 +716,7 @@
   [data-slot="sheet-content"],
   [data-slot="tooltip-content"],
   [data-slot="toast"],
-  [data-slot="workspace-header"] {
+  [data-slot="app-bar"] {
     backdrop-filter: none;
     background-color: var(--popover);
   }

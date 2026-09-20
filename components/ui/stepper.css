@@ -1,0 +1,199 @@
+/* 진행 단계 바
+   대기 = 회색 테두리 원 + 번호
+   완료 = 파란 필 원 + 흰 체크
+   현재 = 파란 필 원 + 흰 번호, 흰 알약 위에 얹힘
+   연결선은 상태와 무관하게 그레이 */
+
+.step-bar {
+  display: flex;
+  align-items: center;
+  min-width: min-content;
+}
+
+.step-bar__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 6px 14px 6px 7px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.36s cubic-bezier(0.3, 0.8, 0.4, 1);
+}
+
+.step-bar__num {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9aa8bd;
+  background: transparent;
+  border: 1.5px solid rgba(140, 160, 190, 0.26);
+  transition: all 0.36s cubic-bezier(0.3, 0.8, 0.4, 1);
+}
+.step-bar__num svg {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.28s ease,
+    transform 0.3s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.step-bar__num i {
+  font-style: normal;
+  transition: opacity 0.22s ease;
+}
+
+.step-bar__label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #8a99b0;
+  white-space: nowrap;
+  transition: color 0.36s ease;
+}
+
+.step-bar__line {
+  flex: 1 1 auto;
+  min-width: 16px;
+  height: 1.5px;
+  margin: 0 6px;
+  border-radius: 2px;
+  background: rgba(120, 145, 180, 0.28);
+}
+
+/* 완료 */
+.step-bar__item--done .step-bar__num {
+  background: #0072ff;
+  border-color: transparent;
+}
+.step-bar__item--done .step-bar__num i {
+  opacity: 0;
+}
+.step-bar__item--done .step-bar__num svg {
+  opacity: 1;
+  transform: scale(1);
+}
+.step-bar__item--done .step-bar__label {
+  color: #3e5573;
+}
+
+/* 현재 */
+.step-bar__item--active {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 3px 12px rgba(20, 60, 130, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+.step-bar__item--active .step-bar__num {
+  color: #fff;
+  background: #0072ff;
+  border-color: transparent;
+}
+.step-bar__item--active .step-bar__label {
+  color: #12233a;
+  font-weight: 700;
+}
+
+/* 돌아갈 수 있는 단계 — 현재 단계의 알약을 옅게 미리 보여 준다 */
+.step-bar__item--clickable {
+  cursor: pointer;
+}
+.step-bar__item--clickable:hover {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+.step-bar__item--clickable:hover .step-bar__label {
+  color: #12233a;
+}
+.step-bar__item--clickable:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 25%, transparent);
+}
+
+/* 아직 열 수 없음 */
+.step-bar__item--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 끝냈지만 그 뒤 앞 단계가 바뀜 — 번호 자리에 !를 띄우고 완료의 파란 원
+   대신 경고색을 쓴다. 체크는 숨긴다. */
+.step-bar__item--warn .step-bar__num {
+  color: #fff;
+  background: var(--warning);
+  border-color: transparent;
+}
+.step-bar__item--warn .step-bar__num i {
+  opacity: 1;
+}
+.step-bar__item--warn .step-bar__num svg {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+/* 세로형 — 좁은 화면 */
+.step-bar--vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.step-bar--vertical .step-bar__item {
+  width: 100%;
+}
+.step-bar--vertical .step-bar__line {
+  flex: none;
+  width: 1.5px;
+  height: 16px;
+  margin: 0 0 0 19px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-bar__item,
+  .step-bar__num,
+  .step-bar__label,
+  .step-bar__num svg {
+    transition: none;
+  }
+}
+
+/* 다크 모드 — 앱 테마를 따라간다. 밝은 값이 하드코딩돼 있어 그대로 두면
+   어두운 바 위에 흰 알약과 흐린 회색 글씨만 남는다. */
+.dark .step-bar__num {
+  color: #8496b1;
+  border-color: rgba(190, 210, 240, 0.28);
+}
+.dark .step-bar__label {
+  color: #8496b1;
+}
+.dark .step-bar__line {
+  background: rgba(190, 210, 240, 0.22);
+}
+.dark .step-bar__item--done .step-bar__label {
+  color: #b7c7de;
+}
+.dark .step-bar__item--active {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.dark .step-bar__item--active .step-bar__label {
+  color: #eaf1fb;
+}
+
+.dark .step-bar__item--clickable:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.dark .step-bar__item--clickable:hover .step-bar__label {
+  color: #eaf1fb;
+}

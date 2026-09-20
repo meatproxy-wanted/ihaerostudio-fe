@@ -178,23 +178,30 @@ export function AppSidebar({
           className,
         )}
       >
+        {/*
+          The triggers are `flex`, not `contents`: an element with
+          `display: contents` generates no box, so the tooltip has nothing
+          to measure and opens away from the thing it names.
+        */}
         <Tooltip>
-          <TooltipTrigger render={<span className="contents" />}>
+          <TooltipTrigger render={<span className="flex" />}>
             {newMaterial}
           </TooltipTrigger>
           <TooltipContent side="right">새로 생성하기</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger render={<span className="group/row contents" />}>
-            <span className="rounded-full transition-colors hover:bg-white/45 dark:hover:bg-white/8">
-              {materialsLink}
-            </span>
+          <TooltipTrigger
+            render={
+              <span className="group/row flex rounded-full transition-colors hover:bg-white/45 dark:hover:bg-white/8" />
+            }
+          >
+            {materialsLink}
           </TooltipTrigger>
           <TooltipContent side="right">내 작업함</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger render={<span className="contents" />}>
-            <span className="mt-auto">{sampleLink}</span>
+          <TooltipTrigger render={<span className="mt-auto flex" />}>
+            {sampleLink}
           </TooltipTrigger>
           <TooltipContent side="right">샘플로 체험하기</TooltipContent>
         </Tooltip>
