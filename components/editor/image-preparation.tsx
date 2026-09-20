@@ -4,8 +4,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { ErrorState } from "@/components/app/error-state";
-import EmptyIllustration from "@/components/ui/EmptyIllustration";
-import { Progress } from "@/components/ui/progress";
+import { fromImageProgress } from "@/components/app/generation-stage";
+import GenerationLoading from "@/components/ui/GenerationLoading";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api/client";
 import { cacheProject } from "@/lib/api/hooks";
@@ -97,34 +97,28 @@ export function ImagePreparation({
     );
   if (result && result.generation.status !== "running")
     return children(result.document);
+  /*
+    The only pass with a real count: the server reports completed/total as
+    it draws, so this screen shows the true number rather than a timer's
+    guess. The phase tells us which half it is in — reference portraits
+    first, then the scenes that follow them.
+  */
   const progress = result?.generation;
+  const { stage, count } = fromImageProgress(progress);
   return (
-    <section
-      aria-live="polite"
-      className="mx-auto flex max-w-lg flex-col gap-4 px-6 py-16"
-    >
-      <EmptyIllustration variant="generating" width={170} className="mx-auto" />
-      <h2 className="text-xl font-bold">편집할 글과 그림을 준비하고 있어요</h2>
-      <p className="text-sm text-muted-foreground">
-        {progress?.phase === "scenes"
-          ? "고정된 등장인물을 참고해 장면 그림을 만들고 있어요."
-          : "먼저 등장인물의 기준 그림을 만들고 있어요."}{" "}
-        그림은 자동으로 적용되므로 하나씩 선택할 필요가 없어요.
-      </p>
-      <Progress
-        value={
-          progress?.total ? (progress.completed / progress.total) * 100 : 0
-        }
-      />
-      <p className="text-sm tabular-nums">
-        {progress
-          ? `${progress.completed} / ${progress.total}개 완료`
-          : "생성을 시작하고 있어요."}
-      </p>
-      <p className="text-xs text-muted-foreground">
-        페이지를 닫으면 자동 진행은 멈춰요. 다시 들어오면 완료된 그림은 유지하고
-        이어서 진행해요.
-      </p>
-    </section>
+    <GenerationLoading
+      stage={stage}
+      count={count}
+      progress={
+        progress?.total
+          ? (progress.completed / progress.total) * 100
+          : undefined
+      }
+      hint={
+        progress?.phase === "scenes"
+          ? "고정된 등장인물을 참고해 장면 그림을 만들고 있어요. 나가면 멈추지만, 완성된 그림은 남습니다."
+          : "먼저 등장인물의 기준 그림을 만들고 있어요. 나가면 멈추지만, 완성된 그림은 남습니다."
+      }
+    />
   );
 }

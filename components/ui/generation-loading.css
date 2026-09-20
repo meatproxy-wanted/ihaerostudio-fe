@@ -1,0 +1,392 @@
+/* 생성 로딩 화면 — "생성하기"를 누른 직후
+   단계를 드러내고 실제 문장·그림 개수를 보여준다. */
+
+.gl {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+  background: #fbfdff;
+}
+
+/* 배경 */
+.gl__dots {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.45;
+  background-image: radial-gradient(
+    rgba(60, 110, 190, 0.2) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+.gl__corner {
+  position: absolute;
+  z-index: 0;
+  filter: blur(70px);
+  border-radius: 50%;
+}
+.gl__corner--a {
+  width: 420px;
+  height: 300px;
+  left: -150px;
+  top: -100px;
+  background: rgba(0, 198, 255, 0.35);
+}
+.gl__corner--b {
+  width: 460px;
+  height: 320px;
+  right: -160px;
+  bottom: -130px;
+  background: rgba(0, 114, 255, 0.3);
+}
+
+.gl__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 470px;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+/* 사건번호 태그 — 글라스모피즘 */
+.gl__doc {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 26px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #2b4667;
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    0 4px 16px rgba(20, 60, 130, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.gl__art {
+  width: 180px;
+  margin: 0 auto;
+}
+.gl__title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 22px 0 4px;
+}
+.gl__desc {
+  font-size: 13.5px;
+  color: #61728c;
+  margin: 0 0 26px;
+}
+
+/* 진행 바 */
+.gl__track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(10, 26, 43, 0.08);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.gl__fill {
+  position: relative;
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: linear-gradient(100deg, #00c6ff, #0072ff);
+  transition: width 0.6s cubic-bezier(0.3, 0.8, 0.4, 1);
+}
+.gl__fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.7) 50%,
+    transparent 80%
+  );
+  background-size: 220% 100%;
+  animation: gl-flow 2.2s linear infinite;
+}
+@keyframes gl-flow {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -80% 0;
+  }
+}
+.gl__pct {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #61728c;
+  margin-bottom: 28px;
+}
+
+/* 단계 목록 */
+.gl__steps {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 24px;
+}
+.gl__step {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #61728c;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
+}
+.gl__dot {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid rgba(10, 26, 43, 0.16);
+  display: grid;
+  place-items: center;
+  transition: all 0.3s ease;
+}
+.gl__dot svg {
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.gl__count {
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gl__step--active {
+  background: rgba(0, 114, 255, 0.06);
+  color: #0b1420;
+  font-weight: 600;
+}
+.gl__step--active .gl__dot {
+  border-color: #0072ff;
+  border-right-color: transparent;
+  animation: gl-spin 0.9s linear infinite;
+}
+.gl__step--active .gl__count {
+  opacity: 1;
+  color: #0072ff;
+}
+
+.gl__step--done {
+  color: #0b1420;
+}
+.gl__step--done .gl__dot {
+  background: #0072ff;
+  border-color: #0072ff;
+  animation: none;
+}
+.gl__step--done .gl__dot svg {
+  opacity: 1;
+}
+
+@keyframes gl-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.gl__hint {
+  font-size: 12.5px;
+  color: #61728c;
+  margin: 0;
+}
+
+/* 일러스트 모션 */
+.gl__float {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.gl__float--a {
+  animation: gl-float-a 6.5s ease-in-out infinite;
+}
+.gl__float--b {
+  animation: gl-float-b 8s ease-in-out infinite;
+  animation-delay: -2.4s;
+}
+@keyframes gl-float-a {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+@keyframes gl-float-b {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+.gl__spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gl-spark 2.6s ease-in-out infinite;
+}
+.gl__spark--2 {
+  animation-delay: -1.3s;
+}
+@keyframes gl-spark {
+  0%,
+  100% {
+    transform: scale(0.82);
+    opacity: 0.5;
+  }
+  45% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+}
+.gl__shimmer {
+  animation: gl-shimmer 2.2s ease-in-out infinite;
+}
+@keyframes gl-shimmer {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* 축약형 — 목록 안에서 */
+.gl-inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(10, 26, 43, 0.09);
+  border-radius: 14px;
+  background: #fff;
+}
+.gl-inline__ring {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 114, 255, 0.18);
+  border-top-color: #0072ff;
+  animation: gl-spin 0.9s linear infinite;
+}
+.gl-inline__text {
+  flex: 1;
+  min-width: 0;
+}
+.gl-inline__text b {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.gl-inline__text span {
+  font-size: 12.5px;
+  color: #61728c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gl__fill::after,
+  .gl__float--a,
+  .gl__float--b,
+  .gl__spark,
+  .gl__shimmer,
+  .gl-inline__ring,
+  .gl__step--active .gl__dot {
+    animation: none;
+  }
+}
+
+/* 다크 모드 — 앱 테마를 따라간다. 밝게 고정된 면(.paper, .landing)에는
+   이 화면이 뜨지 않으므로 예외 처리가 필요 없다. */
+.dark .gl {
+  background: #10151f;
+}
+.dark .gl__corner--a {
+  background: rgba(0, 198, 255, 0.3);
+  width: 520px;
+  height: 340px;
+}
+.dark .gl__corner--b {
+  background: rgba(0, 114, 255, 0.28);
+}
+
+.dark .gl__dots {
+  background-image: radial-gradient(
+    rgba(140, 180, 240, 0.16) 1px,
+    transparent 1px
+  );
+  opacity: 0.5;
+}
+/*
+   밝은 모드의 칩은 흰 반투명 + 위쪽 밝은 선 + 그림자로 유리처럼 보인다.
+   색만 어둡게 바꾸면 그 셋이 전부 사라져 납작한 회색 알약이 된다.
+   그래서 같은 세 가지를 어두운 배경에 맞는 값으로 다시 만든다:
+   위에서 빛이 드는 기울기, 윗면 하이라이트와 아랫면 그림자 선, 그리고
+   떠 있게 하는 드롭 섀도. */
+.dark .gl__doc {
+  color: #dce7f7;
+  background: linear-gradient(
+    160deg,
+    rgba(124, 164, 230, 0.2) 0%,
+    rgba(38, 54, 90, 0.34) 62%
+  );
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(8, 14, 26, 0.45);
+}
+.dark .gl__desc,
+.dark .gl__pct,
+.dark .gl__hint,
+.dark .gl__step {
+  color: #93a4bd;
+}
+.dark .gl__track {
+  background: rgba(255, 255, 255, 0.1);
+}
+.dark .gl__dot {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.dark .gl__step--active {
+  background: rgba(0, 114, 255, 0.14);
+}
+.dark .gl__step--active,
+.dark .gl__step--done {
+  color: #eaf1fb;
+}
+.dark .gl-inline {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.dark .gl-inline__text span {
+  color: #93a4bd;
+}

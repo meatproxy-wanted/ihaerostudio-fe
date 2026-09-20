@@ -10,6 +10,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
 import { ErrorState } from "@/components/app/error-state";
+import { DRAFT_STAGES } from "@/components/app/generation-stage";
 import { LongJobLoader } from "@/components/app/long-job";
 import { PanesSkeleton } from "@/components/app/panes-skeleton";
 import {
@@ -53,7 +54,6 @@ import {
 import { routes } from "@/lib/routes";
 import { useAutosave } from "@/lib/stores/autosave";
 
-import { DRAFT_STEPS } from "./draft-steps";
 import { DraftFooter } from "./draft-footer";
 import { itemElementId } from "./item-shell";
 import { SettingsDialog } from "./settings-dialog";
@@ -229,9 +229,8 @@ function StructureEditor({
         <DraftError error={draft.error} onRetry={() => void draft.start()} />
         <LongJobLoader
           job={draft}
-          title="초안을 만들고 있어요"
-          steps={DRAFT_STEPS}
-          stepMs={5_000}
+          stages={DRAFT_STAGES}
+          documentLabel={project.caseNumber ?? project.title}
         />
       </SourceTextProvider>
     </StructureStoreContext>

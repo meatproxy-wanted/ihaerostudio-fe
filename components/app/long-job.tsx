@@ -2,11 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  MultiStepLoader,
-  useTimedStep,
-  type LoaderStep,
-} from "@/components/app/multi-step-loader";
+import GenerationLoading, {
+  type GenerationStage,
+} from "@/components/ui/GenerationLoading";
+import { Button } from "@/components/ui/button";
 import { isAbortError } from "@/lib/api/errors";
 
 type Phase = "idle" | "running" | "done";
@@ -62,57 +61,119 @@ export function useLongJob<Input, Result>(options: {
   return { phase, runId, error, start, cancel };
 }
 
+/**
+ * The generation screen, over everything, for as long as the job runs.
+ *
+ * The stages are walked on a timer because these two calls are a single
+ * await with no progress channel — see `generation-stage.ts`. The screen
+ * always lists the whole pipeline, so a call that only covers the first two
+ * stages leaves the later ones pending and the bar short of full. That is
+ * the truth: the material is not finished until the pictures are.
+ */
 export function LongJobLoader({
   job,
-  title,
-  steps,
-  stepMs,
+  stages,
+  stageMs = 6_000,
+  documentLabel,
 }: {
   job: { phase: Phase; runId: number; cancel: () => void };
-  title: string;
-  steps: LoaderStep[];
-  /** How long each step stays before the next; the last waits for the job. */
-  stepMs?: number;
+  stages: GenerationStage[];
+  /** How long each stage holds before the next; the last waits for the job. */
+  stageMs?: number;
+  documentLabel?: string;
 }) {
-  if (job.phase === "idle") {
-    return (
-      <MultiStepLoader open={false} title={title} steps={steps} value={0} />
-    );
-  }
+  if (job.phase === "idle") return null;
   return (
-    <TimedLoader
+    <GenerationOverlay
       key={job.runId}
-      title={title}
-      steps={steps}
-      stepMs={stepMs}
+      stages={stages}
+      stageMs={stageMs}
       completed={job.phase === "done"}
+      documentLabel={documentLabel}
       onCancel={job.cancel}
     />
   );
 }
 
-function TimedLoader({
-  title,
-  steps,
-  stepMs,
+function GenerationOverlay({
+  stages,
+  stageMs,
   completed,
+  documentLabel,
   onCancel,
 }: {
-  title: string;
-  steps: LoaderStep[];
-  stepMs?: number;
+  stages: GenerationStage[];
+  stageMs: number;
   completed: boolean;
+  documentLabel?: string;
   onCancel: () => void;
 }) {
-  const step = useTimedStep(steps.length, stepMs);
+  const index = useTimedStep(stages.length, stageMs);
+  const stage = completed ? "done" : (stages[index] ?? stages[0]);
+  const progress = useCreepingProgress(stage);
+
   return (
-    <MultiStepLoader
-      open
-      title={title}
-      steps={steps}
-      value={step}
-      completed={completed}
-      onCancel={onCancel}
-    />
+    <div className="fixed inset-0 z-50">
+      <GenerationLoading
+        stage={stage}
+        progress={progress}
+        documentLabel={documentLabel}
+        className="h-full"
+      />
+      <Button
+        variant="secondary"
+        onClick={onCancel}
+        className="absolute top-4 right-4"
+      >
+        그만두기
+      </Button>
+    </div>
   );
+}
+
+/** Advances one step every `intervalMs`, stopping on the last. */
+function useTimedStep(stepCount: number, intervalMs: number) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setStep((previous) => Math.min(previous + 1, stepCount - 1));
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [stepCount, intervalMs]);
+
+  return step;
+}
+
+/** Per-stage ceilings the screen itself falls back to, mirrored here so the
+ *  bar can ease toward one instead of jumping to it and then sitting still. */
+const CEILING: Record<GenerationStage, number> = {
+  reading: 12,
+  structure: 32,
+  rewrite: 56,
+  illustrate: 88,
+  done: 100,
+};
+
+/**
+ * A bar that never quite arrives. Without a real percentage the honest
+ * choice is a number that keeps moving toward the stage's ceiling and slows
+ * as it nears it — a frozen bar reads as a hung job, and a full one would
+ * be a lie.
+ */
+function useCreepingProgress(stage: GenerationStage) {
+  const [crept, setCrept] = useState(0);
+  const ceiling = CEILING[stage];
+  const running = stage !== "done";
+
+  useEffect(() => {
+    if (!running) return;
+    const timer = setInterval(() => {
+      setCrept((previous) => previous + (ceiling - previous) * 0.1);
+    }, 400);
+    return () => clearInterval(timer);
+  }, [running, ceiling]);
+
+  /* Full is a fact, not something to creep toward. */
+  return running ? crept : 100;
 }

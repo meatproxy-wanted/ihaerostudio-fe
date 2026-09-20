@@ -8,6 +8,7 @@ import { FeedbackShowcase } from "@/components/showcase/service/feedback-showcas
 import { FormShowcase } from "@/components/showcase/service/form-showcase";
 import { GenerateShowcase } from "@/components/showcase/service/generate-showcase";
 import { LayoutShowcase } from "@/components/showcase/service/layout-showcase";
+import { LoadingShowcase } from "@/components/showcase/service/loading-showcase";
 import { OverlayShowcase } from "@/components/showcase/service/overlay-showcase";
 import { StatusShowcase } from "@/components/showcase/service/status-showcase";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -19,6 +20,7 @@ const sections = [
   { id: "brand", label: "Brand" },
   { id: "action", label: "Button" },
   { id: "generate-button", label: "Generate" },
+  { id: "loading", label: "생성 화면" },
   { id: "form", label: "입력" },
   { id: "status", label: "상태" },
   { id: "overlay", label: "오버레이" },
@@ -78,6 +80,7 @@ export default function ServiceShowcasePage() {
         <BrandShowcase />
         <ActionShowcase />
         <GenerateShowcase />
+        <LoadingShowcase />
         <FormShowcase />
         <StatusShowcase />
         <OverlayShowcase />
@@ -89,7 +92,7 @@ export default function ServiceShowcasePage() {
         <span className="flex items-center gap-2">
           <Logo size={12} /> · 사용 중인 컴포넌트
         </span>
-        <span>components/ui 28개</span>
+        <span>components/ui 29개</span>
       </footer>
     </div>
   );
