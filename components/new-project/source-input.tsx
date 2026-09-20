@@ -78,21 +78,14 @@ export function SourceInput({
       onValueChange={(tab) => onChange({ ...value, tab: tab as SourceTab })}
     >
       {/*
-        No sample offer here: the panel carries one at all times, and this
-        screen is inside it. What the screen does owe the reader is which of
-        the two they are looking at, so a filled-in sample says so.
+        Full width, so the toggle and the box beneath it are one column
+        rather than a tab strip floating over a wider card. The two tabs
+        already flex, so they split it evenly.
       */}
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <TabsList size="lg" className="w-full sm:w-fit">
-          <TabsTrigger value="pdf">PDF 올리기</TabsTrigger>
-          <TabsTrigger value="text">텍스트 붙여넣기</TabsTrigger>
-        </TabsList>
-        {isSampleSource(value) && (
-          <p className="text-2sm text-muted-foreground">
-            샘플 판결문이 들어가 있어요
-          </p>
-        )}
-      </div>
+      <TabsList size="lg" className="w-full">
+        <TabsTrigger value="pdf">PDF 올리기</TabsTrigger>
+        <TabsTrigger value="text">텍스트 붙여넣기</TabsTrigger>
+      </TabsList>
       <TabsContent value="pdf">
         <PdfDropzone
           file={value.file}
@@ -229,11 +222,19 @@ function TextSource({
         placeholder="판결문 전체를 붙여 넣어 주세요. 주문, 청구취지, 이유가 모두 들어가면 좋아요."
         className="field-sizing-fixed h-64 resize-y text-md leading-relaxed"
       />
-      <p className="self-end text-2sm text-muted-foreground tabular-nums">
-        {count.toLocaleString("ko-KR")}자
-        {count < SOURCE_LIMITS.textMinLength &&
-          ` · 최소 ${SOURCE_LIMITS.textMinLength}자`}
-      </p>
+      {/*
+        The panel offers the sample; this line answers the question that
+        raises once the box is full — is this mine or theirs? It sits with
+        the character count because both describe what is in the box.
+      */}
+      <div className="flex items-center gap-3 text-2sm text-muted-foreground">
+        {text === SAMPLE_JUDGMENT_TEXT && <p>샘플 판결문이 들어가 있어요</p>}
+        <p className="ml-auto tabular-nums">
+          {count.toLocaleString("ko-KR")}자
+          {count < SOURCE_LIMITS.textMinLength &&
+            ` · 최소 ${SOURCE_LIMITS.textMinLength}자`}
+        </p>
+      </div>
     </div>
   );
 }

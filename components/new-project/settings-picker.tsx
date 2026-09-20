@@ -1,6 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Image01Icon } from "@hugeicons/core-free-icons";
 
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type {
@@ -69,17 +71,44 @@ const ILLUSTRATION_CHOICES: Choice<Illustrations>[] = [
   },
 ];
 
+/**
+ * A line of the card being described. The fill fades along its length so a
+ * row of them reads as text trailing off rather than as three grey bars.
+ */
+function PreviewLine({ className }: { className: string }) {
+  return (
+    <span
+      className={cn(
+        "h-1.5 rounded-full bg-gradient-to-r from-foreground/30 to-foreground/10",
+        className,
+      )}
+    />
+  );
+}
+
+/**
+ * What one card of the finished material looks like. Both variants stand
+ * 40px tall — the height the thumbnail sets — and carry the same three
+ * lines, so the only difference between the two choices is the thing the
+ * choice is about: whether a picture sits beside the text.
+ */
 function CardPreview({ withPicture }: { withPicture: boolean }) {
   return (
-    <span className="flex items-center gap-2.5" aria-hidden="true">
+    <span className="flex min-h-10 items-center gap-2.5" aria-hidden="true">
       {withPicture && (
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-info/10">
-          <span className="size-4 rounded-full border-2 border-foreground/70" />
+        /*
+          A picture frame, not a shape: at 40px a bare circle read as a
+          bullet or an avatar, and this square has to say "그림" on its own.
+          The glyph is the one everything else uses for an image.
+        */
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-info/25 to-info/5 text-info/55">
+          <HugeiconsIcon icon={Image01Icon} strokeWidth={1.5} size={19} />
         </span>
       )}
       <span className="flex flex-1 flex-col gap-1.5">
-        <span className="h-1.5 w-11/12 rounded-full bg-foreground/25" />
-        <span className="h-1.5 w-8/12 rounded-full bg-foreground/25" />
+        <PreviewLine className="w-11/12" />
+        <PreviewLine className="w-full" />
+        <PreviewLine className="w-7/12" />
       </span>
     </span>
   );
@@ -117,7 +146,12 @@ function ChoiceGroup<T extends string>({
         {choices.map((choice) => (
           <label
             key={choice.value}
-            className="flex cursor-pointer flex-col gap-3 rounded-xl bg-card p-3.5 ring-1 ring-hairline transition-shadow hover:ring-border has-focus-visible:ring-3 has-focus-visible:ring-ring/40 has-data-checked:ring-2 has-data-checked:ring-primary"
+            /*
+              The hover ring is for cards the producer has not picked. On the
+              chosen one it fought the primary ring and won, so the selection
+              changed colour under the pointer as if it were coming undone.
+            */
+            className="flex cursor-pointer flex-col gap-3 rounded-xl bg-card p-3.5 ring-1 ring-hairline transition-shadow not-has-data-checked:hover:ring-border has-focus-visible:ring-3 has-focus-visible:ring-ring/40 has-data-checked:ring-2 has-data-checked:ring-primary"
           >
             <span className="flex items-start gap-2.5">
               <RadioGroupItem value={choice.value} className="mt-0.5" />
