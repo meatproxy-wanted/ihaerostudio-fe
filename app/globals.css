@@ -4,10 +4,14 @@
 @import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
 
 /*
- * The paper surface (below) stays light inside a dark app, so dark: utilities
- * must not reach into it.
+ * Two surfaces stay light inside a dark app: .paper, the finished material,
+ * and .landing, the brand page. `dark:` utilities must not reach into
+ * either. Rules written by hand as `.dark X` have to opt out the same way —
+ * see logo.css and generate-button.css, both of which paint near-white on
+ * dark and would otherwise vanish on these two.
  */
-@custom-variant dark (&:is(.dark *):not(:is(.paper, .paper *)));
+/* prettier-ignore */ /* one line: a wrapped variant name is a parse error */
+@custom-variant dark (&:is(.dark *):not(:is(.paper, .paper *, .landing, .landing *)));
 
 /*
  * Design tokens adapted from Toss Invest (tossinvest.com).
@@ -377,6 +381,7 @@
   --accent-foreground: #14181f;
   --border: rgba(3, 31, 63, 0.1);
   --hairline: rgba(2, 32, 71, 0.07);
+  --ring: oklch(0.567 0.222 259.186);
   background-color: var(--background);
   color: var(--foreground);
 
@@ -636,6 +641,45 @@
   box-shadow: inset 0 1px 0 0 var(--glass-edge);
 }
 
+/*
+ * Segmented control. The inverse of the panels above: there the surface
+ * floats over the page, here the track is a well sunk into it and the
+ * marker is the one thing that rises. The track takes a tint of the ink
+ * with a hairline lip, and the marker takes the glass card's rim and top
+ * light, scaled down to a 10px chip.
+ *
+ * Written here rather than in the component because it is a surface, and
+ * every other surface in the app is decided on this page — including the
+ * `.paper` opt-out, which a Tailwind class in the component could not do.
+ */
+[data-slot="tabs-list"][data-variant="default"]:not(.paper *) {
+  background-color: color-mix(in oklab, var(--foreground) 4%, transparent);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  box-shadow:
+    inset 0 1px 2px -1px rgba(2, 32, 71, 0.12),
+    inset 0 0 0 0.75px var(--hairline);
+}
+
+[data-slot="tabs-list"][data-variant="default"]:not(.paper *)
+  [data-slot="tabs-indicator"] {
+  background-color: rgba(255, 255, 255, 0.58);
+  backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    0 6px 14px -10px rgba(2, 32, 71, 0.3);
+}
+
+.dark
+  [data-slot="tabs-list"][data-variant="default"]:not(.paper *)
+  [data-slot="tabs-indicator"] {
+  background-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+    0 6px 14px -10px rgba(0, 0, 0, 0.5);
+}
+
 @media (prefers-reduced-transparency: reduce) {
   [class~="bg-card"]:not(.paper, .paper *),
   [data-slot="dialog-content"],
@@ -648,6 +692,15 @@
   [data-slot="workspace-header"] {
     backdrop-filter: none;
     background-color: var(--popover);
+  }
+  [data-slot="tabs-list"][data-variant="default"]:not(.paper *) {
+    backdrop-filter: none;
+    background-color: var(--muted);
+  }
+  [data-slot="tabs-list"][data-variant="default"]:not(.paper *)
+    [data-slot="tabs-indicator"] {
+    backdrop-filter: none;
+    background-color: var(--segment);
   }
   [class~="bg-background"]:not(.paper, .paper *) {
     background-image: none;

@@ -74,7 +74,8 @@
   height: auto;
 }
 
-/* 다크 모드에서 글자만 반전 */
-.dark .logo--brand {
+/* 다크 모드에서 글자만 반전 — 단, 밝게 고정된 면(.paper, .landing) 안에서는
+   그대로 먹색이다. 거기서 반전하면 흰 바탕에 흰 글자가 된다. */
+.dark .logo--brand:not(:is(.paper *, .landing *)) {
   color: #e6eef8;
 }

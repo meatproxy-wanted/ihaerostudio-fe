@@ -26,6 +26,13 @@ function Tabs({
   );
 }
 
+/*
+ * The segmented control's surface is glass, and that is decided in
+ * globals.css next to every other glass surface — including its `.paper`
+ * opt-out, which a class here could not express. The flat `bg-muted` track
+ * and `bg-segment` marker below are what `.paper` and reduced-transparency
+ * fall back to, so they are load-bearing rather than leftovers.
+ */
 const tabsListVariants = cva(
   "group/tabs-list relative inline-flex w-fit items-center justify-center text-muted-foreground group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
   {
