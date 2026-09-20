@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,7 +17,11 @@ import {
   SaveIndicator,
   useSaveFailureToast,
 } from "@/components/app/save-indicator";
-import { SourceFoldButton, useSourceFold } from "@/components/app/source-fold";
+import {
+  SourceFoldButton,
+  SourceFoldIcon,
+  useSourceFold,
+} from "@/components/app/source-fold";
 import {
   ShellActions,
   useCurrentProject,
@@ -54,7 +58,7 @@ import {
 import { routes } from "@/lib/routes";
 import { useAutosave } from "@/lib/stores/autosave";
 
-import { DraftFooter } from "./draft-footer";
+import { DraftConfirmCard, DraftFooter } from "./draft-footer";
 import { itemElementId } from "./item-shell";
 import { SettingsDialog } from "./settings-dialog";
 import { StructurePanel } from "./structure-panel";
@@ -130,7 +134,11 @@ function StructureEditor({
     id: "structure-panes",
     panelIds: ["source", "structure"],
   });
-  const sourceFold = useSourceFold();
+  /* Step 2 is reading the structure against the judgment it came from, so
+     the original is open when the screen opens. */
+  const sourceFold = useSourceFold({ openOnArrival: true });
+  /* Ticked on the card at the foot of the list, read by the bar below it. */
+  const [confirmed, setConfirmed] = useState(false);
 
   const autosave = useAutosave({
     store,
@@ -191,13 +199,23 @@ function StructureEditor({
             minSize="25"
             {...sourceFold.panelProps}
           >
-            <StructureSource source={source} store={store} />
+            <StructureSource
+              source={source}
+              store={store}
+              headerAction={<SourceFoldIcon fold={sourceFold} />}
+            />
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel id="structure" defaultSize="58" minSize="35">
             <StructurePanel
               hasDraft={hasDraft}
-              sourceToggle={<SourceFoldButton fold={sourceFold} />}
+              sourceToggle={
+                /* Only while the pane is shut: open, the control lives on
+                   the pane itself. */
+                sourceFold.collapsed ? (
+                  <SourceFoldButton fold={sourceFold} size="sm" />
+                ) : null
+              }
               settingsButton={
                 <SettingsDialog
                   project={project}
@@ -212,9 +230,16 @@ function StructureEditor({
                   }}
                 />
               }
+              confirmCard={
+                <DraftConfirmCard
+                  confirmed={confirmed}
+                  onConfirmedChange={setConfirmed}
+                />
+              }
               footer={
                 <DraftFooter
                   hasDraft={hasDraft}
+                  confirmed={confirmed}
                   touchedSentences={
                     document.data ? countTouchedSentences(document.data) : null
                   }
@@ -267,9 +292,11 @@ function DraftError({
 function StructureSource({
   source,
   store,
+  headerAction,
 }: {
   source: SourceDocument;
   store: StructureStore;
+  headerAction?: ReactNode;
 }) {
   const structure = useStore(store, (state) => state.value);
   const selected = useStore(store, (state) => state.selected);
@@ -286,6 +313,7 @@ function StructureSource({
 
   return (
     <SourceViewer
+      headerAction={headerAction}
       source={source}
       marks={marks}
       activeKeys={selected ? [selected.id] : []}

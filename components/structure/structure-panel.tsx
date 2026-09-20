@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Add01Icon,
@@ -77,7 +77,7 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section id={`structure-${id}`} className="scroll-mt-28">
+    <section id={`structure-${id}`} className="scroll-mt-4">
       <div className="mb-3 flex items-end justify-between gap-3">
         <div>
           <h3 className="text-md font-bold">{title}</h3>
@@ -115,20 +115,89 @@ export function StructurePanel({
   hasDraft,
   sourceToggle,
   settingsButton,
+  confirmCard,
   footer,
 }: {
   hasDraft: boolean;
   sourceToggle: ReactNode;
   settingsButton: ReactNode;
+  /** Sits at the end of the list, after everything there is to read. */
+  confirmCard: ReactNode;
   footer: ReactNode;
 }) {
   const structure = useStructure((state) => state.value);
   const add = useAdd();
   const flagCount = countFlags(structure);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [here, setHere] = useState(SECTIONS[0].id);
+
+  /*
+    Which section the list is showing, so the tab bar can mark it. Tabs that
+    never light up read as broken, and marking whichever one was last
+    clicked would lie the moment the producer scrolls on. The current one is
+    the last section heading to have passed the top of the pane.
+  */
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+
+      /*
+        The last section can never reach the top of the pane — there is not
+        enough below it to scroll it up there — so without this the tab you
+        just clicked hands the mark straight back to the one above it. At
+        the bottom of the scroll, the last section is where you are.
+      */
+      const atBottom =
+        container.scrollTop + container.clientHeight >=
+        container.scrollHeight - 8;
+      if (atBottom) {
+        setHere(SECTIONS[SECTIONS.length - 1].id);
+        return;
+      }
+
+      /*
+        The threshold has to clear the sections' `scroll-mt`: an anchor
+        jump parks the target that far below the top, and a line drawn any
+        higher would read the section you just asked for as "not reached
+        yet" and mark the one above it instead.
+      */
+      const top = container.getBoundingClientRect().top;
+      let current = SECTIONS[0].id;
+      for (const section of SECTIONS) {
+        const element = container.querySelector<HTMLElement>(
+          `#structure-${section.id}`,
+        );
+        if (!element) continue;
+        if (element.getBoundingClientRect().top - top > 24) break;
+        current = section.id;
+      }
+      setHere(current);
+    };
+    const onScroll = () => {
+      frame ||= requestAnimationFrame(update);
+    };
+
+    frame = requestAnimationFrame(update);
+    container.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="z-10 shrink-0 border-b border-hairline bg-background/95 px-5 pt-4 pb-3 backdrop-blur">
+      {/*
+        No surface of its own: the header sits on the pane's background and
+        the rule under it is gone, so this side reads as one continuous
+        area. The white belongs to the source pane opposite, which is a
+        document; this side is the app working on it.
+      */}
+      <div className="z-10 shrink-0 px-5 pt-4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-lg font-bold tracking-tight">사건 구조 확인</h2>
@@ -147,15 +216,40 @@ export function StructurePanel({
             {settingsButton}
           </div>
         </div>
-        <nav aria-label="사건 구조 구획" className="mt-3">
-          <ul className="flex flex-wrap gap-1">
+        {/*
+          Tabs to look at, links to use: clicking one scrolls the list to
+          that section rather than swapping panels, so it stays a `nav` of
+          anchors. Real tabs would promise that the other five are put away,
+          and this screen ends in a tick saying every one of them was read.
+        */}
+        {/* Same width as the list below it — capped and centred — so the
+            rail begins and ends where the content does. */}
+        <nav
+          aria-label="사건 구조 구획"
+          className="mx-auto mt-3 no-scrollbar w-full max-w-3xl"
+        >
+          {/* The tabs divide the width between them rather than hugging
+              their labels, and the row sits on the header's bottom edge, so
+              the underline is the seam between the bar and the list it is
+              pointing into. */}
+          {/* The grey rail is one line on the list, not a border per tab:
+              drawn per tab it breaks at every seam where the widths land on
+              a fraction. The active tab is pulled down over it. */}
+          <ul className="flex w-full border-b-2 border-hairline">
             {SECTIONS.map((section) => (
-              <li key={section.id}>
+              <li key={section.id} className="min-w-0 flex-auto">
                 <a
                   href={`#structure-${section.id}`}
-                  className="inline-flex h-7 items-center rounded-full px-2.5 text-2sm text-muted-foreground ring-1 ring-hairline hover:bg-accent hover:text-foreground"
+                  aria-current={section.id === here ? "location" : undefined}
+                  onClick={() => setHere(section.id)}
+                  className={cn(
+                    "-mb-0.5 flex h-11 items-center justify-center border-b-2 px-3 text-center text-sm transition-colors",
+                    section.id === here
+                      ? "border-primary font-semibold text-foreground"
+                      : "border-hairline text-muted-foreground hover:text-foreground",
+                  )}
                 >
-                  {section.label}
+                  <span className="truncate">{section.label}</span>
                 </a>
               </li>
             ))}
@@ -163,7 +257,7 @@ export function StructurePanel({
         </nav>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
         <div className="mx-auto flex max-w-3xl flex-col gap-9 px-5 pt-5 pb-10">
           {hasDraft && (
             <Alert role="note" variant="info">
@@ -287,8 +381,12 @@ export function StructurePanel({
               ))}
             </div>
           </Zone>
-
-          {footer}
+          {/* The tick and the action it unlocks, closer to each other than
+              to the structure above them. */}
+          <div className="flex flex-col gap-4">
+            {confirmCard}
+            {footer}
+          </div>
         </div>
       </div>
     </div>
@@ -314,7 +412,7 @@ function Zone({
     <section
       id={`structure-${id}`}
       className={cn(
-        "flex scroll-mt-28 flex-col gap-5 rounded-2xl p-4",
+        "flex scroll-mt-4 flex-col gap-5 rounded-2xl p-4",
         tone === "claims"
           ? "bg-info/5 ring-1 ring-info/20"
           : "bg-primary/6 ring-1 ring-primary/25",
