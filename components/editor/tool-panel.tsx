@@ -83,7 +83,12 @@ export function ToolPanel() {
   return (
     <aside
       aria-label="문장 도구"
-      className="flex h-full min-h-0 flex-col divide-y divide-hairline overflow-y-auto bg-background"
+      /*
+        White, on `--popover`, like the source pane opposite it: a bare
+        `bg-background` carries the page's ambient wash, and this pane is
+        a working surface, not the page behind one.
+      */
+      className="flex h-full min-h-0 flex-col divide-y divide-hairline overflow-y-auto bg-popover"
     >
       {selection?.type === "sentence" ? (
         <SentencePanel key={selection.id} id={selection.id} />
