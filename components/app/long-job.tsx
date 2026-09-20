@@ -65,10 +65,12 @@ export function useLongJob<Input, Result>(options: {
  * The generation screen, over everything, for as long as the job runs.
  *
  * The stages are walked on a timer because these two calls are a single
- * await with no progress channel — see `generation-stage.ts`. The screen
- * always lists the whole pipeline, so a call that only covers the first two
- * stages leaves the later ones pending and the bar short of full. That is
- * the truth: the material is not finished until the pictures are.
+ * await with no progress channel — see `generation-stage.ts`. No percentage
+ * is passed: the screen reads the stage and fills its own bar to that
+ * stage's mark. It always lists the whole pipeline, so a call covering only
+ * the first two stages leaves the later ones pending and the bar short of
+ * full. That is the truth — the material is not finished until the
+ * pictures are.
  */
 export function LongJobLoader({
   job,
@@ -110,13 +112,11 @@ function GenerationOverlay({
 }) {
   const index = useTimedStep(stages.length, stageMs);
   const stage = completed ? "done" : (stages[index] ?? stages[0]);
-  const progress = useCreepingProgress(stage);
 
   return (
     <div className="fixed inset-0 z-50">
       <GenerationLoading
         stage={stage}
-        progress={progress}
         documentLabel={documentLabel}
         className="h-full"
       />
@@ -143,37 +143,4 @@ function useTimedStep(stepCount: number, intervalMs: number) {
   }, [stepCount, intervalMs]);
 
   return step;
-}
-
-/** Per-stage ceilings the screen itself falls back to, mirrored here so the
- *  bar can ease toward one instead of jumping to it and then sitting still. */
-const CEILING: Record<GenerationStage, number> = {
-  reading: 12,
-  structure: 32,
-  rewrite: 56,
-  illustrate: 88,
-  done: 100,
-};
-
-/**
- * A bar that never quite arrives. Without a real percentage the honest
- * choice is a number that keeps moving toward the stage's ceiling and slows
- * as it nears it — a frozen bar reads as a hung job, and a full one would
- * be a lie.
- */
-function useCreepingProgress(stage: GenerationStage) {
-  const [crept, setCrept] = useState(0);
-  const ceiling = CEILING[stage];
-  const running = stage !== "done";
-
-  useEffect(() => {
-    if (!running) return;
-    const timer = setInterval(() => {
-      setCrept((previous) => previous + (ceiling - previous) * 0.1);
-    }, 400);
-    return () => clearInterval(timer);
-  }, [running, ceiling]);
-
-  /* Full is a fact, not something to creep toward. */
-  return running ? crept : 100;
 }
